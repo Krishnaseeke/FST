@@ -13,10 +13,11 @@ import com.testapplication.www.util.displayList
 @Composable
 fun FollowupCallsScreen(
     toOnboarding: () -> Unit,
-    toHome: ()->Unit,
-    toLeadsScreen: ()-> Unit,
-    toScheduledVisits: ()-> Unit,
+    toHome: (Any?) -> Unit,
+    toLeadsScreen: (Any?) -> Unit,
+    toScheduledVisits: (Any?) -> Unit,
     context: Context,
+    userID:Long,
     modifier: Modifier = Modifier
 ){
     Column {
@@ -30,9 +31,9 @@ fun FollowupCallsScreen(
         BottomBar(
             currentScreen = "Follow up Calls",
             toOnboarding = { toOnboarding() },
-            toLeadsScreen={toLeadsScreen()},
-            toHome = { toHome() },
-            toScheduledVisits = { toScheduledVisits() },
+            toLeadsScreen={toLeadsScreen(userID)},
+            toHome = { toHome(userID) },
+            toScheduledVisits = { toScheduledVisits(userID) },
             toFollowupCalls = {  }) {
 
         }

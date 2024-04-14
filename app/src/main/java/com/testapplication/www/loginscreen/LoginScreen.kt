@@ -2,6 +2,7 @@ package com.testapplication.www.loginscreen
 
 
 
+import SignupScreenDB
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -31,10 +32,11 @@ import com.testapplication.www.util.TextFieldText
 @Composable
 fun LoginScreen(
     toOnboarding: () -> Unit,
-    toHome: () -> Unit,
+    toHome: (Any?) -> Unit,
     context: Context,
     modifier: Modifier = Modifier
 ) {
+    var dbSignUp: SignupScreenDB = SignupScreenDB(context)
     val phoneNumber = remember {
         mutableStateOf(TextFieldValue())
     }
@@ -100,7 +102,8 @@ fun LoginScreen(
                     val phoneLong = phoneText.toLong()
                     val loginSuccessful = dbHandler.validateLogin(phoneLong, passwordText)
                     if (loginSuccessful) {
-                        toHome()
+                        val userId = dbSignUp.getUserIdByPhoneNumber(phoneLong)
+                        toHome(userId)
                         Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Failed to login", Toast.LENGTH_SHORT).show()

@@ -46,11 +46,12 @@ import com.testapplication.www.util.displayList
 @Composable
 fun HomeScreen(
     toOnboarding: () -> Unit,
-    toScheduledVisits: () -> Unit,
-    toFollowupCalls: () -> Unit,
-    toLeadsScreen: () -> Unit,
+    toScheduledVisits: (Any?) -> Unit,
+    toFollowupCalls: (Any?) -> Unit,
+    toLeadsScreen: (Any?) -> Unit,
+    userID: Long?,
     context: Context,
-    toCreate: () -> Unit,
+    toCreate: (Any?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var checked = false
@@ -219,7 +220,7 @@ fun HomeScreen(
                         withStyle(style = SpanStyle(color = Color.Blue)) {
                         }
                     }, onClick = {
-                        toScheduledVisits()
+                        toScheduledVisits(userID)
                     }, modifier = Modifier.padding(top = 10.dp))
                 }
 
@@ -251,7 +252,7 @@ fun HomeScreen(
                         withStyle(style = SpanStyle(color = Color.Blue)) {
                         }
                     }, onClick = {
-                        toFollowupCalls()
+                        toFollowupCalls(userID)
                     }, modifier = Modifier.padding(top = 10.dp))
                 }
 
@@ -281,7 +282,7 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    toCreate()
+                    toCreate(userID)
                     Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
                 },
                 contentColor = Color.White,
@@ -299,10 +300,10 @@ fun HomeScreen(
             BottomBar(
                 currentScreen = "Home",
                 toOnboarding = { toOnboarding() },
-                toLeadsScreen = { toLeadsScreen() },
+                toLeadsScreen = { toLeadsScreen(userID) },
                 toHome = { },
-                toScheduledVisits = { toScheduledVisits() },
-                toFollowupCalls = { toFollowupCalls() }) {
+                toScheduledVisits = { toScheduledVisits(userID) },
+                toFollowupCalls = { toFollowupCalls(userID) }) {
 
             }
         }

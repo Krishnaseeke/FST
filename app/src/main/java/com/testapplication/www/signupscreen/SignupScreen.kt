@@ -32,7 +32,7 @@ import com.testapplication.www.util.TextFieldText
 @Composable
 fun SignupScreen(
     toOnboarding: () -> Unit,
-    toHome: () -> Unit,
+    toHome: (Any?) -> Unit,
     context: Context,
     modifier: Modifier = Modifier
 ) {
@@ -109,10 +109,11 @@ fun SignupScreen(
                     val phoneLong = phoneText.toLong()
                     val booleanValue = dbHandler.signup(phoneLong, passwordText)
                     if (booleanValue) {
-                        toHome()
+                        val userId = dbHandler.getUserIdByPhoneNumber(phoneLong)
+                        toHome(userId)
                         Toast.makeText(context, "User Added to the FST", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, "Failed to add user", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "User Already Exists. Please Login", Toast.LENGTH_SHORT).show()
                     }
                 },
                 buttonText = "Sign-up",
