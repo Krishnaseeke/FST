@@ -36,7 +36,7 @@ fun Root(context: Context) {
         navController = navController,
         startDestination = Screens.Onboarding.name,
 
-    ) {
+        ) {
 
         composable(Screens.Onboarding.name) {
             OnboardingScreen(
@@ -49,60 +49,67 @@ fun Root(context: Context) {
         composable(Screens.SignUp.name) {
             SignupScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name) },
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 context
             )
         }
         composable(Screens.Login.name) {
             LoginScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name) },
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 context
             )
         }
-        composable(Screens.Home.name) {
-           HomeScreen(
-               toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-               toScheduledVisits = { navController.navigate(Screens.Scheduledvisits.name) },
-               toFollowupCalls = { navController.navigate(Screens.FollowupCalls.name) },
-               toLeadsScreen = { navController.navigate(Screens.Leads.name) },
-               context,
-               toCreate = {navController.navigate(Screens.Create.name)}
-           )
+        composable("${Screens.Home.name}/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
+            HomeScreen(
+                toOnboarding = { navController.navigate(Screens.Onboarding.name) },
+                toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
+                toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId")},
+                toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
+                userID = userId,
+                context,
+                toCreate = { userId -> navController.navigate("${Screens.Create.name}/$userId") }
+            )
 
         }
-        composable(Screens.Scheduledvisits.name){
+        composable("${Screens.Scheduledvisits.name}/{userId}") {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             ScheduledVisitsScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name)},
-                toFollowupCalls = { navController.navigate(Screens.FollowupCalls.name) },
-                toLeadsScreen = { navController.navigate(Screens.Leads.name) },
-                context
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
+                toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
+                context,
+                userID = userId
             )
         }
-        composable(Screens.FollowupCalls.name){
+        composable("${Screens.FollowupCalls.name}/{userId}") {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             FollowupCallsScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name)},
-                toLeadsScreen = { navController.navigate(Screens.Leads.name) },
-                toScheduledVisits = { navController.navigate(Screens.Scheduledvisits.name) },
-                context
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
+                toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
+                context , userID = userId
             )
         }
-        composable(Screens.Leads.name){
+        composable("${Screens.Leads.name}/{userId}") {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             LeadScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name)},
-                toFollowupCalls = { navController.navigate(Screens.FollowupCalls.name) },
-                toScheduledVisits = { navController.navigate(Screens.Scheduledvisits.name) },
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
+                toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId")},
+                userID = userId,
                 context
             )
         }
-        composable(Screens.BottomNavigation.name){
+        composable(Screens.BottomNavigation.name) {
             BottomBar(
                 currentScreen = "Leads",
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
-                toHome = { navController.navigate(Screens.Home.name)},
+                toHome = { navController.navigate(Screens.Home.name) },
                 toScheduledVisits = { navController.navigate(Screens.Scheduledvisits.name) },
                 toFollowupCalls = { navController.navigate(Screens.FollowupCalls.name) },
                 toLeadsScreen = { navController.navigate(Screens.Leads.name) }
@@ -111,8 +118,13 @@ fun Root(context: Context) {
 
             }
         }
-        composable(Screens.Create.name){
-            CreateScreen(toHome = { navController.navigate(Screens.Home.name) }, context )
+        composable("${Screens.Create.name}/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
+            CreateScreen(
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                context,
+                userID = userId,
+            )
         }
 
 

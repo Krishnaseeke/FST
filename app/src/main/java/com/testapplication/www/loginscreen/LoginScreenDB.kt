@@ -1,5 +1,6 @@
 package com.testapplication.www.loginscreen
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -49,4 +50,7 @@ class LoginScreenDB(context: Context?) :
         private const val PHONE_COL = "phone"
         private const val PASSWORD = "password"
     }
+
+
+
 }

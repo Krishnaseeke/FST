@@ -1,8 +1,12 @@
 package com.testapplication.www.homescreen.create
 
+import CreateScreenDB
+import SignupScreenDB
+import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,25 +68,29 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CreateScreen(
-    toHome: () -> Unit,
+    toHome: (Any?) -> Unit,
     context: Context,
+    userID:Long,
     modifier: Modifier = Modifier
 ) {
+    val activiy = context as Activity
+
+    var db:CreateScreenDB = CreateScreenDB(context)
 
 
-    var text1 = remember {
+    var customerName = remember {
         mutableStateOf(TextFieldValue())
     }
-    var text2 = remember {
+    var phoneNumer = remember {
         mutableStateOf(TextFieldValue())
     }
-    var text3 = remember {
+    var alternatePhoneNumber = remember {
         mutableStateOf(TextFieldValue())
     }
-    var text4 = remember {
+    var address = remember {
         mutableStateOf(TextFieldValue())
     }
-    var text5 = remember {
+    var comments = remember {
         mutableStateOf(TextFieldValue())
     }
     var isSelected = remember {
@@ -209,7 +217,7 @@ fun CreateScreen(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "",
                 modifier = Modifier
-                    .clickable { toHome() }
+                    .clickable { toHome(userID) }
                     .padding(start = 10.dp, end = 2.dp, top = 12.5.dp, bottom = 10.dp)
                     .size(30.dp))
             Text(
@@ -237,10 +245,10 @@ fun CreateScreen(
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            CustomOutlinedTextField(text1 = text1 , text = "Customer Name*")
-            CustomOutlinedTextField(text1 = text2 , text = "Phone Number*")
-            CustomOutlinedTextField(text1 = text3 , text = "Alternate Phone Number")
-            CustomOutlinedTextField(text1 = text4 , text = "Address*")
+            CustomOutlinedTextField(text1 = customerName , text = "Customer Name*")
+            CustomOutlinedTextField(text1 = phoneNumer , text = "Phone Number*")
+            CustomOutlinedTextField(text1 = alternatePhoneNumber , text = "Alternate Phone Number")
+            CustomOutlinedTextField(text1 = address , text = "Address*")
 
 
             Box() {
@@ -546,20 +554,7 @@ fun CreateScreen(
 
             }
 
-            OutlinedTextField(
-                value = text4.value,
-                onValueChange = { text4.value = it },
-                label = {
-                    Text(
-                        text = "Comments"
-                    )
-                },
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(5.dp))
-                    .fillMaxWidth()
-                    .padding(5.dp)
-                    .height(150.dp)
-            )
+            CustomOutlinedTextField(text1 = comments , text = "Comments")
 
 
         }
@@ -575,7 +570,29 @@ fun CreateScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val isSuccess = db.createFST(
+                        userID,
+                        customerName = customerName.value.text,
+                        phoneNumber = phoneNumer.value.text,
+                        alternatePhoneNumber = alternatePhoneNumber.value.text,
+                        address = address.value.text,
+                        businessCategory = bcSelectedText,
+                        callStatus = csSelectedText,
+                        leadStatus = lsSelectedText,
+                        followUpDate = mDate.value,
+                        followUpTime = mTime.value,
+                        followUpAction = isSelected.value,
+                        comments = comments.value.text
+                    )
+                    if (isSuccess) {
+                        toHome(userID)
+                        Toast.makeText(context, "Successfully FST is Created", Toast.LENGTH_SHORT).show()
+
+                    } else {
+                        Toast.makeText(context, "Failed to Create FST", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Red)
             ) {

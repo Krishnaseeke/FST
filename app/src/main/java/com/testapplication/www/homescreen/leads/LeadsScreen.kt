@@ -12,9 +12,10 @@ import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 @Composable
 fun LeadScreen(
     toOnboarding: () -> Unit,
-    toHome: ()->Unit,
-    toFollowupCalls: ()-> Unit,
-    toScheduledVisits: ()-> Unit,
+    toHome: (Any?) -> Unit,
+    toFollowupCalls: (Any?) -> Unit,
+    toScheduledVisits: (Any?) -> Unit,
+    userID:Long,
     context: Context,
     modifier: Modifier = Modifier
 ){
@@ -25,9 +26,9 @@ fun LeadScreen(
             currentScreen = "Leads",
             toOnboarding = { toOnboarding() },
             toLeadsScreen={},
-            toHome = { toHome() },
-            toScheduledVisits = { toScheduledVisits() },
-            toFollowupCalls = { toFollowupCalls() }) {
+            toHome = { toHome(userID) },
+            toScheduledVisits = { toScheduledVisits(userID) },
+            toFollowupCalls = { toFollowupCalls(userID) }) {
 
         }
     }
