@@ -1,7 +1,6 @@
 package com.testapplication.www.homescreen.create
 
 import CreateScreenDB
-import SignupScreenDB
 import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
@@ -65,17 +64,15 @@ import androidx.compose.ui.unit.toSize
 import java.util.Calendar
 import java.util.Date
 
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CreateScreen(
-    toHome: (Any?) -> Unit,
-    context: Context,
-    userID:Long,
-    modifier: Modifier = Modifier
+    toHome: (Any?) -> Unit, context: Context, userID: Long, modifier: Modifier = Modifier
 ) {
     val activiy = context as Activity
 
-    var db:CreateScreenDB = CreateScreenDB(context)
+    var db: CreateScreenDB = CreateScreenDB(context)
 
 
     var customerName = remember {
@@ -96,6 +93,8 @@ fun CreateScreen(
     var isSelected = remember {
         mutableStateOf("value")
     }
+    var isCallSelected by remember { mutableStateOf(false) }
+    var isVisitSelected by remember { mutableStateOf(false) }
 
     val mContext = LocalContext.current
     val mYear: Int
@@ -141,10 +140,8 @@ fun CreateScreen(
     var bcTextFieldSize by remember { mutableStateOf(Size.Zero) }
 
     // Up Icon when expanded and down icon when collapsed
-    val icon = if (bcExpanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
+    val icon = if (bcExpanded) Icons.Filled.KeyboardArrowUp
+    else Icons.Filled.KeyboardArrowDown
 
     var csExpanded by remember { mutableStateOf(false) }
 
@@ -166,10 +163,8 @@ fun CreateScreen(
     var csTextFieldSize by remember { mutableStateOf(Size.Zero) }
 
     // Up Icon when expanded and down icon when collapsed
-    val csicon = if (csExpanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
+    val csicon = if (csExpanded) Icons.Filled.KeyboardArrowUp
+    else Icons.Filled.KeyboardArrowDown
 
     var lsExpanded by remember { mutableStateOf(false) }
 
@@ -191,10 +186,8 @@ fun CreateScreen(
     var lsTextFieldSize by remember { mutableStateOf(Size.Zero) }
 
     // Up Icon when expanded and down icon when collapsed
-    val lsicon = if (lsExpanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
+    val lsicon = if (lsExpanded) Icons.Filled.KeyboardArrowUp
+    else Icons.Filled.KeyboardArrowDown
 
 
 
@@ -213,8 +206,7 @@ fun CreateScreen(
                 .fillMaxWidth()
         ) {
 
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
+            Icon(imageVector = Icons.Default.ArrowBack,
                 contentDescription = "",
                 modifier = Modifier
                     .clickable { toHome(userID) }
@@ -245,15 +237,16 @@ fun CreateScreen(
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            CustomOutlinedTextField(text1 = customerName , text = "Customer Name*")
-            CustomOutlinedTextField(text1 = phoneNumer , text = "Phone Number*")
-            CustomOutlinedTextField(text1 = alternatePhoneNumber , text = "Alternate Phone Number")
-            CustomOutlinedTextField(text1 = address , text = "Address*")
+            CustomOutlinedTextField(text1 = customerName, text = "Customer Name*")
+            CustomOutlinedTextField(text1 = phoneNumer, text = "Phone Number*")
+            CustomOutlinedTextField(text1 = alternatePhoneNumber, text = "Alternate Phone Number")
+            CustomOutlinedTextField(text1 = address, text = "Address*")
 
 
             Box() {
                 Text(
-                    text = "Proof Of Meeting*", color = Color.Black,
+                    text = "Proof Of Meeting*",
+                    color = Color.Black,
                     fontSize = 14.sp,
                     fontStyle = FontStyle.Normal,
                     modifier = Modifier.padding(10.dp)
@@ -262,13 +255,17 @@ fun CreateScreen(
                 Button(
                     onClick = {
 
-                    }, modifier = Modifier
+                    },
+                    modifier = Modifier
                         .height(80.dp)
                         .align(Alignment.CenterStart)
-                        .padding(top = 40.dp), colors = ButtonDefaults.buttonColors(Color.LightGray)
+                        .padding(top = 40.dp),
+                    colors = ButtonDefaults.buttonColors(Color.LightGray)
                 ) {
                     Icon(
-                        Icons.Filled.Add, "Add icon", modifier = Modifier
+                        Icons.Filled.Add,
+                        "Add icon",
+                        modifier = Modifier
                             .padding(end = 3.dp)
                             .size(20.dp)
                             .background(
@@ -277,7 +274,8 @@ fun CreateScreen(
                     )
                     Text(
 
-                        text = "Attach Image", color = Color.Black,
+                        text = "Attach Image",
+                        color = Color.Black,
                         fontSize = 16.sp,
                         fontStyle = FontStyle.Normal,
                         modifier = Modifier.padding(1.dp)
@@ -290,8 +288,7 @@ fun CreateScreen(
 
             // with icon and not expanded
             Box() {
-                OutlinedTextField(
-                    value = bcSelectedText,
+                OutlinedTextField(value = bcSelectedText,
                     onValueChange = { bcSelectedText = it },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -302,10 +299,10 @@ fun CreateScreen(
                         },
                     label = { Text("Business Category") },
                     trailingIcon = {
-                        Icon(icon, "contentDescription",
+                        Icon(icon,
+                            "contentDescription",
                             Modifier.clickable { bcExpanded = !bcExpanded })
-                    }
-                )
+                    })
 
 
                 DropdownMenu(
@@ -317,20 +314,19 @@ fun CreateScreen(
                         .height(200.dp)
                 ) {
                     bussinessCategory.forEach { label ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = label, color = Color.Black,
-                                    fontSize = 14.sp,
-                                    fontStyle = FontStyle.Normal,
-                                    modifier = Modifier.padding(10.dp)
-                                )
+                        DropdownMenuItem(text = {
+                            Text(
+                                text = label,
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontStyle = FontStyle.Normal,
+                                modifier = Modifier.padding(10.dp)
+                            )
 
-                            },
-                            onClick = {
-                                bcSelectedText = label
-                                bcExpanded = false
-                            })
+                        }, onClick = {
+                            bcSelectedText = label
+                            bcExpanded = false
+                        })
 
                     }
                 }
@@ -339,8 +335,7 @@ fun CreateScreen(
 
             // with icon and not expanded
             Box() {
-                OutlinedTextField(
-                    value = csSelectedText,
+                OutlinedTextField(value = csSelectedText,
                     onValueChange = { csSelectedText = it },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -351,10 +346,10 @@ fun CreateScreen(
                         },
                     label = { Text("Call Status") },
                     trailingIcon = {
-                        Icon(icon, "contentDescription",
+                        Icon(icon,
+                            "contentDescription",
                             Modifier.clickable { csExpanded = !csExpanded })
-                    }
-                )
+                    })
 
                 // Create a drop-down menu with list of cities,
                 // when clicked, set the Text Field text as the city selected
@@ -367,20 +362,19 @@ fun CreateScreen(
                         .height(200.dp)
                 ) {
                     callStatus.forEach { label ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = label, color = Color.Black,
-                                    fontSize = 14.sp,
-                                    fontStyle = FontStyle.Normal,
-                                    modifier = Modifier.padding(10.dp)
-                                )
+                        DropdownMenuItem(text = {
+                            Text(
+                                text = label,
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontStyle = FontStyle.Normal,
+                                modifier = Modifier.padding(10.dp)
+                            )
 
-                            },
-                            onClick = {
-                                csSelectedText = label
-                                csExpanded = false
-                            })
+                        }, onClick = {
+                            csSelectedText = label
+                            csExpanded = false
+                        })
 
                     }
                 }
@@ -389,8 +383,7 @@ fun CreateScreen(
 
             // with icon and not expanded
             Box() {
-                OutlinedTextField(
-                    value = lsSelectedText,
+                OutlinedTextField(value = lsSelectedText,
                     onValueChange = { lsSelectedText = it },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -401,10 +394,10 @@ fun CreateScreen(
                         },
                     label = { Text("Lead Status*") },
                     trailingIcon = {
-                        Icon(icon, "contentDescription",
+                        Icon(icon,
+                            "contentDescription",
                             Modifier.clickable { lsExpanded = !lsExpanded })
-                    }
-                )
+                    })
 
                 // Create a drop-down menu with list of cities,
                 // when clicked, set the Text Field text as the city selected
@@ -417,20 +410,19 @@ fun CreateScreen(
                         .height(200.dp)
                 ) {
                     leadStatus.forEach { label ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = label, color = Color.Black,
-                                    fontSize = 14.sp,
-                                    fontStyle = FontStyle.Normal,
-                                    modifier = Modifier.padding(10.dp)
-                                )
+                        DropdownMenuItem(text = {
+                            Text(
+                                text = label,
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontStyle = FontStyle.Normal,
+                                modifier = Modifier.padding(10.dp)
+                            )
 
-                            },
-                            onClick = {
-                                lsSelectedText = label
-                                lsExpanded = false
-                            })
+                        }, onClick = {
+                            lsSelectedText = label
+                            lsExpanded = false
+                        })
 
                     }
                 }
@@ -443,8 +435,7 @@ fun CreateScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val mDatePickerDialog = android.app.DatePickerDialog(
-                    mContext,
-                    { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+                    mContext, { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
                         mDate.value = "$mDayOfMonth/${mMonth + 1}/$mYear"
                     }, mYear, mMonth, mDay
                 )
@@ -461,13 +452,11 @@ fun CreateScreen(
                         .weight(1f)
                         .padding(5.dp, end = 0.dp)
                 )
-                Icon(
-                    imageVector = Icons.Default.DateRange,
+                Icon(imageVector = Icons.Default.DateRange,
                     contentDescription = "",
                     modifier = Modifier
                         .clickable { mDatePickerDialog.show() }
-                        .padding(5.dp)
-                )
+                        .padding(5.dp))
             }
 
 
@@ -477,8 +466,7 @@ fun CreateScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val mTimePickerDialog = TimePickerDialog(
-                    mContext,
-                    { _, mHour: Int, mMinute: Int ->
+                    mContext, { _, mHour: Int, mMinute: Int ->
                         mTime.value = "$mHour:$mMinute"
                     }, mHour, mMinute, false
                 )
@@ -497,7 +485,7 @@ fun CreateScreen(
                         .padding(5.dp)
                         .clickable { isTimePickerDialogOpen = true },
 
-                )
+                    )
 
             }
             Column() {
@@ -512,54 +500,47 @@ fun CreateScreen(
 
                 )
                 Row(
-                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.Absolute.Left,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    RadioButton(selected = isSelected.value == "value", onClick = { isSelected })
+                    RadioButton(selected = isCallSelected,
+                        onClick = { isCallSelected = !isCallSelected })
                     Text(
                         text = "Call",
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 0.dp,top=12.dp)
-
+                        modifier = Modifier.padding(start = 0.dp, top = 12.dp)
                     )
-
-
                 }
 
                 Row(
-
                     horizontalArrangement = Arrangement.Absolute.Left,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    RadioButton(selected = isSelected.value == "value", onClick = { isSelected })
+                    RadioButton(selected = isVisitSelected,
+                        onClick = { isVisitSelected = !isVisitSelected })
                     Text(
                         text = "Visit",
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 0.dp,top=12.dp)
-
+                        modifier = Modifier.padding(start = 0.dp, top = 12.dp)
                     )
-
-
                 }
-
-
             }
 
-            CustomOutlinedTextField(text1 = comments , text = "Comments")
+
+
+
+            CustomOutlinedTextField(text1 = comments, text = "Comments")
 
 
         }
-        Spacer(modifier = Modifier.weight(1f))
 
+        Spacer(modifier = Modifier.weight(1f))
         // Save button
         Column(
             modifier = Modifier
@@ -572,7 +553,7 @@ fun CreateScreen(
             Button(
                 onClick = {
                     val isSuccess = db.createFST(
-                        userID,
+                        userId = userID,
                         customerName = customerName.value.text,
                         phoneNumber = phoneNumer.value.text,
                         alternatePhoneNumber = alternatePhoneNumber.value.text,
@@ -582,13 +563,14 @@ fun CreateScreen(
                         leadStatus = lsSelectedText,
                         followUpDate = mDate.value,
                         followUpTime = mTime.value,
-                        followUpAction = isSelected.value,
+                        followUpActionCall = if (isCallSelected) "Call" else "",
+                        followUpActionVisit = if (isVisitSelected) "Visit" else "",
                         comments = comments.value.text
                     )
                     if (isSuccess) {
                         toHome(userID)
-                        Toast.makeText(context, "Successfully FST is Created", Toast.LENGTH_SHORT).show()
-
+                        Toast.makeText(context, "Successfully FST is Created", Toast.LENGTH_SHORT)
+                            .show()
                     } else {
                         Toast.makeText(context, "Failed to Create FST", Toast.LENGTH_SHORT).show()
                     }
@@ -602,8 +584,8 @@ fun CreateScreen(
                     fontSize = 24.sp,
                     fontStyle = FontStyle.Normal,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                    ,modifier = Modifier.padding(5.dp)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(5.dp)
                 )
             }
         }

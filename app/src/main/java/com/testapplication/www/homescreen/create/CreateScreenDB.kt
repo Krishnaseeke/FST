@@ -1,6 +1,5 @@
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
@@ -12,15 +11,16 @@ class CreateScreenDB(context: Context?) :
                 + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + USER_ID_COL + " INTEGER, "
                 + CUSTOMER_NAME_COL + " TEXT, "
-                + PHONE_NUMBER_COL + " TEXT, "
-                + ALTERNATE_PHONE_COL + " TEXT, "
+                + PHONE_NUMBER_COL + " TEXT, "  // Change data type to TEXT
+                + ALTERNATE_PHONE_COL + " TEXT, "  // Change data type to TEXT
                 + ADDRESS_COL + " TEXT, "
                 + BUSINESS_CATEGORY_COL + " TEXT, "
                 + CALL_STATUS_COL + " TEXT, "
                 + LEAD_STATUS_COL + " TEXT, "
-                + FOLLOW_UP_DATE_COL + " TEXT, "
-                + FOLLOW_UP_TIME_COL + " TEXT, "
-                + FOLLOW_UP_ACTION_COL + " TEXT, "
+                + FOLLOW_UP_DATE_COL + " TEXT, "  // Change data type to TEXT
+                + FOLLOW_UP_TIME_COL + " TEXT, "  // Change data type to TEXT
+                + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "  // Change data type to INTEGER
+                + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "  // Change data type to INTEGER
                 + COMMENTS_COL + " TEXT)")
 
         db.execSQL(query)
@@ -35,9 +35,10 @@ class CreateScreenDB(context: Context?) :
         businessCategory: String?,
         callStatus: String?,
         leadStatus: String?,
-        followUpDate: String?,
+        followUpDate: String,
         followUpTime: String?,
-        followUpAction: String?,
+        followUpActionCall: String,  // Change parameter name and data type to Int
+        followUpActionVisit: String,  // Change parameter name and data type to Int
         comments: String?
     ): Boolean {
         val db = this.writableDatabase
@@ -52,7 +53,8 @@ class CreateScreenDB(context: Context?) :
             put(LEAD_STATUS_COL, leadStatus)
             put(FOLLOW_UP_DATE_COL, followUpDate)
             put(FOLLOW_UP_TIME_COL, followUpTime)
-            put(FOLLOW_UP_ACTION_COL, followUpAction)
+            put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
+            put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
         }
         db.insert(TABLE_NAME, null, values)
@@ -80,7 +82,8 @@ class CreateScreenDB(context: Context?) :
         private const val LEAD_STATUS_COL = "lead_status"
         private const val FOLLOW_UP_DATE_COL = "follow_up_date"
         private const val FOLLOW_UP_TIME_COL = "follow_up_time"
-        private const val FOLLOW_UP_ACTION_COL = "follow_up_action"
+        private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
+        private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
         private const val COMMENTS_COL = "comments"
     }
 }
