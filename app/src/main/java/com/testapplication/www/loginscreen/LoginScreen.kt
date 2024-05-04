@@ -1,48 +1,37 @@
 package com.testapplication.www.loginscreen
 
-
-
-import SignupScreenDB
+import LoginViewModel
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.util.CustomButton
 import com.testapplication.www.util.CustomTextField
 import com.testapplication.www.util.HeaderText
 import com.testapplication.www.util.TextFieldText
+
 @Composable
 fun LoginScreen(
-    toOnboarding: () -> Unit,
+    toOnboarding: () ->Unit,
     toHome: (Any?) -> Unit,
-    context: Context,
-    modifier: Modifier = Modifier
+    context: Context
 ) {
-    var dbSignUp: SignupScreenDB = SignupScreenDB(context)
-    val phoneNumber = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val password = remember {
-        mutableStateOf(TextFieldValue())
-    }
+    val viewModel = remember { LoginViewModel(context) } // Create an instance of LoginViewModel
+    viewModel.initDatabaseHandlers(LocalContext.current) // Initialize database handlers
+
+
+    val phoneNumber = viewModel.phoneNumber
+    val password = viewModel.password
+    val toastMessage = viewModel.toastMessage.value
 
     Column(
         modifier = Modifier
@@ -54,7 +43,9 @@ fun LoginScreen(
                 .wrapContentHeight()
                 .background(Color.White)
                 .padding(start = 10.dp, top = 10.dp, bottom = 10.dp)
-                .fillMaxWidth(), Arrangement.Top, Alignment.Start
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
         ) {
             HeaderText(text = "Login to FST account")
         }
@@ -66,8 +57,6 @@ fun LoginScreen(
                 .background(Color.White)
                 .padding(start = 10.dp, end = 10.dp)
         ) {
-            var dbHandler: LoginScreenDB = LoginScreenDB(context)
-
             TextFieldText(text = "Phone")
             CustomTextField(
                 phoneNumber = phoneNumber,
@@ -83,30 +72,8 @@ fun LoginScreen(
 
             CustomButton(
                 onClick = {
-                    val phoneText = phoneNumber.value.text
-                    val passwordText = password.value.text
-
-                    if (phoneText.isBlank() || passwordText.isBlank()) {
-                        Toast.makeText(context, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
-                        return@CustomButton
-                    }
-
-                    if (!phoneText.matches("\\d{10}".toRegex())) {
-                        Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
-                        return@CustomButton
-                    }
-
-                    // Additional conditions for password strength can be added here
-
-                    // Check login credentials
-                    val phoneLong = phoneText.toLong()
-                    val loginSuccessful = dbHandler.validateLogin(phoneLong, passwordText)
-                    if (loginSuccessful) {
-                        val userId = dbSignUp.getUserIdByPhoneNumber(phoneLong)
+                    viewModel.login(context) { userId ->
                         toHome(userId)
-                        Toast.makeText(context, "Logged in successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Failed to login", Toast.LENGTH_SHORT).show()
                     }
                 },
                 buttonText = "Sign-In",
@@ -116,6 +83,10 @@ fun LoginScreen(
                 textSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
+
+            toastMessage?.let {
+                Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

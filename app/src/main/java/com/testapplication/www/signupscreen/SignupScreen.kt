@@ -1,6 +1,7 @@
 package com.testapplication.www.signupscreen
 
 
+import LoginViewModel
 import SignupScreenDB
 import android.content.Context
 import android.widget.Toast
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -36,12 +38,14 @@ fun SignupScreen(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    val phoneNumber = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val password = remember {
-        mutableStateOf(TextFieldValue())
-    }
+    val viewModel = remember { LoginViewModel(context) } // Create an instance of LoginViewModel
+    viewModel.initDatabaseHandlers(LocalContext.current) // Initialize database handlers
+
+
+    val phoneNumber = viewModel.phoneNumber
+    val password = viewModel.password
+    val toastMessage = viewModel.toastMessage.value
+
 
     val isButtonEnabled = remember {
         mutableStateOf(false)
@@ -88,32 +92,8 @@ fun SignupScreen(
 
             CustomButton(
                 onClick = {
-                    val phoneText = phoneNumber.value.text
-                    val passwordText = password.value.text
-
-                    if (phoneText.isBlank() || passwordText.isBlank()) {
-                        Toast.makeText(context, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
-                        return@CustomButton
-                    }
-
-                    if (!phoneText.matches("\\d{10}".toRegex())) {
-                        Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
-                        return@CustomButton
-                    }
-
-                    if (!passwordText.matches("^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=])(?=\\S+$).{6,}\$".toRegex())) {
-                        Toast.makeText(context, "Password must be alphanumeric with special characters and at least 6 characters long", Toast.LENGTH_SHORT).show()
-                        return@CustomButton
-                    }
-
-                    val phoneLong = phoneText.toLong()
-                    val booleanValue = dbHandler.signup(phoneLong, passwordText)
-                    if (booleanValue) {
-                        val userId = dbHandler.getUserIdByPhoneNumber(phoneLong)
+                    viewModel.signup(context) { userId ->
                         toHome(userId)
-                        Toast.makeText(context, "User Added to the FST", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "User Already Exists. Please Login", Toast.LENGTH_SHORT).show()
                     }
                 },
                 buttonText = "Sign-up",
@@ -123,6 +103,10 @@ fun SignupScreen(
                 textSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
+
+            toastMessage?.let {
+                Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

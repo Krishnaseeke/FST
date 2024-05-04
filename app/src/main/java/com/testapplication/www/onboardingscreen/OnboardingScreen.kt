@@ -55,15 +55,5 @@ fun OnboardingScreen(
             fontStyle = FontStyle.Normal
         )
 
-//        CustomButton(
-//            onClick = toHomeScreen,
-//            buttonText = "Skip",
-//            buttonWidth = 150.dp,
-//            buttonHeight = 50.dp,
-//            buttonColor = Color.Black,
-//            textColor = Color.White,
-//            textSize = 20.sp,
-//            fontStyle = FontStyle.Normal
-//        )
     }
 }
