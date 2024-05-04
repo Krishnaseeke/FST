@@ -1,196 +1,83 @@
-package com.testapplication.www.homescreen.create
-
-import CreateScreenDB
-import android.app.Activity
-import android.app.TimePickerDialog
-import android.content.Context
-import android.widget.DatePicker
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Calendar
-import java.util.Date
-
+import android.content.Context
+import android.widget.DatePicker
+import android.widget.Toast
+import android.app.TimePickerDialog
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import com.testapplication.www.homescreen.create.CreateScreenViewModel
+import com.testapplication.www.homescreen.create.CustomOutlinedTextField
+import com.testapplication.www.homescreen.create.DropdownLists
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CreateScreen(
-    toHome: (Any?) -> Unit, context: Context, userID: Long, modifier: Modifier = Modifier
+    toHome: (Any?) -> Unit,
+    context: Context,
+    userID: Long,
+    modifier: Modifier = Modifier
 ) {
-    val activiy = context as Activity
+    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID) }
+    val state by viewModel.state.collectAsState()
 
-    var db: CreateScreenDB = CreateScreenDB(context)
+    // Navigate to home on successful submission
+    LaunchedEffect(state.isSubmissionSuccessful) {
+        if (state.isSubmissionSuccessful) {
+            Toast.makeText(context, "Successfully FST Created", Toast.LENGTH_SHORT).show()
+            toHome(userID)
+        }
+    }
 
-
-    var customerName = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var phoneNumer = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var alternatePhoneNumber = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var address = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var comments = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var isSelected = remember {
-        mutableStateOf("value")
-    }
-    var isCallSelected by remember { mutableStateOf(false) }
-    var isVisitSelected by remember { mutableStateOf(false) }
 
     val mContext = LocalContext.current
-    val mYear: Int
-    val mMonth: Int
-    val mDay: Int
-
     val mCalendar = Calendar.getInstance()
-    mYear = mCalendar.get(Calendar.YEAR)
-    mMonth = mCalendar.get(Calendar.MONTH)
-    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+    val mYear = mCalendar.get(Calendar.YEAR)
+    val mMonth = mCalendar.get(Calendar.MONTH)
+    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
 
-    mCalendar.time = Date()
+    val mDatePickerDialog = android.app.DatePickerDialog(
+        mContext,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            val formattedDate = "$dayOfMonth/${month + 1}/$year"
+            viewModel.updateFollowUpDate(formattedDate)
+        },
+        mYear,
+        mMonth,
+        mDay
+    )
+
     val mCalendar1 = Calendar.getInstance()
     val mHour = mCalendar1[Calendar.HOUR_OF_DAY]
     val mMinute = mCalendar1[Calendar.MINUTE]
-    val mTime = remember { mutableStateOf("") }
 
-    val mDate = remember { mutableStateOf("") }
-
-    val state = rememberDatePickerState()
-    val openDialog = remember { mutableStateOf(true) }
-
-    var bcExpanded by remember { mutableStateOf(false) }
-
-    // Create a list of cities
-    val bussinessCategory = listOf(
-        "Retailer-General Trade",
-        "Distributor-General Trade",
-        "Wholeseller-General Trade",
-        "Retailer-Paint Industry",
-        "Distributor-Paint Industry",
-        "Wholeseller-Paint Industry",
-        "Retailer-Household Electrical Equipments",
-        "Distributor-Household Electrical Equipments",
-        "Wholeseller-Household Electrical Equipments",
-        "Manufacturer-General Trade",
-        "Manufacturer-Chemical Industry"
+    val mTimePickerDialog = TimePickerDialog(
+        mContext,
+        { _, hour: Int, minute: Int ->
+            val formattedTime = "$hour:$minute"
+            viewModel.updateFollowUpTime(formattedTime)
+        },
+        mHour,
+        mMinute,
+        false
     )
-
-    // Create a string value to store the selected city
-    var bcSelectedText by remember { mutableStateOf("") }
-
-    var bcTextFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    // Up Icon when expanded and down icon when collapsed
-    val icon = if (bcExpanded) Icons.Filled.KeyboardArrowUp
-    else Icons.Filled.KeyboardArrowDown
-
-    var csExpanded by remember { mutableStateOf(false) }
-
-    // Create a list of cities
-    val callStatus = listOf(
-        "Ring & Not Received",
-        "Connected",
-        "Disconnected",
-        "Switch Off",
-        "Busy",
-        "Wrong Number",
-        "Call Back Required Specific",
-        "Positive"
-    )
-
-    // Create a string value to store the selected city
-    var csSelectedText by remember { mutableStateOf("") }
-
-    var csTextFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    // Up Icon when expanded and down icon when collapsed
-    val csicon = if (csExpanded) Icons.Filled.KeyboardArrowUp
-    else Icons.Filled.KeyboardArrowDown
-
-    var lsExpanded by remember { mutableStateOf(false) }
-
-    // Create a list of cities
-    val leadStatus = listOf(
-        "First Meet",
-        "Requires Follow Up",
-        "Interested",
-        "Demo Scheduled",
-        "Demo Re-scheduled",
-        "Demo Completed",
-        "License Purchased",
-        "Not Interested"
-    )
-
-    // Create a string value to store the selected city
-    var lsSelectedText by remember { mutableStateOf("") }
-
-    var lsTextFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    // Up Icon when expanded and down icon when collapsed
-    val lsicon = if (lsExpanded) Icons.Filled.KeyboardArrowUp
-    else Icons.Filled.KeyboardArrowDown
-
-
-
 
     Column(
         modifier = Modifier
@@ -205,9 +92,9 @@ fun CreateScreen(
                 .background(Color.White)
                 .fillMaxWidth()
         ) {
-
-            Icon(imageVector = Icons.Default.ArrowBack,
-                contentDescription = "",
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
                 modifier = Modifier
                     .clickable { toHome(userID) }
                     .padding(start = 10.dp, end = 2.dp, top = 12.5.dp, bottom = 10.dp)
@@ -219,16 +106,16 @@ fun CreateScreen(
                 fontStyle = FontStyle.Normal,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 2.dp, end = 5.dp, top = 10.dp, bottom = 10.dp)
-
             )
-
         }
+
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(3.dp)
                 .background(Color.LightGray)
         )
+
         Column(
             modifier = Modifier
                 .background(Color.White)
@@ -237,11 +124,46 @@ fun CreateScreen(
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            CustomOutlinedTextField(text1 = customerName, text = "Customer Name*")
-            CustomOutlinedTextField(text1 = phoneNumer, text = "Phone Number*")
-            CustomOutlinedTextField(text1 = alternatePhoneNumber, text = "Alternate Phone Number")
-            CustomOutlinedTextField(text1 = address, text = "Address*")
 
+            OutlinedTextField(
+                value = TextFieldValue(state.customerName),
+                onValueChange = { viewModel.updateCustomerName(it.text) },
+                label = { Text("Customer Name*") },
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+
+            OutlinedTextField(
+                value = TextFieldValue(state.phoneNumber),
+                onValueChange = { viewModel.updatePhoneNumber(it.text) },
+                label = { Text("Phone Number*") },
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+
+            OutlinedTextField(
+                value = TextFieldValue(state.alternatePhoneNumber),
+                onValueChange = { viewModel.updateAlternatePhoneNumber(it.text) },
+                label = { Text("Alternate Phone Number") },
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+
+            OutlinedTextField(
+                value = TextFieldValue(state.address),
+                onValueChange = { viewModel.updateAddress(it.text) },
+                label = { Text("Address*") },
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .fillMaxWidth().height(102.dp)
+                    .padding(5.dp)
+            )
 
             Box() {
                 Text(
@@ -285,168 +207,141 @@ fun CreateScreen(
 
             }
 
+            var bcExpanded by remember { mutableStateOf(false) }
+            var csExpanded by remember { mutableStateOf(false) }
+            var lsExpanded by remember { mutableStateOf(false) }
 
-            // with icon and not expanded
+            val bcIcon =
+                if (bcExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+            val csIcon =
+                if (csExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+            val lsIcon =
+                if (lsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+
+           Box(){
+               OutlinedTextField(
+                   value = TextFieldValue(state.businessCategory),
+                   onValueChange = { viewModel.updateBusinessCategory(it.text) },
+                   trailingIcon = {
+                       Icon(
+                           bcIcon,
+                           "Dropdown Icon",
+                           Modifier.clickable { bcExpanded = !bcExpanded }
+                       )
+                   },
+                   label = { Text("Business Category") },
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .clip(shape = RoundedCornerShape(5.dp))
+                       .padding(5.dp)
+               )
+
+               DropdownMenu(
+                   expanded = bcExpanded,
+                   onDismissRequest = { bcExpanded = false },
+                   modifier = Modifier
+                       .fillMaxWidth().height(200.dp)
+                       .background(Color.White)
+               ) {
+                   DropdownLists.bussinessCategory.forEach { category ->
+                       DropdownMenuItem(
+                           text = {
+                               Text(category, modifier = Modifier.padding(10.dp))
+                           },
+                           onClick = {
+                               viewModel.updateBusinessCategory(category)
+                               bcExpanded = false
+                           }
+                       )
+                   }
+               }
+           }
+
             Box() {
-                OutlinedTextField(value = bcSelectedText,
-                    onValueChange = { bcSelectedText = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(5.dp))
-                        .padding(5.dp)
-                        .onGloballyPositioned { coordinates ->
-                            bcTextFieldSize = coordinates.size.toSize()
-                        },
-                    label = { Text("Business Category") },
+                OutlinedTextField(
+                    value = TextFieldValue(state.callStatus),
+                    onValueChange = { viewModel.updateCallStatus(it.text) },
                     trailingIcon = {
-                        Icon(icon,
-                            "contentDescription",
-                            Modifier.clickable { bcExpanded = !bcExpanded })
-                    })
-
-
-                DropdownMenu(
-                    expanded = bcExpanded,
-                    onDismissRequest = { bcExpanded = false },
-                    modifier = Modifier
-                        .background(Color.White)
-                        .width(with(LocalDensity.current) { bcTextFieldSize.width.toDp() })
-                        .height(200.dp)
-                ) {
-                    bussinessCategory.forEach { label ->
-                        DropdownMenuItem(text = {
-                            Text(
-                                text = label,
-                                color = Color.Black,
-                                fontSize = 14.sp,
-                                fontStyle = FontStyle.Normal,
-                                modifier = Modifier.padding(10.dp)
-                            )
-
-                        }, onClick = {
-                            bcSelectedText = label
-                            bcExpanded = false
-                        })
-
-                    }
-                }
-            }
-
-
-            // with icon and not expanded
-            Box() {
-                OutlinedTextField(value = csSelectedText,
-                    onValueChange = { csSelectedText = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(5.dp))
-                        .padding(5.dp)
-                        .onGloballyPositioned { coordinates ->
-                            csTextFieldSize = coordinates.size.toSize()
-                        },
+                        Icon(
+                            csIcon,
+                            "Dropdown Icon",
+                            Modifier.clickable { csExpanded = !csExpanded }
+                        )
+                    },
                     label = { Text("Call Status") },
-                    trailingIcon = {
-                        Icon(icon,
-                            "contentDescription",
-                            Modifier.clickable { csExpanded = !csExpanded })
-                    })
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape = RoundedCornerShape(5.dp))
+                        .padding(5.dp)
+                )
 
-                // Create a drop-down menu with list of cities,
-                // when clicked, set the Text Field text as the city selected
                 DropdownMenu(
                     expanded = csExpanded,
                     onDismissRequest = { csExpanded = false },
                     modifier = Modifier
+                        .fillMaxWidth().height(200.dp)
                         .background(Color.White)
-                        .width(with(LocalDensity.current) { csTextFieldSize.width.toDp() })
-                        .height(200.dp)
                 ) {
-                    callStatus.forEach { label ->
-                        DropdownMenuItem(text = {
-                            Text(
-                                text = label,
-                                color = Color.Black,
-                                fontSize = 14.sp,
-                                fontStyle = FontStyle.Normal,
-                                modifier = Modifier.padding(10.dp)
-                            )
-
-                        }, onClick = {
-                            csSelectedText = label
-                            csExpanded = false
-                        })
-
+                    DropdownLists.callStatus.forEach { status ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(status, modifier = Modifier.padding(10.dp))
+                            },
+                            onClick = {
+                                viewModel.updateCallStatus(status)
+                                csExpanded = false
+                            }
+                        )
                     }
                 }
+
             }
-
-
-            // with icon and not expanded
             Box() {
-                OutlinedTextField(value = lsSelectedText,
-                    onValueChange = { lsSelectedText = it },
+                OutlinedTextField(
+                    value = TextFieldValue(state.leadStatus),
+                    onValueChange = { viewModel.updateLeadStatus(it.text) },
+                    trailingIcon = {
+                        Icon(
+                            lsIcon,
+                            "Dropdown Icon",
+                            Modifier.clickable { lsExpanded = !lsExpanded }
+                        )
+                    },
+                    label = { Text("Lead Status*") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(shape = RoundedCornerShape(5.dp))
                         .padding(5.dp)
-                        .onGloballyPositioned { coordinates ->
-                            lsTextFieldSize = coordinates.size.toSize()
-                        },
-                    label = { Text("Lead Status*") },
-                    trailingIcon = {
-                        Icon(icon,
-                            "contentDescription",
-                            Modifier.clickable { lsExpanded = !lsExpanded })
-                    })
+                )
 
-                // Create a drop-down menu with list of cities,
-                // when clicked, set the Text Field text as the city selected
                 DropdownMenu(
                     expanded = lsExpanded,
                     onDismissRequest = { lsExpanded = false },
                     modifier = Modifier
+                        .fillMaxWidth().height(200.dp)
                         .background(Color.White)
-                        .width(with(LocalDensity.current) { lsTextFieldSize.width.toDp() })
-                        .height(200.dp)
                 ) {
-                    leadStatus.forEach { label ->
-                        DropdownMenuItem(text = {
-                            Text(
-                                text = label,
-                                color = Color.Black,
-                                fontSize = 14.sp,
-                                fontStyle = FontStyle.Normal,
-                                modifier = Modifier.padding(10.dp)
-                            )
-
-                        }, onClick = {
-                            lsSelectedText = label
-                            lsExpanded = false
-                        })
-
+                    DropdownLists.leadStatus.forEach { status ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(status, modifier = Modifier.padding(10.dp))
+                            },
+                            onClick = {
+                                viewModel.updateLeadStatus(status)
+                                lsExpanded = false
+                            }
+                        )
                     }
                 }
+
             }
-
-
-
-
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                val mDatePickerDialog = android.app.DatePickerDialog(
-                    mContext, { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-                        mDate.value = "$mDayOfMonth/${mMonth + 1}/$mYear"
-                    }, mYear, mMonth, mDay
-                )
                 OutlinedTextField(
-                    value = mDate.value,
-                    onValueChange = { mDate.value = it },
-                    label = {
-                        Text(
-                            text = "Follow Up Date*"
-                        )
-                    },
+                    value = TextFieldValue(state.followUpDate),
+                    onValueChange = { viewModel.updateFollowUpDate(it.text) },
+                    label = { Text("Follow Up Date*") },
                     modifier = Modifier
                         .clip(shape = RoundedCornerShape(5.dp))
                         .weight(1f)
@@ -459,37 +354,30 @@ fun CreateScreen(
                         .padding(5.dp))
             }
 
-
-            var isTimePickerDialogOpen by remember { mutableStateOf(false) }
-
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                val mTimePickerDialog = TimePickerDialog(
-                    mContext, { _, mHour: Int, mMinute: Int ->
-                        mTime.value = "$mHour:$mMinute"
-                    }, mHour, mMinute, false
-                )
-
                 OutlinedTextField(
-                    value = mTime.value,
-                    onValueChange = { mTime.value = it },
-                    label = {
-                        Text(
-                            text = "Follow Up Time*"
-                        )
-                    },
+                    value = TextFieldValue(state.followUpTime),
+                    onValueChange = { viewModel.updateFollowUpTime(it.text) },
+                    label = { Text("Follow Up Time*") },
                     modifier = Modifier
-                        .clip(shape = RoundedCornerShape(5.dp))
                         .fillMaxWidth()
+                        .clip(shape = RoundedCornerShape(5.dp))
                         .padding(5.dp)
-                        .clickable { isTimePickerDialogOpen = true },
+                        .clickable { mTimePickerDialog.show() }
 
-                    )
+                )
+                Icon(imageVector = Icons.Default.AddCircle,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clickable { mDatePickerDialog.show() }
+                        .padding(5.dp))
 
             }
-            Column() {
 
+            Column {
                 Text(
                     text = "Follow Up Action*",
                     color = Color.Black,
@@ -499,49 +387,57 @@ fun CreateScreen(
                     modifier = Modifier.padding(5.dp)
 
                 )
+
                 Row(
-                    horizontalArrangement = Arrangement.Absolute.Left,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RadioButton(selected = isCallSelected,
-                        onClick = { isCallSelected = !isCallSelected })
+                    RadioButton(
+                        selected = state.followUpActionCall,
+                        onClick = { viewModel.toggleFollowUpActionCall() }
+                    )
                     Text(
                         text = "Call",
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 0.dp, top = 12.dp)
+
                     )
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Absolute.Left,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RadioButton(selected = isVisitSelected,
-                        onClick = { isVisitSelected = !isVisitSelected })
+                    RadioButton(
+                        selected = state.followUpActionVisit,
+                        onClick = { viewModel.toggleFollowUpActionVisit() }
+                    )
                     Text(
                         text = "Visit",
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 0.dp, top = 12.dp)
                     )
                 }
             }
 
-
-
-
-            CustomOutlinedTextField(text1 = comments, text = "Comments")
-
-
+            OutlinedTextField(
+                value = TextFieldValue(state.comments),
+                onValueChange = { viewModel.updateComments(it.text) },
+                label = { Text("Comments") },
+                modifier = Modifier
+                    .fillMaxWidth().height(131.dp)
+                    .clip(shape = RoundedCornerShape(5.dp))
+                    .padding(5.dp)
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
-        // Save button
+
+        // Save button logic
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -552,28 +448,7 @@ fun CreateScreen(
         ) {
             Button(
                 onClick = {
-                    val isSuccess = db.createFST(
-                        userId = userID,
-                        customerName = customerName.value.text,
-                        phoneNumber = phoneNumer.value.text,
-                        alternatePhoneNumber = alternatePhoneNumber.value.text,
-                        address = address.value.text,
-                        businessCategory = bcSelectedText,
-                        callStatus = csSelectedText,
-                        leadStatus = lsSelectedText,
-                        followUpDate = mDate.value,
-                        followUpTime = mTime.value,
-                        followUpActionCall = if (isCallSelected) "Call" else "",
-                        followUpActionVisit = if (isVisitSelected) "Visit" else "",
-                        comments = comments.value.text
-                    )
-                    if (isSuccess) {
-                        toHome(userID)
-                        Toast.makeText(context, "Successfully FST is Created", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        Toast.makeText(context, "Failed to Create FST", Toast.LENGTH_SHORT).show()
-                    }
+                    viewModel.saveFST() // Save to the database
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Red)
@@ -585,7 +460,7 @@ fun CreateScreen(
                     fontStyle = FontStyle.Normal,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(5.dp)
+                    modifier = Modifier.padding(10.dp)
                 )
             }
         }
