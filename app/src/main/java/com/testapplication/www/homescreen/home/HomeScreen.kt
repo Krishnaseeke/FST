@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -73,6 +74,43 @@ fun HomeScreen(
 
             )
 
+
+
+        }
+        Spacer(modifier = Modifier.height(5.dp))
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .background(Color.White)
+                .padding(start = 10.dp, top = 10.dp, bottom = 15.dp)
+                .width(500.dp)
+                .clip(shape = RoundedCornerShape(5.dp)),
+
+            Arrangement.Top,
+            Alignment.Start
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Check-In",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(5.dp)
+                )
+
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
+                    },
+                    colors = SwitchDefaults.colors(Color.LightGray)
+                )
+            }
+
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
@@ -82,43 +120,6 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
-
-            Column(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .background(Color.White)
-                    .padding(start = 10.dp, top = 10.dp, bottom = 15.dp)
-                    .width(500.dp)
-                    .clip(shape = RoundedCornerShape(5.dp)),
-
-                Arrangement.Top,
-                Alignment.Start
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Check-In",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(5.dp)
-                    )
-
-                    Switch(
-                        checked = checked,
-                        onCheckedChange = {
-                            checked = it
-                        },
-                        colors = SwitchDefaults.colors(Color.LightGray)
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(5.dp))
             Column(
                 modifier = Modifier
                     .wrapContentHeight()
@@ -206,7 +207,7 @@ fun HomeScreen(
             ) {
 
                 Row(
-                    modifier = Modifier.padding(start = 10.dp, end = 0.dp),
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     customTextHome(
@@ -214,7 +215,7 @@ fun HomeScreen(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.width(180.dp))
+                    Spacer(modifier = Modifier.weight(1f))
                     ClickableText(text = buildAnnotatedString {
                         append("Show All")
                         withStyle(style = SpanStyle(color = Color.Blue)) {
@@ -246,7 +247,7 @@ fun HomeScreen(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.width(180.dp))
+                    Spacer(modifier = Modifier.weight(1f))
                     ClickableText(text = buildAnnotatedString {
                         append("Show All")
                         withStyle(style = SpanStyle(color = Color.Blue)) {
@@ -288,13 +289,12 @@ fun HomeScreen(
                 contentColor = Color.White,
                 containerColor = Color.Red,
                 modifier = Modifier.clip(shape = RoundedCornerShape(30.dp)),
-                icon = { Icon(Icons.Filled.Add, "Add icon") }
+                icon = { Icon(Icons.Filled.AddCircle, "Add icon") }
             )
         }
 
         Column(
             modifier = Modifier
-                .padding(2.dp)
                 .align(Alignment.BottomCenter)
         ) {
             BottomBar(

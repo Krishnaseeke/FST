@@ -21,13 +21,12 @@ import com.testapplication.www.util.TextFieldText
 
 @Composable
 fun LoginScreen(
-    toOnboarding: () ->Unit,
+    toOnboarding: () -> Unit,
     toHome: (Any?) -> Unit,
     context: Context
 ) {
     val viewModel = remember { LoginViewModel(context) } // Create an instance of LoginViewModel
     viewModel.initDatabaseHandlers(LocalContext.current) // Initialize database handlers
-
 
     val phoneNumber = viewModel.phoneNumber
     val password = viewModel.password
@@ -44,18 +43,18 @@ fun LoginScreen(
                 .background(Color.White)
                 .padding(start = 10.dp, top = 10.dp, bottom = 10.dp)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HeaderText(text = "Login to FST account")
         }
-        Spacer(modifier = Modifier.height(3.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .weight(1f)
                 .background(Color.White)
-                .padding(start = 10.dp, end = 10.dp)
+                .padding(horizontal = 16.dp)
         ) {
             TextFieldText(text = "Phone")
             CustomTextField(
@@ -63,12 +62,15 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "Enter your Phone Number"
             )
+            Spacer(modifier = Modifier.height(16.dp))
             TextFieldText(text = "Password")
             CustomTextField(
                 phoneNumber = password,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "Enter your Password"
             )
+
+            Spacer(modifier = Modifier.height(25.dp))
 
             CustomButton(
                 onClick = {
@@ -79,7 +81,9 @@ fun LoginScreen(
                 buttonText = "Sign-In",
                 buttonColor = Color.LightGray,
                 textColor = Color.White,
-                buttonHeight = 70.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
                 textSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

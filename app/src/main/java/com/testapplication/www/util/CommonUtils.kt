@@ -1,14 +1,18 @@
 package com.testapplication.www.util
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,6 +38,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
@@ -131,65 +136,83 @@ fun CustomButton(
 
 
 data class StoreData(val date: String, val time: String, val stringValue: String)
-
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun displayList() {
-    // Define your HashMap with key as store name
-    // and StoreData object as its associated value.
     val storesMap = hashMapOf(
         "Store 1" to StoreData("2024-04-13", "10:00 AM", "Value 1"),
         "Store 2" to StoreData("2024-04-14", "11:00 AM", "Value 2"),
-        "Store 3" to StoreData("2024-04-14", "11:00 AM", "Value 2"),
-        "Store 4" to StoreData("2024-04-14", "11:00 AM", "Value 2"),
-        "Store 5" to StoreData("2024-04-14", "11:00 AM", "Value 2"),
-        // Add more key-value pairs as needed.
+        "Store 3" to StoreData("2024-04-14", "11:00 AM", "Value 3"),
+        "Store 4" to StoreData("2024-04-15", "12:00 PM", "Value 4"),
+        "Store 5" to StoreData("2024-04-16", "01:00 PM", "Value 5")
     )
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxSize()
+            .padding(10.dp), // Padding around the whole column
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(), // Ensure the LazyColumn fills the space
+            contentPadding = PaddingValues(10.dp) // Provide internal padding
+        ) {
             items(storesMap.entries.toList()) { (store, storeData) ->
-                Column(Modifier.padding(15.dp)) {
-                    Row(modifier = Modifier, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Row() {
-                            Column() {
-                                Row() {
-                                    Text(store, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                    Divider(modifier = Modifier
-                                        .padding(5.dp)
-                                        .width(1.dp)
-                                        .height(12.dp))
-                                    Text(storeData.stringValue, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-                                }
-                                Row() {
-
-
-                                    Icon(imageVector = Icons.Default.AddCircle, contentDescription = "")
-                                    Text(storeData.time, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-                                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "")
-                                    Text(storeData.date, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-                                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp), // Padding between items
+                    verticalArrangement = Arrangement.spacedBy(10.dp) // Space between items in the column
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween, // Ensure space between elements
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f) // Ensure proportional width
+                        ) {
+                            Text(
+                                text = store,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1, // Ensure single-line text
+                                overflow = TextOverflow.Ellipsis // Handle text overflow
+                            )
+                            Spacer(modifier = Modifier.height(5.dp)) // Space between elements
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                                Text(
+                                    text = storeData.time,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp)) // Space between icon and text
+                                Icon(Icons.Default.DateRange, contentDescription = "Date icon")
+                                Text(
+                                    text = storeData.date,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
                             }
                         }
-                        Spacer(modifier = Modifier.width(150.dp))
-                        Row(modifier = Modifier.padding(top = 8.dp)) {
-                            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "Navigate to Create Screen")
-                        }
+
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "Navigate",
+                            modifier = Modifier
+                                .clickable {  } // Navigation handler
+                        )
                     }
 
-                    // Display date, time, and string associated with the store
-
-
-
+                    Divider(modifier = Modifier.padding(top = 10.dp)) // Divider between items
                 }
-                Divider()
             }
-
         }
     }
 }
