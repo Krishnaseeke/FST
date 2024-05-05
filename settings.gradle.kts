@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Testapplication"
 include(":app")
- 
+include(":baselineprofile")
