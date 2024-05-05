@@ -38,18 +38,12 @@ fun SignupScreen(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    val viewModel = remember { LoginViewModel(context) } // Create an instance of LoginViewModel
-    viewModel.initDatabaseHandlers(LocalContext.current) // Initialize database handlers
-
+    val viewModel = remember { LoginViewModel(context) }
+    viewModel.initDatabaseHandlers(LocalContext.current)
 
     val phoneNumber = viewModel.phoneNumber
     val password = viewModel.password
     val toastMessage = viewModel.toastMessage.value
-
-
-    val isButtonEnabled = remember {
-        mutableStateOf(false)
-    }
 
     Column(
         modifier = modifier
@@ -60,20 +54,20 @@ fun SignupScreen(
             modifier = Modifier
                 .wrapContentHeight()
                 .background(Color.White)
-                .padding(start = 10.dp, top = 10.dp, bottom = 10.dp)
+                .padding(horizontal = 10.dp, vertical = 10.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            HeaderText(text = "SignUp to FST account")
+            HeaderText(text = "Sign up to FST account")
         }
-        Spacer(modifier = Modifier.height(3.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .weight(1f)
                 .background(Color.White)
-                .padding(start = 10.dp, end = 10.dp)
+                .padding(horizontal = 10.dp)
         ) {
             var dbHandler: SignupScreenDB = SignupScreenDB(context)
 
@@ -83,6 +77,7 @@ fun SignupScreen(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "Enter your Phone Number"
             )
+            Spacer(modifier = Modifier.height(16.dp))
             TextFieldText(text = "Password")
             CustomTextField(
                 phoneNumber = password,
@@ -90,16 +85,20 @@ fun SignupScreen(
                 placeholder = "Enter your Password"
             )
 
+            Spacer(modifier = Modifier.height(25.dp))
+
             CustomButton(
                 onClick = {
                     viewModel.signup(context) { userId ->
                         toHome(userId)
                     }
                 },
-                buttonText = "Sign-up",
+                buttonText = "Sign up",
                 buttonColor = Color.LightGray,
                 textColor = Color.White,
-                buttonHeight = 70.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
                 textSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

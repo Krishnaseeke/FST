@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.DateRange
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -35,12 +37,14 @@ fun BottomBar(
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .shadow(20.dp, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp), clip = false) // Stronger shadow with rounded corners
+            .background(Color.White), // Ensure background is white
+        containerColor = Color.Transparent // To allow shadow visibility
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.background(color = Color.White).fillMaxWidth(1f)
         ) {
             // Home Icon
             BottomNavigationItem(Icons.Default.Home, "Home", toHome, currentScreen == "Home")
@@ -84,7 +88,7 @@ fun BottomNavigationItem(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = Modifier.clickable(onClick = onClick).background(color = Color.White)
     ) {
         Icon(
             imageVector = icon,

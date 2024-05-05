@@ -22,10 +22,11 @@ import android.widget.Toast
 import android.app.TimePickerDialog
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import com.testapplication.www.homescreen.create.CreateScreenViewModel
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -45,7 +46,6 @@ fun CreateScreen(
             toHome(userID)
         }
     }
-
 
     val mContext = LocalContext.current
     val mCalendar = Calendar.getInstance()
@@ -79,6 +79,16 @@ fun CreateScreen(
         false
     )
 
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Color.Black,
+        unfocusedBorderColor = Color.Black,
+        focusedLabelColor = Color.Black,
+        unfocusedLabelColor = Color.Black,
+
+    )
+
+    val textFieldStyle = TextStyle(color = Color.Black)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,112 +107,108 @@ fun CreateScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .clickable { toHome(userID) }
-                    .padding(start = 10.dp, end = 2.dp, top = 12.5.dp, bottom = 10.dp)
-                    .size(30.dp))
+                    .padding(10.dp) //Need
+            )
             Text(
                 text = "Create",
                 color = Color.Black,
-                fontSize = 30.sp,
+                fontSize = 24.sp, // Adjusted to be responsive
                 fontStyle = FontStyle.Normal,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 2.dp, end = 5.dp, top = 10.dp, bottom = 10.dp)
+                modifier = Modifier.padding(10.dp)
             )
         }
 
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .background(Color.LightGray)
-        )
+        Spacer(modifier = Modifier.height(3.dp)) // Flexible spacing //Need
 
         Column(
             modifier = Modifier
                 .background(Color.White)
                 .fillMaxWidth()
-                .height(750.dp)
+                .weight(1f)
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
             OutlinedTextField(
-                value = TextFieldValue(state.customerName),
-                onValueChange = { viewModel.updateCustomerName(it.text) },
+                value = state.customerName,
+                onValueChange = { viewModel.updateCustomerName(it) },
                 label = { Text("Customer Name*") },
+                colors = textFieldColors,
+                textStyle = textFieldStyle,
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(5.dp))
                     .fillMaxWidth()
                     .padding(5.dp)
             )
 
             OutlinedTextField(
-                value = TextFieldValue(state.phoneNumber),
-                onValueChange = { viewModel.updatePhoneNumber(it.text) },
+                value = state.phoneNumber,
+                onValueChange = { viewModel.updatePhoneNumber(it) },
                 label = { Text("Phone Number*") },
+                colors = textFieldColors,
+                textStyle = textFieldStyle,
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(5.dp))
                     .fillMaxWidth()
                     .padding(5.dp)
             )
 
             OutlinedTextField(
-                value = TextFieldValue(state.alternatePhoneNumber),
-                onValueChange = { viewModel.updateAlternatePhoneNumber(it.text) },
+                value = state.alternatePhoneNumber,
+                onValueChange = { viewModel.updateAlternatePhoneNumber(it) },
                 label = { Text("Alternate Phone Number") },
+                colors = textFieldColors,
+                textStyle = textFieldStyle,
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(5.dp))
                     .fillMaxWidth()
                     .padding(5.dp)
             )
 
             OutlinedTextField(
-                value = TextFieldValue(state.address),
-                onValueChange = { viewModel.updateAddress(it.text) },
+                value = state.address,
+                onValueChange = { viewModel.updateAddress(it) },
                 label = { Text("Address*") },
+                colors = textFieldColors,
+                textStyle = textFieldStyle,
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(5.dp))
-                    .fillMaxWidth().height(102.dp)
+                    .fillMaxWidth()
+                    .height(102.dp)
                     .padding(5.dp)
             )
 
-            Box() {
-                Text(
-                    text = "Proof Of Meeting*",
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontStyle = FontStyle.Normal,
-                    modifier = Modifier.padding(10.dp)
-                )
-
-                Button(
-                    onClick = {
-
-                    },
-                    modifier = Modifier
-                        .height(80.dp)
-                        .align(Alignment.CenterStart)
-                        .padding(top = 40.dp),
-                    colors = ButtonDefaults.buttonColors(Color.LightGray)
-                ) {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Add icon",
-                        modifier = Modifier
-                            .padding(end = 3.dp)
-                            .size(20.dp)
-                            .background(
-                                Color.Black
-                            )
-                    )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                Column() {
                     Text(
-
-                        text = "Attach Image",
+                        text = "Proof Of Meeting*",
                         color = Color.Black,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         fontStyle = FontStyle.Normal,
-                        modifier = Modifier.padding(1.dp)
+                        modifier = Modifier.padding(10.dp)
                     )
-
+                    Button(
+                        onClick = {
+                            // Implement attachment functionality
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth() // Ensure the button fills the available space
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(Color.LightGray)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Add icon",
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Text(
+                            text = "Attach Image",
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                            fontStyle = FontStyle.Normal,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
                 }
 
             }
@@ -218,60 +224,67 @@ fun CreateScreen(
             val lsIcon =
                 if (lsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
 
-           Box(){
-               OutlinedTextField(
-                   value = TextFieldValue(state.businessCategory),
-                   onValueChange = { viewModel.updateBusinessCategory(it.text) },
-                   trailingIcon = {
-                       Icon(
-                           bcIcon,
-                           "Dropdown Icon",
-                           Modifier.clickable { bcExpanded = !bcExpanded }
-                       )
-                   },
-                   label = { Text("Business Category") },
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .clip(shape = RoundedCornerShape(5.dp))
-                       .padding(5.dp)
-               )
-
-               DropdownMenu(
-                   expanded = bcExpanded,
-                   onDismissRequest = { bcExpanded = false },
-                   modifier = Modifier
-                       .fillMaxWidth().height(200.dp)
-                       .background(Color.White)
-               ) {
-                   DropdownLists.bussinessCategory.forEach { category ->
-                       DropdownMenuItem(
-                           text = {
-                               Text(category, modifier = Modifier.padding(10.dp))
-                           },
-                           onClick = {
-                               viewModel.updateBusinessCategory(category)
-                               bcExpanded = false
-                           }
-                       )
-                   }
-               }
-           }
-
-            Box() {
+            Box(
+                modifier = Modifier.fillMaxWidth() // Ensures dropdown flexibility
+            ) {
                 OutlinedTextField(
-                    value = TextFieldValue(state.callStatus),
-                    onValueChange = { viewModel.updateCallStatus(it.text) },
+                    value = state.businessCategory,
+                    onValueChange = { viewModel.updateBusinessCategory(it) },
+                    trailingIcon = {
+                        Icon(
+                            bcIcon,
+                            "Dropdown Icon",
+                            Modifier.clickable { bcExpanded = !bcExpanded },Color.Black
+                        )
+                    },
+                    label = { Text("Business Category") },
+                    colors = textFieldColors,
+                    textStyle = textFieldStyle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                )
+
+                DropdownMenu(
+                    expanded = bcExpanded,
+                    onDismissRequest = { bcExpanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                ) {
+                    DropdownLists.bussinessCategory.forEach { category ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(category, color = Color.Black)
+                            },
+                            onClick = {
+                                viewModel.updateBusinessCategory(category)
+                                bcExpanded = false
+                            }
+                        )
+                        Divider()
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = state.callStatus,
+                    onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
                         Icon(
                             csIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { csExpanded = !csExpanded }
+                            Modifier.clickable { csExpanded = !csExpanded },Color.Black
                         )
                     },
                     label = { Text("Call Status") },
+                    colors = textFieldColors,
+                    textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(5.dp))
                         .padding(5.dp)
                 )
 
@@ -279,38 +292,42 @@ fun CreateScreen(
                     expanded = csExpanded,
                     onDismissRequest = { csExpanded = false },
                     modifier = Modifier
-                        .fillMaxWidth().height(200.dp)
-                        .background(Color.White)
+                        .fillMaxWidth(1f)
+                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
                 ) {
                     DropdownLists.callStatus.forEach { status ->
                         DropdownMenuItem(
                             text = {
-                                Text(status, modifier = Modifier.padding(10.dp))
+                                Text(status, color = Color.Black)
                             },
                             onClick = {
                                 viewModel.updateCallStatus(status)
                                 csExpanded = false
                             }
                         )
+                        Divider()
                     }
                 }
-
             }
-            Box() {
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 OutlinedTextField(
-                    value = TextFieldValue(state.leadStatus),
-                    onValueChange = { viewModel.updateLeadStatus(it.text) },
+                    value = state.leadStatus,
+                    onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {
                         Icon(
                             lsIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { lsExpanded = !lsExpanded }
+                            Modifier.clickable { lsExpanded = !lsExpanded },Color.Black
                         )
                     },
                     label = { Text("Lead Status*") },
+                    colors = textFieldColors,
+                    textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(5.dp))
                         .padding(5.dp)
                 )
 
@@ -318,74 +335,80 @@ fun CreateScreen(
                     expanded = lsExpanded,
                     onDismissRequest = { lsExpanded = false },
                     modifier = Modifier
-                        .fillMaxWidth().height(200.dp)
-                        .background(Color.White)
+                        .fillMaxWidth(1f)
+                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
                 ) {
                     DropdownLists.leadStatus.forEach { status ->
                         DropdownMenuItem(
                             text = {
-                                Text(status, modifier = Modifier.padding(10.dp))
+                                Text(status, color = Color.Black)
                             },
                             onClick = {
                                 viewModel.updateLeadStatus(status)
                                 lsExpanded = false
                             }
                         )
+                        Divider()
                     }
                 }
-
             }
+
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = TextFieldValue(state.followUpDate),
-                    onValueChange = { viewModel.updateFollowUpDate(it.text) },
+                    value = state.followUpDate,
+                    onValueChange = { viewModel.updateFollowUpDate(it) },
                     label = { Text("Follow Up Date*") },
+                    colors = textFieldColors,
+                    textStyle = textFieldStyle,
                     modifier = Modifier
-                        .clip(shape = RoundedCornerShape(5.dp))
-                        .weight(1f)
-                        .padding(5.dp, end = 0.dp)
+                        .weight(1f) // Make field responsive
+                        .padding(5.dp)
                 )
-                Icon(imageVector = Icons.Default.DateRange,
+
+                Icon(
+                    imageVector = Icons.Default.DateRange,
                     contentDescription = "",
                     modifier = Modifier
                         .clickable { mDatePickerDialog.show() }
-                        .padding(5.dp))
+                        .padding(10.dp)
+                )
             }
 
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = TextFieldValue(state.followUpTime),
-                    onValueChange = { viewModel.updateFollowUpTime(it.text) },
+                    value = state.followUpTime,
+                    onValueChange = { viewModel.updateFollowUpTime(it) },
                     label = { Text("Follow Up Time*") },
+                    colors = textFieldColors,
+                    textStyle = textFieldStyle,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(5.dp))
+                        .weight(1f)
                         .padding(5.dp)
-                        .clickable { mTimePickerDialog.show() }
-
                 )
-                Icon(imageVector = Icons.Default.AddCircle,
+
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
                     contentDescription = "",
                     modifier = Modifier
-                        .clickable { mDatePickerDialog.show() }
-                        .padding(5.dp))
-
+                        .clickable { mTimePickerDialog.show() }
+                        .padding(10.dp)
+                )
             }
 
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Top
+            ) {
                 Text(
                     text = "Follow Up Action*",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(5.dp)
-
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(10.dp)
                 )
 
                 Row(
@@ -396,14 +419,7 @@ fun CreateScreen(
                         selected = state.followUpActionCall,
                         onClick = { viewModel.toggleFollowUpActionCall() }
                     )
-                    Text(
-                        text = "Call",
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Normal,
-
-                    )
+                    Text("Call", modifier = Modifier.padding(10.dp))
                 }
 
                 Row(
@@ -414,35 +430,29 @@ fun CreateScreen(
                         selected = state.followUpActionVisit,
                         onClick = { viewModel.toggleFollowUpActionVisit() }
                     )
-                    Text(
-                        text = "Visit",
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Normal,
-                    )
+                    Text("Visit", modifier = Modifier.padding(10.dp))
                 }
             }
 
             OutlinedTextField(
-                value = TextFieldValue(state.comments),
-                onValueChange = { viewModel.updateComments(it.text) },
+                value = state.comments,
+                onValueChange = { viewModel.updateComments(it) },
                 label = { Text("Comments") },
+                colors = textFieldColors,
+                textStyle = textFieldStyle,
                 modifier = Modifier
-                    .fillMaxWidth().height(131.dp)
-                    .clip(shape = RoundedCornerShape(5.dp))
-                    .padding(5.dp)
+                    .fillMaxWidth()
+                    .height(131.dp)
+                    .padding(10.dp)
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        //Spacer(modifier = Modifier.weight(1f)) // Fills remaining space to ensure button stays at the bottom
 
-        // Save button logic
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Red)
-                .fillMaxHeight(),
+                .background(Color.Red),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -457,13 +467,10 @@ fun CreateScreen(
                     text = "Save",
                     color = Color.White,
                     fontSize = 24.sp,
-                    fontStyle = FontStyle.Normal,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
                     modifier = Modifier.padding(10.dp)
                 )
             }
         }
     }
 }
-

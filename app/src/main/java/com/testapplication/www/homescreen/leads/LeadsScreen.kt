@@ -15,17 +15,17 @@ fun LeadScreen(
     toHome: (Any?) -> Unit,
     toFollowupCalls: (Any?) -> Unit,
     toScheduledVisits: (Any?) -> Unit,
-    userID:Long,
+    userID: Long,
     context: Context,
     modifier: Modifier = Modifier
-){
+) {
 
 
-    Column(modifier = Modifier.padding(2.dp), Arrangement.Bottom) {
+    Column(modifier = Modifier, Arrangement.Bottom) {
         BottomBar(
             currentScreen = "Leads",
             toOnboarding = { toOnboarding() },
-            toLeadsScreen={},
+            toLeadsScreen = {},
             toHome = { toHome(userID) },
             toScheduledVisits = { toScheduledVisits(userID) },
             toFollowupCalls = { toFollowupCalls(userID) }) {

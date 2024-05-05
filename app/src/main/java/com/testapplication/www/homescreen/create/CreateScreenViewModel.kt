@@ -1,12 +1,11 @@
-package com.testapplication.www.homescreen.create
-
-import CreateScreenDB
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import android.content.Context
+
+// Dummy CreateScreenDB implementation
+
 
 data class CreateScreenState(
     val customerName: String = "",
@@ -31,55 +30,51 @@ class CreateScreenViewModel(context: Context, private val userID: Long) : ViewMo
     private val db = CreateScreenDB(context)
 
     fun updateCustomerName(name: String) {
-        _state.value = _state.value.copy(customerName = name)
+        _state.update { it.copy(customerName = name) }
     }
 
     fun updatePhoneNumber(number: String) {
-        _state.value = _state.value.copy(phoneNumber = number)
+        _state.update { it.copy(phoneNumber = number) }
     }
 
     fun updateAlternatePhoneNumber(number: String) {
-        _state.value = _state.value.copy(alternatePhoneNumber = number)
+        _state.update { it.copy(alternatePhoneNumber = number) }
     }
 
     fun updateAddress(address: String) {
-        _state.value = _state.value.copy(address = address)
+        _state.update { it.copy(address = address) }
     }
 
     fun updateBusinessCategory(category: String) {
-        _state.value = _state.value.copy(businessCategory = category)
+        _state.update { it.copy(businessCategory = category) }
     }
 
     fun updateCallStatus(status: String) {
-        _state.value = _state.value.copy(callStatus = status)
+        _state.update { it.copy(callStatus = status) }
     }
 
     fun updateLeadStatus(status: String) {
-        _state.value = _state.value.copy(leadStatus = status)
+        _state.update { it.copy(leadStatus = status) }
     }
 
     fun updateFollowUpDate(date: String) {
-        _state.value = _state.value.copy(followUpDate = date)
+        _state.update { it.copy(followUpDate = date) }
     }
 
     fun updateFollowUpTime(time: String) {
-        _state.value = _state.value.copy(followUpTime = time)
+        _state.update { it.copy(followUpTime = time) }
     }
 
     fun toggleFollowUpActionCall() {
-        _state.value = _state.value.copy(
-            followUpActionCall = !_state.value.followUpActionCall
-        )
+        _state.update { it.copy(followUpActionCall = !it.followUpActionCall) }
     }
 
     fun toggleFollowUpActionVisit() {
-        _state.value = _state.value.copy(
-            followUpActionVisit = !_state.value.followUpActionVisit
-        )
+        _state.update { it.copy(followUpActionVisit = !it.followUpActionVisit) }
     }
 
     fun updateComments(comments: String) {
-        _state.value = _state.value.copy(comments = comments)
+        _state.update { it.copy(comments = comments) }
     }
 
     fun saveFST() {
@@ -100,7 +95,28 @@ class CreateScreenViewModel(context: Context, private val userID: Long) : ViewMo
                 followUpActionVisit = if (stateValue.followUpActionVisit) "1" else "0",
                 comments = stateValue.comments
             )
-            _state.value = _state.value.copy(isSubmissionSuccessful = isSuccess)
+            _state.update { it.copy(isSubmissionSuccessful = isSuccess) }
+        }
+    }
+
+    fun updateStateConcurrently() {
+        viewModelScope.launch {
+            val deferredUpdates = listOf(
+                async { updateCustomerName("Customer A") },
+                async { updatePhoneNumber("1234567890") },
+                async { updateAlternatePhoneNumber("0987654321") },
+                async { updateAddress("123 Main St") },
+                async { updateBusinessCategory("Retail") },
+                async { updateCallStatus("Completed") },
+                async { updateLeadStatus("Qualified") },
+                async { updateFollowUpDate("2024-05-15") },
+                async { updateFollowUpTime("14:30") },
+                async { toggleFollowUpActionCall() },
+                async { toggleFollowUpActionVisit() },
+                async { updateComments("No additional comments") }
+            )
+
+            deferredUpdates.awaitAll() // Wait for all concurrent updates to complete
         }
     }
 }

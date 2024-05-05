@@ -23,7 +23,7 @@ fun ScheduledVisitsScreen(
     Column {
         displayList()
     }
-    Column(modifier = Modifier.padding(2.dp), Arrangement.Bottom) {
+    Column(modifier = Modifier, Arrangement.Bottom) {
 
         BottomBar(
             currentScreen = "Scheduled visits",
