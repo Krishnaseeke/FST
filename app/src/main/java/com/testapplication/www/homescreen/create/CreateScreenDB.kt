@@ -37,8 +37,8 @@ class CreateScreenDB(context: Context?) :
         leadStatus: String?,
         followUpDate: String,
         followUpTime: String?,
-        followUpActionCall: String,  // Change parameter name and data type to Int
-        followUpActionVisit: String,  // Change parameter name and data type to Int
+        followUpActionCall: Int,  // Change parameter name and data type to Int
+        followUpActionVisit: Int,  // Change parameter name and data type to Int
         comments: String?
     ): Boolean {
         val db = this.writableDatabase
@@ -69,7 +69,7 @@ class CreateScreenDB(context: Context?) :
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 1
+        private const val DB_VERSION = 2
         private const val TABLE_NAME = "create_screen_data"
         private const val ID_COL = "id"
         private const val USER_ID_COL = "user_id"

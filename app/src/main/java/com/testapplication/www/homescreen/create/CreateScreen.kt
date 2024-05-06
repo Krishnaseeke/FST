@@ -456,9 +456,24 @@ fun CreateScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (state.isLoading) {
+                // Show progress bar here (e.g., CircularProgressIndicator)
+            }
             Button(
                 onClick = {
-                    viewModel.saveFST() // Save to the database
+                    viewModel.saveFST(  userId = userID,
+                        customerName = state.customerName,
+                        phoneNumber = state.phoneNumber,
+                        alternatePhoneNumber = state.alternatePhoneNumber,
+                        address = state.address,
+                        businessCategory = state.businessCategory,
+                        callStatus = state.callStatus,
+                        leadStatus = state.leadStatus,
+                        followUpDate = state.followUpDate,
+                        followUpTime = state.followUpTime,
+                        followUpActionCall = if (state.followUpActionCall) 1 else 0,
+                        followUpActionVisit = if (state.followUpActionVisit) 1 else 0,
+                        comments = state.comments) // Save to the database
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Red)
