@@ -57,6 +57,11 @@ fun HomeScreen(
 ) {
     var checked = false
     val ctx = LocalContext.current
+    val homeScreenDB = HomeScreenDB(context)
+    val leadsCreatedCount = homeScreenDB.getLeadsCreatedCount(userID)
+    val demosScheduledCount = homeScreenDB.getDemosScheduledCount(userID)
+    val demosCompletedCount = homeScreenDB.getDemosCompletedCount(userID)
+    val licensesSoldCount = homeScreenDB.getLicensesSoldCount(userID)
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -140,7 +145,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Leads Created")
-                        customValuesHome(text = "10")
+                        customValuesHome(text = leadsCreatedCount.toString())
                     }
                     Divider(
                         modifier = Modifier
@@ -154,7 +159,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Demos Scheduled")
-                        customValuesHome(text = "10")
+                        customValuesHome(text = demosScheduledCount.toString())
                     }
                 }
                 // Divider after first row
@@ -173,7 +178,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Demos Completed")
-                        customValuesHome(text = "10")
+                        customValuesHome(text = demosCompletedCount.toString())
                     }
 
                     Divider(
@@ -190,7 +195,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Licenses Sold")
-                        customValuesHome(text = "10")
+                        customValuesHome(text = licensesSoldCount.toString())
                     }
                 }
             }
