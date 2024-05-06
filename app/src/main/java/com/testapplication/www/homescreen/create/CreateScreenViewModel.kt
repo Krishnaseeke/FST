@@ -3,6 +3,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import android.content.Context
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 // Dummy CreateScreenDB implementation
 
@@ -20,12 +22,15 @@ data class CreateScreenState(
     val followUpActionCall: Boolean = false,
     val followUpActionVisit: Boolean = false,
     val comments: String = "",
+    val isLoading: Boolean = false,
     val isSubmissionSuccessful: Boolean = false
 )
 
 class CreateScreenViewModel(context: Context, private val userID: Long) : ViewModel() {
     private val _state = MutableStateFlow(CreateScreenState())
     val state: StateFlow<CreateScreenState> = _state
+    val createScreendb = CreateScreenDB(context)
+    val ctx1 = context
 
     private val db = CreateScreenDB(context)
 
@@ -76,47 +81,58 @@ class CreateScreenViewModel(context: Context, private val userID: Long) : ViewMo
     fun updateComments(comments: String) {
         _state.update { it.copy(comments = comments) }
     }
+    fun isValidInput(state: CreateScreenState): Boolean {
+        // Implement your validation logic here
+        // For example, check if required fields are not empty
+        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() &&
+                state.address.isNotEmpty() && state.leadStatus.isNotEmpty() &&
+                (state.followUpDate.isNotEmpty() && state.followUpTime.isNotEmpty())
+    }
 
-    fun saveFST() {
+    fun saveFST( userId: Long,
+                 customerName: String?,
+                 phoneNumber: String?,
+                 alternatePhoneNumber: String?,
+                 address: String?,
+                 businessCategory: String?,
+                 callStatus: String?,
+                 leadStatus: String?,
+                 followUpDate: String,
+                 followUpTime: String?,
+                 followUpActionCall: Int,  // Change parameter name and data type to Int
+                 followUpActionVisit: Int,  // Change parameter name and data type to Int
+                 comments: String?) {
         val stateValue = _state.value
-        viewModelScope.launch {
-            val isSuccess = db.createFST(
-                userId = userID,
-                customerName = stateValue.customerName,
-                phoneNumber = stateValue.phoneNumber,
-                alternatePhoneNumber = stateValue.alternatePhoneNumber,
-                address = stateValue.address,
-                businessCategory = stateValue.businessCategory,
-                callStatus = stateValue.callStatus,
-                leadStatus = stateValue.leadStatus,
-                followUpDate = stateValue.followUpDate,
-                followUpTime = stateValue.followUpTime,
-                followUpActionCall = if (stateValue.followUpActionCall) "1" else "0",
-                followUpActionVisit = if (stateValue.followUpActionVisit) "1" else "0",
-                comments = stateValue.comments
-            )
-            _state.update { it.copy(isSubmissionSuccessful = isSuccess) }
+        if (isValidInput(stateValue)) {
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                var isSuccess = false // Default to false
+                try {
+                    isSuccess = createScreendb.createFST( userId = userId,
+                        customerName = customerName,
+                        phoneNumber = phoneNumber,
+                        alternatePhoneNumber = alternatePhoneNumber,
+                        address = address,
+                        businessCategory = businessCategory,
+                        callStatus = callStatus,
+                        leadStatus = leadStatus,
+                        followUpDate = followUpDate,
+                        followUpTime = followUpTime,
+                        followUpActionCall = followUpActionCall,
+                        followUpActionVisit = followUpActionVisit,
+                        comments = comments)
+                    delay(2000) // Simulate network/database delay
+
+                } catch (e: Exception) {
+                    // Handle exceptions if necessary
+                } finally {
+                    _state.update { it.copy(isLoading = false, isSubmissionSuccessful = isSuccess) }
+                }
+            }
+        } else {
+            Toast.makeText(ctx1, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun updateStateConcurrently() {
-        viewModelScope.launch {
-            val deferredUpdates = listOf(
-                async { updateCustomerName("Customer A") },
-                async { updatePhoneNumber("1234567890") },
-                async { updateAlternatePhoneNumber("0987654321") },
-                async { updateAddress("123 Main St") },
-                async { updateBusinessCategory("Retail") },
-                async { updateCallStatus("Completed") },
-                async { updateLeadStatus("Qualified") },
-                async { updateFollowUpDate("2024-05-15") },
-                async { updateFollowUpTime("14:30") },
-                async { toggleFollowUpActionCall() },
-                async { toggleFollowUpActionVisit() },
-                async { updateComments("No additional comments") }
-            )
 
-            deferredUpdates.awaitAll() // Wait for all concurrent updates to complete
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package com.testapplication.www.homescreen.home
 
+import CreateScreenDB
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -10,7 +11,7 @@ class HomeScreenDB(context: Context?) :
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 1
+        private const val DB_VERSION = 2
         private const val TABLE_NAME = "create_screen_data"
         private const val USER_ID_COL = "user_id"
         private const val LEAD_STATUS_COL = "lead_status"
@@ -19,6 +20,10 @@ class HomeScreenDB(context: Context?) :
     override fun onCreate(db: SQLiteDatabase) {
         // The database schema should already exist from the existing CreateScreenDB class.
     }
+
+    val createdb = CreateScreenDB(context)
+    val readablefile = createdb.readableDatabase
+
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")

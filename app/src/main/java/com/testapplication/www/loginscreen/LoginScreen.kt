@@ -1,5 +1,6 @@
 package com.testapplication.www.loginscreen
 
+import CreateScreenDB
 import LoginViewModel
 import android.content.Context
 import android.widget.Toast
@@ -74,6 +75,9 @@ fun LoginScreen(
 
             CustomButton(
                 onClick = {
+                    val createdb = CreateScreenDB(context)
+                    val readablefile = createdb.readableDatabase
+                    readablefile.close()
                     viewModel.login(context) { userId ->
                         toHome(userId)
                     }
