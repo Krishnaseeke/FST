@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.loginscreen.LoginScreenDB
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,6 +13,7 @@ import kotlinx.coroutines.withContext
 class LoginViewModel(context: Context) : ViewModel() {
     private lateinit var dbHandler: LoginScreenDB
     private lateinit var dbSignUp: SignupScreenDB
+    private val preferencesManager = PreferencesManager(context)
 
     val phoneNumber: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue())
     val password: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue())
@@ -55,6 +57,7 @@ class LoginViewModel(context: Context) : ViewModel() {
                 val userId = withContext(Dispatchers.IO) {
                     dbSignUp.getUserIdByPhoneNumber(phoneText.toLong())
                 }
+                preferencesManager.saveUserId(userId)
                 toHome(userId)
                 showToast(context, "Logged in successfully")
             } else {
@@ -92,6 +95,7 @@ class LoginViewModel(context: Context) : ViewModel() {
                 val userId = withContext(Dispatchers.IO) {
                     dbSignUp.getUserIdByPhoneNumber(phoneLong)
                 }
+                preferencesManager.saveUserId(userId)
                 toHome(userId)
                 showToast(context, "User Added to the FST")
             } else {
