@@ -4,6 +4,7 @@ import CreateScreenDB
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.util.displayList
 
@@ -63,25 +68,47 @@ fun HomeScreen(
     val demosScheduledCount = homeScreenDB.getDemosScheduledCount(userID)
     val demosCompletedCount = homeScreenDB.getDemosCompletedCount(userID)
     val licensesSoldCount = homeScreenDB.getLicensesSoldCount(userID)
+    val preferencesManager = PreferencesManager(context)
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
                 .wrapContentHeight()
                 .background(Color.White)
-                .padding(start = 10.dp, top = 10.dp, bottom = 15.dp)
-                .fillMaxWidth(), Arrangement.Top, Alignment.Start
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .fillMaxWidth()
         ) {
-            Text(
-                text = "Home",
-                color = Color.Black,
-                fontSize = 25.sp,
-                fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Bold
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Home",
+                    color = Color.Black,
+                    fontSize = 25.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.weight(1f))
 
-            )
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    modifier = Modifier
+                        .clickable {
+                            preferencesManager.clearPreferences()
+                            toOnboarding()
+                        }
+                        .padding(10.dp)
+                )
 
-
-
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .clickable { }
+                        .padding(10.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(

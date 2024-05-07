@@ -42,8 +42,9 @@ fun Root(context: Context) {
             OnboardingScreen(
                 toLoginScreen = { navController.navigate(Screens.Login.name) },
                 toSignupScreen = { navController.navigate(Screens.SignUp.name) },
-                toHomeScreen = { navController.navigate(Screens.Home.name) },
-                modifier = Modifier
+                toHomeScreen = {userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                modifier = Modifier,
+                context
             )
         }
         composable(Screens.SignUp.name) {
