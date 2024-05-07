@@ -258,7 +258,9 @@ fun HomeScreen(
                     }, modifier = Modifier.padding(top = 10.dp))
                 }
 
-                displayList()
+                if (userID != null) {
+                    displayList(context = context, userId = userID,"visit")
+                }
 
             }
             Spacer(modifier = Modifier.height(5.dp))
@@ -290,7 +292,9 @@ fun HomeScreen(
                     }, modifier = Modifier.padding(top = 10.dp))
                 }
 
-                displayList()
+                if (userID != null) {
+                    displayList(context = context, userId = userID,"call")
+                }
             }
         }
 
