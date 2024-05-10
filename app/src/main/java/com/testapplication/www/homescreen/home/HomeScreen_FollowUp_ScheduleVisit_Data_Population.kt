@@ -81,7 +81,7 @@ private const val COMMENTS_COL = "comments"
 fun displayList(context: Context, userId: Long, valueType:String, toCreate: (userId: Long, itemId: Long,) -> Unit) {
     val userId = userId
     var itemId: Long? = null
-    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userId,itemId) }
+
 
 
 
