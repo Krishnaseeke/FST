@@ -41,9 +41,6 @@ fun CreateScreen(
 ) {
     val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID,itemId) }
     val state by viewModel.state.collectAsState()
-
-
-
     // Navigate to home on successful submission
     LaunchedEffect(state.isSubmissionSuccessful) {
         if (state.isSubmissionSuccessful) {
@@ -51,18 +48,15 @@ fun CreateScreen(
             toHome(userID)
         }
     }
-
-    LaunchedEffect(itemId) {
-        if (itemId != null) {
-            val existingRecord = viewModel.fetchExistingRecord(context, itemId)
-            if (existingRecord != null) {
-                viewModel.populateFields(existingRecord)
-            } else { 
-                // Handle the case where the record is not found
-                Toast.makeText(context, "Record not found", Toast.LENGTH_SHORT).show()
-            }
+    val showToastMessage = viewModel.showToast.collectAsState().value
+    LaunchedEffect(key1 = showToastMessage) {
+        if (!showToastMessage.isNullOrEmpty()) {
+            Toast.makeText(context, showToastMessage, Toast.LENGTH_SHORT).show()
         }
     }
+        if (itemId != null) {
+            viewModel.fetchExistingRecord(context, itemId)
+        }
 
     val mContext = LocalContext.current
     val mCalendar = Calendar.getInstance()
@@ -267,7 +261,9 @@ fun CreateScreen(
                     onDismissRequest = { bcExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.bussinessCategory.forEach { category ->
                         DropdownMenuItem(
@@ -310,7 +306,9 @@ fun CreateScreen(
                     onDismissRequest = { csExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.callStatus.forEach { status ->
                         DropdownMenuItem(
@@ -353,7 +351,9 @@ fun CreateScreen(
                     onDismissRequest = { lsExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.leadStatus.forEach { status ->
                         DropdownMenuItem(

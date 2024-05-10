@@ -58,6 +58,9 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
 
     private val db = CreateScreenDB(context)
 
+    private val _showToast = MutableStateFlow<String?>(null)
+    val showToast = _showToast.asStateFlow()
+
     fun updateCustomerName(name: String) {
         _state.update { it.copy(customerName = name) }
     }
@@ -116,20 +119,18 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
 
     init {
         itemId?.let {
-            val existingRecord = fetchExistingRecord(context, it)
-            if (existingRecord != null) {
-                populateFields(existingRecord)
-            }
+            fetchExistingRecord(context, it)
         }
     }
 
     @SuppressLint("Range")
-    fun fetchExistingRecord(context: Context, itemId: Long): ScreenData1? {
+    fun fetchExistingRecord(context: Context, itemId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
         val db = CreateScreenDB(context).readableDatabase
         val cursor =
             db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $ID_COL = ?", arrayOf(itemId.toString()))
 
-        return if (cursor.moveToFirst()) {
+        val screeData =  if (cursor.moveToFirst()) {
             val id = cursor.getLong(cursor.getColumnIndex(ID_COL))
             val stringValue = cursor.getString(cursor.getColumnIndex(CUSTOMER_NAME_COL))
             val phoneNumber = cursor.getString(cursor.getColumnIndex(PHONE_NUMBER_COL))
@@ -161,8 +162,17 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 comments
             )
         } else {
-           return null
+          null
         }.also { cursor.close(); db.close() }
+
+            if (screeData != null) {
+                populateFields(screeData)
+            } else {
+                // Handle the case where the record is not found
+                _showToast.emit("Record not found")
+
+            }
+        }
     }
 
 

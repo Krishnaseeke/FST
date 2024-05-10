@@ -175,7 +175,7 @@ fun displayList(context: Context, userId: Long, valueType:String, toCreate: (use
                             contentDescription = "Navigate",
                             modifier = Modifier
                                 .clickable {
-                                    toCreate(userId, screenData.id)  }
+                                    toCreate.invoke(userId, screenData.id)  }
                         )
                     }
 

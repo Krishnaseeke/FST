@@ -55,7 +55,7 @@ fun HomeScreen(
     toLeadsScreen: (Any?) -> Unit,
     userID: Long?,
     context: Context,
-    toCreate: (Any?) -> Unit,
+    toCreate: (Long?,Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -259,7 +259,7 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         valueType = "visit"
-                    ) { userId, itemId ->toCreate
+                    ) { userId, itemId ->toCreate.invoke(userId,itemId)
                         // Here you can define what you want to do with userId and itemId
                         // For example, you can navigate to another screen or perform some action
                     }
@@ -301,9 +301,10 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         valueType = "call"
-                    ) { userId, itemId ->toCreate
+                    ) { userId, itemId ->
                         // Here you can define what you want to do with userId and itemId
                         // For example, you can navigate to another screen or perform some action
+                        toCreate.invoke(userId,itemId)
                     }
                 }
 
@@ -332,7 +333,7 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    toCreate(userID)
+                    toCreate(userID,0)
                     Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
                 },
                 contentColor = Color.White,
