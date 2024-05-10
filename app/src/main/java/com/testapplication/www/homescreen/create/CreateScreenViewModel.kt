@@ -215,7 +215,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 var isSuccess = false
 
                 try {
-                    if (itemId != null) {
+                    if (itemId != null && itemId !=0L) {
                         // Update the existing record
                         isSuccess = createScreendb.updateFST(
                             itemId = itemId,
