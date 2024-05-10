@@ -35,7 +35,7 @@ class CreateScreenDB(context: Context?) :
         businessCategory: String?,
         callStatus: String?,
         leadStatus: String?,
-        followUpDate: String,
+        followUpDate: String?,
         followUpTime: String?,
         followUpActionCall: Int,  // Change parameter name and data type to Int
         followUpActionVisit: Int,  // Change parameter name and data type to Int
@@ -60,6 +60,44 @@ class CreateScreenDB(context: Context?) :
         db.insert(TABLE_NAME, null, values)
         db.close()
         return true
+    }
+
+    fun updateFST(
+        itemId: Long?,
+        customerName: String?,
+        phoneNumber: String?,
+        alternatePhoneNumber: String?,
+        address: String?,
+        businessCategory: String?,
+        callStatus: String?,
+        leadStatus: String?,
+        followUpDate: String?,
+        followUpTime: String?,
+        followUpActionCall: Int,
+        followUpActionVisit: Int,
+        comments: String?
+    ): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(CUSTOMER_NAME_COL, customerName)
+            put(PHONE_NUMBER_COL, phoneNumber)
+            put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
+            put(ADDRESS_COL, address)
+            put(BUSINESS_CATEGORY_COL, businessCategory)
+            put(CALL_STATUS_COL, callStatus)
+            put(LEAD_STATUS_COL, leadStatus)
+            put(FOLLOW_UP_DATE_COL, followUpDate)
+            put(FOLLOW_UP_TIME_COL, followUpTime)
+            put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
+            put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
+            put(COMMENTS_COL, comments)
+        }
+
+        val rowsUpdated = db.update(TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
+        db.close() // Close the database after the update operation
+
+        // Return true if at least one row was updated, otherwise false
+        return rowsUpdated > 0
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

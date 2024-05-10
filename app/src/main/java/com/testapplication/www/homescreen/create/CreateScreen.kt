@@ -26,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
+import com.testapplication.www.homescreen.home.ScreenData1
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -34,16 +35,32 @@ fun CreateScreen(
     toHome: (Any?) -> Unit,
     context: Context,
     userID: Long,
-    modifier: Modifier = Modifier
+    itemId:Long?,
+    modifier: Modifier = Modifier,
+
 ) {
-    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID) }
+    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID,itemId) }
     val state by viewModel.state.collectAsState()
+
+
 
     // Navigate to home on successful submission
     LaunchedEffect(state.isSubmissionSuccessful) {
         if (state.isSubmissionSuccessful) {
             Toast.makeText(context, "Successfully FST Created", Toast.LENGTH_SHORT).show()
             toHome(userID)
+        }
+    }
+
+    LaunchedEffect(itemId) {
+        if (itemId != null) {
+            val existingRecord = viewModel.fetchExistingRecord(context, itemId)
+            if (existingRecord != null) {
+                viewModel.populateFields(existingRecord)
+            } else { 
+                // Handle the case where the record is not found
+                Toast.makeText(context, "Record not found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
