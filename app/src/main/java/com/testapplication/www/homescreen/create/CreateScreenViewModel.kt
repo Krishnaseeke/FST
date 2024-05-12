@@ -1,12 +1,17 @@
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import com.testapplication.www.homescreen.home.ScreenData
+import com.testapplication.www.homescreen.home.ScreenData1
 
 // Dummy CreateScreenDB implementation
+
 
 
 data class CreateScreenState(
@@ -26,13 +31,39 @@ data class CreateScreenState(
     val isSubmissionSuccessful: Boolean = false
 )
 
-class CreateScreenViewModel(context: Context, private val userID: Long) : ViewModel() {
+class CreateScreenViewModel(context: Context, private val userID: Long, private val itemId: Long?) :
+    ViewModel() {
     private val _state = MutableStateFlow(CreateScreenState())
-    val state: StateFlow<CreateScreenState> = _state
+    val state: StateFlow<CreateScreenState> = _state.asStateFlow()
     val createScreendb = CreateScreenDB(context)
+    @SuppressLint("StaticFieldLeak")
     val ctx1 = context
+    val value1:Long = 0
+    private var fieldsPopulated = false
+
+
+    private val DB_NAME = "create_screen_db"
+    private val DB_VERSION = 2
+    private val TABLE_NAME = "create_screen_data"
+    private val ID_COL = "id"
+    private val USER_ID_COL = "user_id"
+    private val CUSTOMER_NAME_COL = "customer_name"
+    private val PHONE_NUMBER_COL = "phone_number"
+    private val ALTERNATE_PHONE_COL = "alternate_phone_number"
+    private val ADDRESS_COL = "address"
+    private val BUSINESS_CATEGORY_COL = "business_category"
+    private val CALL_STATUS_COL = "call_status"
+    private val LEAD_STATUS_COL = "lead_status"
+    private val FOLLOW_UP_DATE_COL = "follow_up_date"
+    private val FOLLOW_UP_TIME_COL = "follow_up_time"
+    private val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
+    private val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
+    private val COMMENTS_COL = "comments"
 
     private val db = CreateScreenDB(context)
+
+    private val _showToast = MutableStateFlow<String?>(null)
+    val showToast = _showToast.asStateFlow()
 
     fun updateCustomerName(name: String) {
         _state.update { it.copy(customerName = name) }
@@ -81,6 +112,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long) : ViewMo
     fun updateComments(comments: String) {
         _state.update { it.copy(comments = comments) }
     }
+
     fun isValidInput(state: CreateScreenState): Boolean {
         // Implement your validation logic here
         // For example, check if required fields are not empty
@@ -89,44 +121,153 @@ class CreateScreenViewModel(context: Context, private val userID: Long) : ViewMo
                 (state.followUpDate.isNotEmpty() && state.followUpTime.isNotEmpty())
     }
 
-    fun saveFST( userId: Long,
-                 customerName: String?,
-                 phoneNumber: String?,
-                 alternatePhoneNumber: String?,
-                 address: String?,
-                 businessCategory: String?,
-                 callStatus: String?,
-                 leadStatus: String?,
-                 followUpDate: String,
-                 followUpTime: String?,
-                 followUpActionCall: Int,  // Change parameter name and data type to Int
-                 followUpActionVisit: Int,  // Change parameter name and data type to Int
-                 comments: String?) {
+    init {
+        itemId?.let {
+            fetchExistingRecord(context, it)
+        }
+    }
+
+    @SuppressLint("Range")
+    fun fetchExistingRecord(context: Context, itemId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val db = CreateScreenDB(context).readableDatabase
+            val cursor =
+                db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $ID_COL = ?", arrayOf(itemId.toString()))
+
+            val screeData =  if (cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndex(ID_COL))
+                val stringValue = cursor.getString(cursor.getColumnIndex(CUSTOMER_NAME_COL))
+                val phoneNumber = cursor.getString(cursor.getColumnIndex(PHONE_NUMBER_COL))
+                val alternatePhoneNumber = cursor.getString(cursor.getColumnIndex(ALTERNATE_PHONE_COL))
+                val address = cursor.getString(cursor.getColumnIndex(ADDRESS_COL))
+                val businessCategory = cursor.getString(cursor.getColumnIndex(BUSINESS_CATEGORY_COL))
+                val callStatus = cursor.getString(cursor.getColumnIndex(CALL_STATUS_COL))
+                val leadStatus = cursor.getString(cursor.getColumnIndex(LEAD_STATUS_COL))
+                val followUpDate = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_DATE_COL))
+                val followUpTime = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_TIME_COL))
+                val followUpActionCall = cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_CALL_COL))
+                val followUpActionVisit =
+                    cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_VISIT_COL))
+                val comments = cursor.getString(cursor.getColumnIndex(COMMENTS_COL))
+
+                ScreenData1(
+                    id,
+                    stringValue,
+                    phoneNumber,
+                    alternatePhoneNumber,
+                    address,
+                    businessCategory,
+                    callStatus,
+                    leadStatus,
+                    followUpDate,
+                    followUpTime,
+                    followUpActionCall,
+                    followUpActionVisit,
+                    comments
+                )
+            } else {
+                null
+            }.also { cursor.close(); db.close() }
+
+            if (screeData != null) {
+                populateFields(screeData)
+            } else {
+                // Handle the case where the record is not found
+                _showToast.emit("Record not found")
+
+            }
+        }
+    }
+
+
+
+    private fun populateFields(existingItem: ScreenData1) {
+        if (!fieldsPopulated) { // Only populate if not already done
+            _state.value = state.value.copy(
+                customerName = existingItem.stringValue,
+                phoneNumber = existingItem.phoneNumber,
+                alternatePhoneNumber = existingItem.alternatePhoneNumber,
+                address = existingItem.address,
+                businessCategory = existingItem.businessCategory,
+                callStatus = existingItem.callStatus,
+                leadStatus = existingItem.leadStatus,
+                followUpDate = existingItem.followUpDate,
+                followUpTime = existingItem.followUpTime,
+                followUpActionCall = existingItem.followUpActionCall == 1,
+                followUpActionVisit = existingItem.followUpActionVisit == 1,
+                comments = existingItem.comments
+            )
+            fieldsPopulated = true // Set the flag to true after populating fields
+        }
+    }
+    fun saveFST(
+        userId: Long,
+        customerName: String?,
+        phoneNumber: String?,
+        alternatePhoneNumber: String?,
+        address: String?,
+        businessCategory: String?,
+        callStatus: String?,
+        leadStatus: String?,
+        followUpDate: String?,
+        followUpTime: String?,
+        followUpActionCall: Int,
+        followUpActionVisit: Int,
+        comments: String?
+    ) {
         val stateValue = _state.value
         if (isValidInput(stateValue)) {
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                var isSuccess = false // Default to false
-                try {
-                    isSuccess = createScreendb.createFST( userId = userId,
-                        customerName = customerName,
-                        phoneNumber = phoneNumber,
-                        alternatePhoneNumber = alternatePhoneNumber,
-                        address = address,
-                        businessCategory = businessCategory,
-                        callStatus = callStatus,
-                        leadStatus = leadStatus,
-                        followUpDate = followUpDate,
-                        followUpTime = followUpTime,
-                        followUpActionCall = followUpActionCall,
-                        followUpActionVisit = followUpActionVisit,
-                        comments = comments)
-                    delay(2000) // Simulate network/database delay
+                var isSuccess = false
 
+                try {
+                    if (itemId != null && itemId !=0L) {
+                        // Update the existing record
+                        isSuccess = createScreendb.updateFST(
+                            itemId = itemId,
+                            customerName = customerName,
+                            phoneNumber = phoneNumber,
+                            alternatePhoneNumber = alternatePhoneNumber,
+                            address = address,
+                            businessCategory = businessCategory,
+                            callStatus = callStatus,
+                            leadStatus = leadStatus,
+                            followUpDate = followUpDate,
+                            followUpTime = followUpTime,
+                            followUpActionCall = followUpActionCall,
+                            followUpActionVisit = followUpActionVisit,
+                            comments = comments
+                        )
+                    } else {
+                        // Create a new record
+                        isSuccess = createScreendb.createFST(
+                            userId = userId,
+                            customerName = customerName,
+                            phoneNumber = phoneNumber,
+                            alternatePhoneNumber = alternatePhoneNumber,
+                            address = address,
+                            businessCategory = businessCategory,
+                            callStatus = callStatus,
+                            leadStatus = leadStatus,
+                            followUpDate = followUpDate,
+                            followUpTime = followUpTime,
+                            followUpActionCall = followUpActionCall,
+                            followUpActionVisit = followUpActionVisit,
+                            comments = comments
+                        )
+                    }
                 } catch (e: Exception) {
-                    // Handle exceptions if necessary
+                    Toast.makeText(ctx1, "An error occurred: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 } finally {
                     _state.update { it.copy(isLoading = false, isSubmissionSuccessful = isSuccess) }
+                }
+
+                if (isSuccess) {
+                    Toast.makeText(ctx1, "Operation successful", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(ctx1, "Operation failed", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {

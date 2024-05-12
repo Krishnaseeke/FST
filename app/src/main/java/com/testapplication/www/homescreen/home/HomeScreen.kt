@@ -1,6 +1,5 @@
 package com.testapplication.www.homescreen.home
 
-import CreateScreenDB
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -21,9 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Divider
@@ -33,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
-import com.testapplication.www.util.displayList
 
 
 @Composable
@@ -58,16 +55,15 @@ fun HomeScreen(
     toLeadsScreen: (Any?) -> Unit,
     userID: Long?,
     context: Context,
-    toCreate: (Any?) -> Unit,
+    toCreate: (Long?,Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var checked = false
     val ctx = LocalContext.current
-    val homeScreenDB = HomeScreenDB(context)
-    val leadsCreatedCount = homeScreenDB.getLeadsCreatedCount(userID)
-    val demosScheduledCount = homeScreenDB.getDemosScheduledCount(userID)
-    val demosCompletedCount = homeScreenDB.getDemosCompletedCount(userID)
-    val licensesSoldCount = homeScreenDB.getLicensesSoldCount(userID)
+    val viewModel: HomeScreenViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel() }
+    viewModel.initialize(context,userID)
+    var checked = false
+
     val preferencesManager = PreferencesManager(context)
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
@@ -173,7 +169,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Leads Created")
-                        customValuesHome(text = leadsCreatedCount.toString())
+                        customValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
                     }
                     Divider(
                         modifier = Modifier
@@ -187,7 +183,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Demos Scheduled")
-                        customValuesHome(text = demosScheduledCount.toString())
+                        customValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
                     }
                 }
                 // Divider after first row
@@ -206,7 +202,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Demos Completed")
-                        customValuesHome(text = demosCompletedCount.toString())
+                        customValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
                     }
 
                     Divider(
@@ -223,7 +219,7 @@ fun HomeScreen(
                             .weight(1f)
                     ) {
                         customTextHome(text = "Licenses Sold")
-                        customValuesHome(text = licensesSoldCount.toString())
+                        customValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
                     }
                 }
             }
@@ -259,8 +255,16 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    displayList(context = context, userId = userID,"visit")
+                    com.testapplication.www.homescreen.home.displayList(
+                        context = context,
+                        userId = userID,
+                        valueType = "visit"
+                    ) { userId, itemId ->toCreate.invoke(userId,itemId)
+                        // Here you can define what you want to do with userId and itemId
+                        // For example, you can navigate to another screen or perform some action
+                    }
                 }
+
 
             }
             Spacer(modifier = Modifier.height(5.dp))
@@ -293,8 +297,17 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    displayList(context = context, userId = userID,"call")
+                    com.testapplication.www.homescreen.home.displayList(
+                        context = context,
+                        userId = userID,
+                        valueType = "call"
+                    ) { userId, itemId ->
+                        // Here you can define what you want to do with userId and itemId
+                        // For example, you can navigate to another screen or perform some action
+                        toCreate.invoke(userId,itemId)
+                    }
                 }
+
             }
         }
 
@@ -320,7 +333,7 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    toCreate(userID)
+                    toCreate(userID,0)
                     Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
                 },
                 contentColor = Color.White,

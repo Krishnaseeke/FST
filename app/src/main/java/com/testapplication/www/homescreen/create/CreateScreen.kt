@@ -26,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
+import com.testapplication.www.homescreen.home.ScreenData1
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -34,17 +35,27 @@ fun CreateScreen(
     toHome: (Any?) -> Unit,
     context: Context,
     userID: Long,
-    modifier: Modifier = Modifier
-) {
-    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID) }
-    val state by viewModel.state.collectAsState()
+    itemId:Long?,
+    modifier: Modifier = Modifier,
 
+    ) {
+    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID,itemId) }
+    val state by viewModel.state.collectAsState()
     // Navigate to home on successful submission
     LaunchedEffect(state.isSubmissionSuccessful) {
         if (state.isSubmissionSuccessful) {
             Toast.makeText(context, "Successfully FST Created", Toast.LENGTH_SHORT).show()
             toHome(userID)
         }
+    }
+    val showToastMessage = viewModel.showToast.collectAsState().value
+    LaunchedEffect(key1 = showToastMessage) {
+        if (!showToastMessage.isNullOrEmpty()) {
+            Toast.makeText(context, showToastMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+    if (itemId != null) {
+        viewModel.fetchExistingRecord(context, itemId)
     }
 
     val mContext = LocalContext.current
@@ -85,7 +96,7 @@ fun CreateScreen(
         focusedLabelColor = Color.Black,
         unfocusedLabelColor = Color.Black,
 
-    )
+        )
 
     val textFieldStyle = TextStyle(color = Color.Black)
 
@@ -250,7 +261,9 @@ fun CreateScreen(
                     onDismissRequest = { bcExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.bussinessCategory.forEach { category ->
                         DropdownMenuItem(
@@ -293,7 +306,9 @@ fun CreateScreen(
                     onDismissRequest = { csExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.callStatus.forEach { status ->
                         DropdownMenuItem(
@@ -336,7 +351,9 @@ fun CreateScreen(
                     onDismissRequest = { lsExpanded = false },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .height(200.dp).align(Alignment.Center).background(color = Color.White)
+                        .height(200.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.White)
                 ) {
                     DropdownLists.leadStatus.forEach { status ->
                         DropdownMenuItem(
@@ -367,6 +384,8 @@ fun CreateScreen(
                         .weight(1f) // Make field responsive
                         .padding(5.dp)
                 )
+
+
 
                 Icon(
                     imageVector = Icons.Default.DateRange,
