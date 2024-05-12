@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
+import com.testapplication.www.util.setCustomDate
 
 @Composable
 fun LeadScreen(
@@ -85,16 +86,20 @@ fun LeadScreen(
             }
         }
         Spacer(modifier = Modifier.height(5.dp))
-        Column() {
-            Row() {
-
-            }
+        Column(modifier = Modifier
+            .wrapContentHeight()
+            .background(Color.White)
+            .fillMaxWidth(),
+            Arrangement.Top,
+            Alignment.Start) {
+            var value = setCustomDate()
         }
+        Spacer(modifier = Modifier.height(5.dp))
         Column( modifier = Modifier
             .clip(shape = RoundedCornerShape(5.dp))
             .background(Color.White)
             .width(500.dp)
-            .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp),
+            .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
             if (userID != null) {
                 com.testapplication.www.homescreen.home.displayList(

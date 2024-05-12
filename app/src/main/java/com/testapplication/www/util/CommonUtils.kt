@@ -1,5 +1,8 @@
 package com.testapplication.www.util
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,9 +33,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +52,9 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.homescreen.home.customTextHome
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 @Composable
 fun HeaderText(text:String){
@@ -134,87 +143,67 @@ fun CustomButton(
     }
 }
 
-
-data class StoreData(val date: String, val time: String, val stringValue: String)
-@OptIn(ExperimentalUnitApi::class)
 @Composable
-fun displayList() {
-    val storesMap = hashMapOf(
-        "Store 1" to StoreData("2024-04-13", "10:00 AM", "Value 1"),
-        "Store 2" to StoreData("2024-04-14", "11:00 AM", "Value 2"),
-        "Store 3" to StoreData("2024-04-14", "11:00 AM", "Value 3"),
-        "Store 4" to StoreData("2024-04-15", "12:00 PM", "Value 4"),
-        "Store 5" to StoreData("2024-04-16", "01:00 PM", "Value 5")
-    )
+fun setCustomDate(): Date {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp), // Padding around the whole column
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(), // Ensure the LazyColumn fills the space
-            contentPadding = PaddingValues(10.dp) // Provide internal padding
-        ) {
-            items(storesMap.entries.toList()) { (store, storeData) ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp), // Padding between items
-                    verticalArrangement = Arrangement.spacedBy(10.dp) // Space between items in the column
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween, // Ensure space between elements
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(1f) // Ensure proportional width
-                        ) {
-                            Text(
-                                text = store,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1, // Ensure single-line text
-                                overflow = TextOverflow.Ellipsis // Handle text overflow
-                            )
-                            Spacer(modifier = Modifier.height(5.dp)) // Space between elements
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
-                                Text(
-                                    text = storeData.time,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    modifier = Modifier.padding(start = 5.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp)) // Space between icon and text
-                                Icon(Icons.Default.DateRange, contentDescription = "Date icon")
-                                Text(
-                                    text = storeData.date,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    modifier = Modifier.padding(start = 5.dp)
-                                )
-                            }
-                        }
+    // Fetching the Local Context
+    val mContext = LocalContext.current
 
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "Navigate",
-                            modifier = Modifier
-                                .clickable {  } // Navigation handler
-                        )
-                    }
+    // Declaring a Calendar instance
+    val mCalendar = Calendar.getInstance()
 
-                    Divider(modifier = Modifier.padding(top = 10.dp)) // Divider between items
-                }
-            }
-        }
+    // Getting today's date
+    val todayYear = mCalendar.get(Calendar.YEAR)
+    val todayMonth = mCalendar.get(Calendar.MONTH)
+    val todayDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    // State variable to hold the selected date (initially today's date)
+    val selectedDate = remember { mutableStateOf(Calendar.getInstance().time) }
+
+    // Function to format the date string with leading zeros for year
+    @SuppressLint("SimpleDateFormat")
+    fun formatDate(date: Date): String {
+        val formatter = SimpleDateFormat("dd/MM/yyyy")
+        return formatter.format(date)
     }
+
+    // Updating the selectedDate state based on user selection
+    val onDateSet: (DatePicker, Int, Int, Int) -> Unit = { _, year, month, dayOfMonth ->
+        mCalendar.set(Calendar.YEAR, year)
+        mCalendar.set(Calendar.MONTH, month)
+        mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        selectedDate.value = mCalendar.time
+    }
+
+    // Check if selected date is today
+    val isTodaySelected = mCalendar.get(Calendar.YEAR) == todayYear &&
+            mCalendar.get(Calendar.MONTH) == todayMonth &&
+            mCalendar.get(Calendar.DAY_OF_MONTH) == todayDay
+
+    val text = if (isTodaySelected) {
+        "Select Date:${formatDate(selectedDate.value)}"
+    } else {
+        "Select Date:${formatDate(selectedDate.value)}"
+    }
+
+    // Return the selected date
+
+    Column(modifier = Modifier.fillMaxWidth().clickable {
+        DatePickerDialog(
+            mContext,
+            onDateSet,
+            todayYear,
+            todayMonth,
+            todayDay
+        ).show()
+    }) {
+        Text(
+            text = text,
+            color = Color.Black,
+            textAlign = TextAlign.Start, // Align text to the left
+            modifier = Modifier.padding(16.dp) // Add padding for better touch area
+        )
+    }
+
+    return selectedDate.value
 }
-
-
