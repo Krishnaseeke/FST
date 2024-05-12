@@ -89,7 +89,10 @@ fun Root(context: Context) {
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
                 context,
-                userID = userId
+                userID = userId,
+                toCreate = { userId, itemId ->
+                    navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
+                }
             )
         }
         composable("${Screens.FollowupCalls.name}/{userId}") { backStackEntry ->
@@ -99,7 +102,11 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
-                context, userID = userId
+                context, userID = userId,
+                toCreate = { userId, itemId ->
+                    navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
+                }
+
             )
         }
         composable("${Screens.Leads.name}/{userId}") { backStackEntry ->
@@ -110,7 +117,10 @@ fun Root(context: Context) {
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
                 userID = userId,
-                context
+                context,
+                toCreate = { userId, itemId ->
+                    navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
+                }
             )
         }
         composable(Screens.BottomNavigation.name) {
@@ -137,7 +147,7 @@ fun Root(context: Context) {
             )
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getLong("userId") ?: 0L
-            val itemId = backStackEntry.arguments?.getLong("itemId",0L) ?: 0L
+            val itemId = backStackEntry.arguments?.getLong("itemId", 0L) ?: 0L
             CreateScreen(
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 context,
