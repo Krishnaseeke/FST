@@ -4,12 +4,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.testapplication.www.homescreen.home.ScreenData
 import com.testapplication.www.homescreen.home.ScreenData1
 
 // Dummy CreateScreenDB implementation
+
 
 
 data class CreateScreenState(
@@ -32,10 +34,12 @@ data class CreateScreenState(
 class CreateScreenViewModel(context: Context, private val userID: Long, private val itemId: Long?) :
     ViewModel() {
     private val _state = MutableStateFlow(CreateScreenState())
-    val state: StateFlow<CreateScreenState> = _state
+    val state: StateFlow<CreateScreenState> = _state.asStateFlow()
     val createScreendb = CreateScreenDB(context)
+    @SuppressLint("StaticFieldLeak")
     val ctx1 = context
     val value1:Long = 0
+    private var fieldsPopulated = false
 
 
     private val DB_NAME = "create_screen_db"
@@ -126,44 +130,44 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     @SuppressLint("Range")
     fun fetchExistingRecord(context: Context, itemId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-        val db = CreateScreenDB(context).readableDatabase
-        val cursor =
-            db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $ID_COL = ?", arrayOf(itemId.toString()))
+            val db = CreateScreenDB(context).readableDatabase
+            val cursor =
+                db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $ID_COL = ?", arrayOf(itemId.toString()))
 
-        val screeData =  if (cursor.moveToFirst()) {
-            val id = cursor.getLong(cursor.getColumnIndex(ID_COL))
-            val stringValue = cursor.getString(cursor.getColumnIndex(CUSTOMER_NAME_COL))
-            val phoneNumber = cursor.getString(cursor.getColumnIndex(PHONE_NUMBER_COL))
-            val alternatePhoneNumber = cursor.getString(cursor.getColumnIndex(ALTERNATE_PHONE_COL))
-            val address = cursor.getString(cursor.getColumnIndex(ADDRESS_COL))
-            val businessCategory = cursor.getString(cursor.getColumnIndex(BUSINESS_CATEGORY_COL))
-            val callStatus = cursor.getString(cursor.getColumnIndex(CALL_STATUS_COL))
-            val leadStatus = cursor.getString(cursor.getColumnIndex(LEAD_STATUS_COL))
-            val followUpDate = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_DATE_COL))
-            val followUpTime = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_TIME_COL))
-            val followUpActionCall = cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_CALL_COL))
-            val followUpActionVisit =
-                cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_VISIT_COL))
-            val comments = cursor.getString(cursor.getColumnIndex(COMMENTS_COL))
+            val screeData =  if (cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndex(ID_COL))
+                val stringValue = cursor.getString(cursor.getColumnIndex(CUSTOMER_NAME_COL))
+                val phoneNumber = cursor.getString(cursor.getColumnIndex(PHONE_NUMBER_COL))
+                val alternatePhoneNumber = cursor.getString(cursor.getColumnIndex(ALTERNATE_PHONE_COL))
+                val address = cursor.getString(cursor.getColumnIndex(ADDRESS_COL))
+                val businessCategory = cursor.getString(cursor.getColumnIndex(BUSINESS_CATEGORY_COL))
+                val callStatus = cursor.getString(cursor.getColumnIndex(CALL_STATUS_COL))
+                val leadStatus = cursor.getString(cursor.getColumnIndex(LEAD_STATUS_COL))
+                val followUpDate = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_DATE_COL))
+                val followUpTime = cursor.getString(cursor.getColumnIndex(FOLLOW_UP_TIME_COL))
+                val followUpActionCall = cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_CALL_COL))
+                val followUpActionVisit =
+                    cursor.getInt(cursor.getColumnIndex(FOLLOW_UP_ACTION_VISIT_COL))
+                val comments = cursor.getString(cursor.getColumnIndex(COMMENTS_COL))
 
-            ScreenData1(
-                id,
-                stringValue,
-                phoneNumber,
-                alternatePhoneNumber,
-                address,
-                businessCategory,
-                callStatus,
-                leadStatus,
-                followUpDate,
-                followUpTime,
-                followUpActionCall,
-                followUpActionVisit,
-                comments
-            )
-        } else {
-          null
-        }.also { cursor.close(); db.close() }
+                ScreenData1(
+                    id,
+                    stringValue,
+                    phoneNumber,
+                    alternatePhoneNumber,
+                    address,
+                    businessCategory,
+                    callStatus,
+                    leadStatus,
+                    followUpDate,
+                    followUpTime,
+                    followUpActionCall,
+                    followUpActionVisit,
+                    comments
+                )
+            } else {
+                null
+            }.also { cursor.close(); db.close() }
 
             if (screeData != null) {
                 populateFields(screeData)
@@ -176,23 +180,26 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     }
 
 
-    fun populateFields(existingItem: ScreenData1) {
-        _state.value = state.value.copy(
-            customerName = existingItem.stringValue,
-            phoneNumber = existingItem.phoneNumber,
-            alternatePhoneNumber = existingItem.alternatePhoneNumber,
-            address = existingItem.address,
-            businessCategory = existingItem.businessCategory,
-            callStatus = existingItem.callStatus,
-            leadStatus = existingItem.leadStatus,
-            followUpDate = existingItem.followUpDate,
-            followUpTime = existingItem.followUpTime,
-            followUpActionCall = existingItem.followUpActionCall == 1,
-            followUpActionVisit = existingItem.followUpActionVisit == 1,
-            comments = existingItem.comments
-        )
-    }
 
+    private fun populateFields(existingItem: ScreenData1) {
+        if (!fieldsPopulated) { // Only populate if not already done
+            _state.value = state.value.copy(
+                customerName = existingItem.stringValue,
+                phoneNumber = existingItem.phoneNumber,
+                alternatePhoneNumber = existingItem.alternatePhoneNumber,
+                address = existingItem.address,
+                businessCategory = existingItem.businessCategory,
+                callStatus = existingItem.callStatus,
+                leadStatus = existingItem.leadStatus,
+                followUpDate = existingItem.followUpDate,
+                followUpTime = existingItem.followUpTime,
+                followUpActionCall = existingItem.followUpActionCall == 1,
+                followUpActionVisit = existingItem.followUpActionVisit == 1,
+                comments = existingItem.comments
+            )
+            fieldsPopulated = true // Set the flag to true after populating fields
+        }
+    }
     fun saveFST(
         userId: Long,
         customerName: String?,

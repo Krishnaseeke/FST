@@ -38,7 +38,7 @@ fun CreateScreen(
     itemId:Long?,
     modifier: Modifier = Modifier,
 
-) {
+    ) {
     val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID,itemId) }
     val state by viewModel.state.collectAsState()
     // Navigate to home on successful submission
@@ -54,9 +54,9 @@ fun CreateScreen(
             Toast.makeText(context, showToastMessage, Toast.LENGTH_SHORT).show()
         }
     }
-        if (itemId != null) {
-            viewModel.fetchExistingRecord(context, itemId)
-        }
+    if (itemId != null) {
+        viewModel.fetchExistingRecord(context, itemId)
+    }
 
     val mContext = LocalContext.current
     val mCalendar = Calendar.getInstance()
@@ -96,7 +96,7 @@ fun CreateScreen(
         focusedLabelColor = Color.Black,
         unfocusedLabelColor = Color.Black,
 
-    )
+        )
 
     val textFieldStyle = TextStyle(color = Color.Black)
 
@@ -384,6 +384,8 @@ fun CreateScreen(
                         .weight(1f) // Make field responsive
                         .padding(5.dp)
                 )
+
+
 
                 Icon(
                     imageVector = Icons.Default.DateRange,
