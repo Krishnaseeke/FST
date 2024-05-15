@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData1
@@ -224,28 +225,42 @@ fun CreateScreen(
 
             }
 
-            var bcExpanded by remember { mutableStateOf(false) }
-            var csExpanded by remember { mutableStateOf(false) }
-            var lsExpanded by remember { mutableStateOf(false) }
 
-            val bcIcon =
-                if (bcExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+            var csshowSheet by remember { mutableStateOf(false) }
+            var lsshowSheet by remember { mutableStateOf(false) }
+
+
             val csIcon =
-                if (csExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+                if (csshowSheet) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
             val lsIcon =
-                if (lsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+                if (lsshowSheet) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
 
-            Box(
-                modifier = Modifier.fillMaxWidth() // Ensures dropdown flexibility
-            ) {
+            var bcshowSheet by remember { mutableStateOf(false) }
+            val bcIcon =
+                if (bcshowSheet) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+
+            Box() {
+                if (bcshowSheet) {
+                    BottomSheet(
+                        onDismiss = {
+                            bcshowSheet = false
+                        },
+                        onCategorySelected = { category ->
+                            state.businessCategory = category
+                            bcshowSheet = false
+                        },"BussinessCategory"
+                    )
+                }
+
                 OutlinedTextField(
-                    value = state.businessCategory,
+                    value = if (state.businessCategory.isNotEmpty()) state.businessCategory else "Select category",
                     onValueChange = { viewModel.updateBusinessCategory(it) },
                     trailingIcon = {
                         Icon(
                             bcIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { bcExpanded = !bcExpanded },Color.Black
+                            Modifier.clickable { bcshowSheet = true },
+                            tint = Color.Black // Specify icon tint
                         )
                     },
                     label = { Text("Business Category") },
@@ -255,42 +270,30 @@ fun CreateScreen(
                         .fillMaxWidth()
                         .padding(5.dp)
                 )
-
-                DropdownMenu(
-                    expanded = bcExpanded,
-                    onDismissRequest = { bcExpanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth(1f)
-                        .height(200.dp)
-                        .align(Alignment.Center)
-                        .background(color = Color.White)
-                ) {
-                    DropdownLists.bussinessCategory.forEach { category ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(category, color = Color.Black)
-                            },
-                            onClick = {
-                                viewModel.updateBusinessCategory(category)
-                                bcExpanded = false
-                            }
-                        )
-                        Divider()
-                    }
-                }
             }
 
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Box() {
+                if (csshowSheet) {
+                    BottomSheet(
+                        onDismiss = {
+                            csshowSheet = false
+                        },
+                        onCategorySelected = { category ->
+                            state.callStatus = category
+                            csshowSheet = false
+                        },"CallStatus"
+                    )
+                }
+
                 OutlinedTextField(
-                    value = state.callStatus,
+                    value = if (state.callStatus.isNotEmpty()) state.callStatus else "Select category",
                     onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
                         Icon(
                             csIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { csExpanded = !csExpanded },Color.Black
+                            Modifier.clickable { csshowSheet = true },
+                            tint = Color.Black // Specify icon tint
                         )
                     },
                     label = { Text("Call Status") },
@@ -300,75 +303,43 @@ fun CreateScreen(
                         .fillMaxWidth()
                         .padding(5.dp)
                 )
-
-                DropdownMenu(
-                    expanded = csExpanded,
-                    onDismissRequest = { csExpanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth(1f)
-                        .height(200.dp)
-                        .align(Alignment.Center)
-                        .background(color = Color.White)
-                ) {
-                    DropdownLists.callStatus.forEach { status ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(status, color = Color.Black)
-                            },
-                            onClick = {
-                                viewModel.updateCallStatus(status)
-                                csExpanded = false
-                            }
-                        )
-                        Divider()
-                    }
-                }
             }
 
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Box() {
+                if (lsshowSheet) {
+                    BottomSheet(
+                        onDismiss = {
+                            lsshowSheet = false
+                        },
+                        onCategorySelected = { category ->
+                            state.leadStatus = category
+                            lsshowSheet = false
+                        },"LeadStatus"
+                    )
+                }
+
                 OutlinedTextField(
-                    value = state.leadStatus,
+                    value = if (state.leadStatus.isNotEmpty()) state.leadStatus else "Select category",
                     onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {
                         Icon(
                             lsIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { lsExpanded = !lsExpanded },Color.Black
+                            Modifier.clickable { lsshowSheet = true },
+                            tint = Color.Black // Specify icon tint
                         )
                     },
-                    label = { Text("Lead Status*") },
+                    label = { Text("Lead Status") },
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(5.dp)
                 )
-
-                DropdownMenu(
-                    expanded = lsExpanded,
-                    onDismissRequest = { lsExpanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth(1f)
-                        .height(200.dp)
-                        .align(Alignment.Center)
-                        .background(color = Color.White)
-                ) {
-                    DropdownLists.leadStatus.forEach { status ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(status, color = Color.Black)
-                            },
-                            onClick = {
-                                viewModel.updateLeadStatus(status)
-                                lsExpanded = false
-                            }
-                        )
-                        Divider()
-                    }
-                }
             }
+
+
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
