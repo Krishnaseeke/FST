@@ -13,7 +13,7 @@ object DropdownLists {
         "Wholeseller-Household Electrical Equipments",
         "Manufacturer-General Trade",
         "Manufacturer-Chemical Industry"
-    )
+    ).sorted()
 
     val callStatus = listOf(
         "Ring & Not Received",
@@ -24,7 +24,7 @@ object DropdownLists {
         "Wrong Number",
         "Call Back Required Specific",
         "Positive"
-    )
+    ).sorted()
 
     val leadStatus = listOf(
         "First Meet",
@@ -35,5 +35,5 @@ object DropdownLists {
         "Demo Completed",
         "License Purchased",
         "Not Interested"
-    )
+    ).sorted()
 }

@@ -87,12 +87,16 @@ fun displayList(context: Context, userId: Long, valueType:String, toCreate: (use
 
     val followUpActionCallData = fetchDataFromDB(context, userId, valueType)
     val followUpActionVisitData = fetchDataFromDB(context, userId,valueType)
+    //val dateRangeData = fetchDataFromDB(context, userId, selectedDate)
     var dataListDisplay: List<ScreenData>? = null
     if (valueType == "visit") {
         dataListDisplay = followUpActionVisitData
     } else if (valueType == "call") {
         dataListDisplay = followUpActionCallData
     }
+//    else if(selectedDate!=null){
+//        dataListDisplay = dateRangeData
+//    }
 
     Column(
         modifier = Modifier
@@ -186,56 +190,6 @@ fun displayList(context: Context, userId: Long, valueType:String, toCreate: (use
     }
 }
 
-@SuppressLint("Range")
-fun fetchCompleteDBData(context: Context, userId: Long, itemId: Long): List<ScreenData1> {
-    val db = CreateScreenDB(context).readableDatabase
-    val cursor = db.rawQuery(
-        "SELECT * FROM $TABLE_NAME WHERE $USER_ID_COL = ? AND $ID_COL = ?",
-        arrayOf(userId.toString(), itemId.toString())
-    )
-
-    val data = mutableListOf<ScreenData1>()
-    with(cursor) {
-        while (moveToNext()) {
-            val id = getLong(getColumnIndex(ID_COL))
-            val stringValue = getString(getColumnIndex(CUSTOMER_NAME_COL))
-            val phoneNumber = getString(getColumnIndex(PHONE_NUMBER_COL))
-            val alternatePhoneNumber = getString(getColumnIndex(ALTERNATE_PHONE_COL))
-            val address = getString(getColumnIndex(ADDRESS_COL))
-            val businessCategory = getString(getColumnIndex(BUSINESS_CATEGORY_COL))
-            val callStatus = getString(getColumnIndex(CALL_STATUS_COL))
-            val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL))
-            val followUpDate = getString(getColumnIndex(FOLLOW_UP_DATE_COL))
-            val followUpTime = getString(getColumnIndex(FOLLOW_UP_TIME_COL))
-            val followUpActionCall = getInt(getColumnIndex(FOLLOW_UP_ACTION_CALL_COL))
-            val followUpActionVisit = getInt(getColumnIndex(FOLLOW_UP_ACTION_VISIT_COL))
-            val comments = getString(getColumnIndex(COMMENTS_COL))
-
-            data.add(
-                ScreenData1(
-                    id,
-                    stringValue,
-                    phoneNumber,
-                    alternatePhoneNumber,
-                    address,
-                    businessCategory,
-                    callStatus,
-                    leadStatus,
-                    followUpDate,
-                    followUpTime,
-                    followUpActionCall,
-                    followUpActionVisit,
-                    comments
-                )
-            )
-        }
-    }
-    cursor.close()
-    db.close()
-
-    return data
-}
-
 
 
 
@@ -276,4 +230,38 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
 
     return data
 }
+
+@SuppressLint("Range")
+private fun fetchDataFromDBforDate(context: Context, userId: Long, selectedDate: String): List<ScreenData> {
+    val db = CreateScreenDB(context).readableDatabase
+    val cursor = db.rawQuery(
+        "SELECT * FROM $TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_DATE_COL = ?",
+        arrayOf(userId.toString(), selectedDate)
+    )
+
+    val data = mutableListOf<ScreenData>()
+    with(cursor) {
+        while (moveToNext()) {
+            val id = getLong(getColumnIndex(ID_COL))
+            val date = getString(getColumnIndex(FOLLOW_UP_DATE_COL))
+            val time = getString(getColumnIndex(FOLLOW_UP_TIME_COL))
+            val stringValue = getString(getColumnIndex(CUSTOMER_NAME_COL))
+            val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL))
+            data.add(
+                ScreenData(
+                    id,
+                    date,
+                    time,
+                    stringValue,
+                    leadStatus
+                )
+            )
+        }
+    }
+    cursor.close()
+    db.close()
+
+    return data
+}
+
 
