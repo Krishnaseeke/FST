@@ -163,6 +163,7 @@ fun Root(context: Context) {
             displayList(
                 context = context,
                 userId = userId,
+                "",
                 valueType = "",
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}/$userId/$itemId")

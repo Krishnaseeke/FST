@@ -2,6 +2,7 @@ package com.testapplication.www.util
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -188,15 +189,17 @@ fun setCustomDate(): Date {
 
     // Return the selected date
 
-    Column(modifier = Modifier.fillMaxWidth().clickable {
-        DatePickerDialog(
-            mContext,
-            onDateSet,
-            todayYear,
-            todayMonth,
-            todayDay
-        ).show()
-    }) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickable {
+            DatePickerDialog(
+                mContext,
+                onDateSet,
+                todayYear,
+                todayMonth,
+                todayDay
+            ).show()
+        }) {
         Text(
             text = text,
             color = Color.Black,
@@ -205,5 +208,12 @@ fun setCustomDate(): Date {
         )
     }
 
+    Log.e("TAG", "setCustomDate: $selectedDate" )
     return selectedDate.value
 }
+
+fun Date.convertDateToString():String {
+    val formatter = SimpleDateFormat("dd/MM/yyyy")
+    return formatter.format(this)
+}
+

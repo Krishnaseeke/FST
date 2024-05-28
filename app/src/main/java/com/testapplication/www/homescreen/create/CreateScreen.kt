@@ -96,6 +96,9 @@ fun CreateScreen(
         unfocusedBorderColor = Color.Black,
         focusedLabelColor = Color.Black,
         unfocusedLabelColor = Color.Black,
+        disabledTextColor = Color.Black,
+        disabledBorderColor = Color.Black,
+        disabledLabelColor = Color.Black
 
         )
 
@@ -259,7 +262,6 @@ fun CreateScreen(
                         Icon(
                             bcIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { bcshowSheet = true },
                             tint = Color.Black // Specify icon tint
                         )
                     },
@@ -269,10 +271,13 @@ fun CreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(5.dp)
+                        .clickable {
+                            bcshowSheet = true
+                        }
                 )
             }
 
-            Box() {
+            Box {
                 if (csshowSheet) {
                     BottomSheet(
                         onDismiss = {
@@ -286,13 +291,13 @@ fun CreateScreen(
                 }
 
                 OutlinedTextField(
+                    enabled = false,
                     value = if (state.callStatus.isNotEmpty()) state.callStatus else "Select category",
                     onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
                         Icon(
                             csIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { csshowSheet = true },
                             tint = Color.Black // Specify icon tint
                         )
                     },
@@ -301,6 +306,9 @@ fun CreateScreen(
                     textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            csshowSheet = true
+                        }
                         .padding(5.dp)
                 )
             }
@@ -318,7 +326,9 @@ fun CreateScreen(
                     )
                 }
 
+
                 OutlinedTextField(
+                    readOnly = true,
                     value = if (state.leadStatus.isNotEmpty()) state.leadStatus else "Select category",
                     onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {

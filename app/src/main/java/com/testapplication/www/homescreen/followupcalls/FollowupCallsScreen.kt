@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.util.setCustomDate
+import java.util.Date
 
 @Composable
 fun FollowupCallsScreen(
@@ -43,6 +44,7 @@ fun FollowupCallsScreen(
     modifier: Modifier = Modifier
 ){
     val preferencesManager = PreferencesManager(context)
+    var dateSelected: Date? = null
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -92,7 +94,7 @@ fun FollowupCallsScreen(
             .fillMaxWidth(),
             Arrangement.Top,
             Alignment.Start) {
-            var value = setCustomDate()
+            dateSelected= setCustomDate()
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column( modifier = Modifier
@@ -105,6 +107,7 @@ fun FollowupCallsScreen(
                 com.testapplication.www.homescreen.home.displayList(
                     context = context,
                     userId = userID,
+                    dateSelected.toString(),
                     valueType = "call",
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId

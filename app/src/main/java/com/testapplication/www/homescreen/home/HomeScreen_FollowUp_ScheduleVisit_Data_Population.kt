@@ -4,6 +4,7 @@ import CreateScreenDB
 import CreateScreenViewModel
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.util.logging.Logger
 
 
 data class ScreenData1(
@@ -78,21 +80,24 @@ private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Chan
 private const val COMMENTS_COL = "comments"
 
 @Composable
-fun displayList(context: Context, userId: Long, valueType:String, toCreate: (userId: Long, itemId: Long,) -> Unit) {
+fun displayList(
+    context: Context,
+    userId: Long,
+    selectedDate: String?,
+    valueType: String,
+    toCreate: (userId: Long, itemId: Long) -> Unit
+) {
     val userId = userId
-    var itemId: Long? = null
-
-
 
 
     val followUpActionCallData = fetchDataFromDB(context, userId, valueType)
-    val followUpActionVisitData = fetchDataFromDB(context, userId,valueType)
+    val followUpActionVisitData = fetchDataFromDB(context, userId, valueType)
     //val dateRangeData = fetchDataFromDB(context, userId, selectedDate)
-    var dataListDisplay: List<ScreenData>? = null
+    var dataListDisplay: ArrayList<ScreenData> = ArrayList()
     if (valueType == "visit") {
-        dataListDisplay = followUpActionVisitData
+        dataListDisplay.addAll(followUpActionVisitData)
     } else if (valueType == "call") {
-        dataListDisplay = followUpActionCallData
+        dataListDisplay.addAll(followUpActionCallData)
     }
 //    else if(selectedDate!=null){
 //        dataListDisplay = dateRangeData
@@ -108,30 +113,34 @@ fun displayList(context: Context, userId: Long, valueType:String, toCreate: (use
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(10.dp)
         ) {
-            items(dataListDisplay ?: emptyList()) { screenData ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+            items(dataListDisplay) { screenData ->
+                if (selectedDate != null) {
+                    Log.e("TAG", "displayList: $screenData " )
+                }
+                if (selectedDate == null || selectedDate == "") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row {
-                                Text(
-                                    text = screenData.stringValue + " |",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Row {
+                                    Text(
+                                        text = screenData.stringValue + " |",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
 //                                    text = if (screenData.leadStatus.contains("First Meet") ||
 //                                        screenData.leadStatus.contains("Requires Follow Up") ||
 //                                        screenData.leadStatus.contains("Interested") ||
@@ -141,56 +150,136 @@ fun displayList(context: Context, userId: Long, valueType:String, toCreate: (use
 //                                        // If lead status doesn't contain any of the specified values, don't display it
 //                                        ""
 //                                    },
-                                    text = screenData.leadStatus,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    modifier = Modifier.padding(start = 5.dp)
-                                )
+                                        text = screenData.leadStatus,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                                    Text(
+                                        text = screenData.time,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Icon(Icons.Default.DateRange, contentDescription = "Date icon")
+                                    Text(
+                                        text = screenData.date,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+
+                                }
                             }
 
-                            Spacer(modifier = Modifier.height(5.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
-                                Text(
-                                    text = screenData.time,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    modifier = Modifier.padding(start = 5.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Icon(Icons.Default.DateRange, contentDescription = "Date icon")
-                                Text(
-                                    text = screenData.date,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    modifier = Modifier.padding(start = 5.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
 
-
-                            }
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Navigate",
+                                modifier = Modifier
+                                    .clickable {
+                                        toCreate.invoke(userId, screenData.id)
+                                    }
+                            )
                         }
 
-
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "Navigate",
-                            modifier = Modifier
-                                .clickable {
-                                    toCreate.invoke(userId, screenData.id)  }
-                        )
+                        Divider(modifier = Modifier.padding(top = 2.dp))
                     }
+                }else if (screenData.date==selectedDate){
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Row {
+                                    Text(
+                                        text = screenData.stringValue + " |",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+//                                    text = if (screenData.leadStatus.contains("First Meet") ||
+//                                        screenData.leadStatus.contains("Requires Follow Up") ||
+//                                        screenData.leadStatus.contains("Interested") ||
+//                                        screenData.leadStatus.contains("Demo Re-scheduled")) {
+//                                        screenData.leadStatus
+//                                    } else {
+//                                        // If lead status doesn't contain any of the specified values, don't display it
+//                                        ""
+//                                    },
+                                        text = screenData.leadStatus,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                }
 
-                    Divider(modifier = Modifier.padding(top = 2.dp))
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                                    Text(
+                                        text = screenData.time,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Icon(Icons.Default.DateRange, contentDescription = "Date icon")
+                                    Text(
+                                        text = screenData.date,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.padding(start = 5.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+
+                                }
+                            }
+
+
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Navigate",
+                                modifier = Modifier
+                                    .clickable {
+                                        toCreate.invoke(userId, screenData.id)
+                                    }
+                            )
+                        }
+
+                        Divider(modifier = Modifier.padding(top = 2.dp))
+                    }
+                }else{
+                    Text(text = "Selected Date has empty data")
                 }
             }
         }
     }
 }
-
-
 
 
 @SuppressLint("Range")
@@ -232,7 +321,11 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
 }
 
 @SuppressLint("Range")
-private fun fetchDataFromDBforDate(context: Context, userId: Long, selectedDate: String): List<ScreenData> {
+private fun fetchDataFromDBforDate(
+    context: Context,
+    userId: Long,
+    selectedDate: String
+): List<ScreenData> {
     val db = CreateScreenDB(context).readableDatabase
     val cursor = db.rawQuery(
         "SELECT * FROM $TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_DATE_COL = ?",
