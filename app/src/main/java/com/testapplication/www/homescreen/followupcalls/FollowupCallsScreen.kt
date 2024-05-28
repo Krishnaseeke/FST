@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
+import com.testapplication.www.util.convertDateToString
 import com.testapplication.www.util.setCustomDate
 import java.util.Date
 
@@ -107,7 +108,7 @@ fun FollowupCallsScreen(
                 com.testapplication.www.homescreen.home.displayList(
                     context = context,
                     userId = userID,
-                    dateSelected.toString(),
+                    dateSelected?.convertDateToString(),
                     valueType = "call",
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId

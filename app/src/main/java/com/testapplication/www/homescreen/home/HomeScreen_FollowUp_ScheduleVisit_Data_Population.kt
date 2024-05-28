@@ -114,13 +114,12 @@ fun displayList(
             contentPadding = PaddingValues(10.dp)
         ) {
             items(dataListDisplay) { screenData ->
-                if (selectedDate != null) {
-                    Log.e("TAG", "displayList: $screenData " )
-                }
                 if (selectedDate == null || selectedDate == "") {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().clickable {
+                                toCreate.invoke(userId, screenData.id)
+                            }
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -198,7 +197,9 @@ fun displayList(
                 }else if (screenData.date==selectedDate){
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().clickable {
+                                toCreate.invoke(userId, screenData.id)
+                            }
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -265,16 +266,12 @@ fun displayList(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "Navigate",
                                 modifier = Modifier
-                                    .clickable {
-                                        toCreate.invoke(userId, screenData.id)
-                                    }
+
                             )
                         }
 
                         Divider(modifier = Modifier.padding(top = 2.dp))
                     }
-                }else{
-                    Text(text = "Selected Date has empty data")
                 }
             }
         }
