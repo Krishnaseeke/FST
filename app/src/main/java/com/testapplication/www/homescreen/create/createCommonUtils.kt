@@ -19,9 +19,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.testapplication.www.homescreen.create.DropdownLists.bussinessCategory
 import com.testapplication.www.homescreen.create.DropdownLists.callStatus
 import com.testapplication.www.homescreen.create.DropdownLists.leadStatus
+import kotlinx.coroutines.delay
 
 @Composable
 fun CustomOutlinedTextField(text1: MutableState<TextFieldValue>, text:String) {
@@ -60,13 +64,30 @@ fun CustomOutlinedTextField(text1: MutableState<TextFieldValue>, text:String) {
 @Composable
 fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit,value:String) {
     val modalBottomSheetState = rememberModalBottomSheetState()
+    val isSheetOpened = remember {
+        mutableStateOf(false
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
         sheetState = modalBottomSheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }, containerColor = Color.White
+        dragHandle = {
+            BottomSheetDefaults.DragHandle() }, containerColor = Color.White
     ) {
         CategoryList(onCategorySelected,value)
+    }
+
+    LaunchedEffect(modalBottomSheetState.currentValue) {
+        if (modalBottomSheetState.currentValue == SheetValue.Hidden) {
+            if (isSheetOpened.value) {
+                isSheetOpened.value = false
+                onDismiss.invoke()
+            } else {
+                isSheetOpened.value = true
+                modalBottomSheetState.show()
+            }
+        }
     }
 }
 

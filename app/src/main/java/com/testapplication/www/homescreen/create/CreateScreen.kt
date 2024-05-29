@@ -20,6 +20,7 @@ import android.content.Context
 import android.widget.DatePicker
 import android.widget.Toast
 import android.app.TimePickerDialog
+import android.widget.TimePicker
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -28,6 +29,8 @@ import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData1
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -36,11 +39,12 @@ fun CreateScreen(
     toHome: (Any?) -> Unit,
     context: Context,
     userID: Long,
-    itemId:Long?,
+    itemId: Long?,
     modifier: Modifier = Modifier,
 
     ) {
-    val viewModel: CreateScreenViewModel = viewModel { CreateScreenViewModel(context, userID,itemId) }
+    val viewModel: CreateScreenViewModel =
+        viewModel { CreateScreenViewModel(context, userID, itemId) }
     val state by viewModel.state.collectAsState()
     // Navigate to home on successful submission
     LaunchedEffect(state.isSubmissionSuccessful) {
@@ -65,10 +69,15 @@ fun CreateScreen(
     val mMonth = mCalendar.get(Calendar.MONTH)
     val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
 
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
     val mDatePickerDialog = android.app.DatePickerDialog(
         mContext,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val formattedDate = "$dayOfMonth/${month + 1}/$year"
+            val calendar = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }
+            val formattedDate = dateFormatter.format(calendar.time)
             viewModel.updateFollowUpDate(formattedDate)
         },
         mYear,
@@ -82,13 +91,13 @@ fun CreateScreen(
 
     val mTimePickerDialog = TimePickerDialog(
         mContext,
-        { _, hour: Int, minute: Int ->
-            val formattedTime = "$hour:$minute"
+        { _: TimePicker, hour: Int, minute: Int ->
+            val formattedTime = String.format("%02d:%02d", hour, minute)
             viewModel.updateFollowUpTime(formattedTime)
         },
         mHour,
         mMinute,
-        false
+        true  // Use 24-hour format
     )
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -96,8 +105,11 @@ fun CreateScreen(
         unfocusedBorderColor = Color.Black,
         focusedLabelColor = Color.Black,
         unfocusedLabelColor = Color.Black,
+        disabledTextColor = Color.Black,
+        disabledBorderColor = Color.Black,
+        disabledLabelColor = Color.Black
 
-        )
+    )
 
     val textFieldStyle = TextStyle(color = Color.Black)
 
@@ -239,7 +251,7 @@ fun CreateScreen(
             val bcIcon =
                 if (bcshowSheet) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
 
-            Box() {
+            Box{
                 if (bcshowSheet) {
                     BottomSheet(
                         onDismiss = {
@@ -248,18 +260,18 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.businessCategory = category
                             bcshowSheet = false
-                        },"BussinessCategory"
+                        }, "BussinessCategory"
                     )
                 }
 
                 OutlinedTextField(
+                    enabled = false,
                     value = if (state.businessCategory.isNotEmpty()) state.businessCategory else "Select category",
                     onValueChange = { viewModel.updateBusinessCategory(it) },
                     trailingIcon = {
                         Icon(
                             bcIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { bcshowSheet = true },
                             tint = Color.Black // Specify icon tint
                         )
                     },
@@ -268,11 +280,15 @@ fun CreateScreen(
                     textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            bcshowSheet = true
+                        }
                         .padding(5.dp)
+
                 )
             }
 
-            Box() {
+            Box {
                 if (csshowSheet) {
                     BottomSheet(
                         onDismiss = {
@@ -281,18 +297,18 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.callStatus = category
                             csshowSheet = false
-                        },"CallStatus"
+                        }, "CallStatus"
                     )
                 }
 
                 OutlinedTextField(
+                    enabled = false,
                     value = if (state.callStatus.isNotEmpty()) state.callStatus else "Select category",
                     onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
                         Icon(
                             csIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { csshowSheet = true },
                             tint = Color.Black // Specify icon tint
                         )
                     },
@@ -301,11 +317,14 @@ fun CreateScreen(
                     textStyle = textFieldStyle,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            csshowSheet = true
+                        }
                         .padding(5.dp)
                 )
             }
 
-            Box() {
+            Box{
                 if (lsshowSheet) {
                     BottomSheet(
                         onDismiss = {
@@ -314,18 +333,19 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.leadStatus = category
                             lsshowSheet = false
-                        },"LeadStatus"
+                        }, "LeadStatus"
                     )
                 }
 
+
                 OutlinedTextField(
+                    enabled = false,
                     value = if (state.leadStatus.isNotEmpty()) state.leadStatus else "Select category",
                     onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {
                         Icon(
                             lsIcon,
                             "Dropdown Icon",
-                            Modifier.clickable { lsshowSheet = true },
                             tint = Color.Black // Specify icon tint
                         )
                     },
@@ -333,7 +353,7 @@ fun CreateScreen(
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth().clickable { lsshowSheet = true }
                         .padding(5.dp)
                 )
             }
@@ -342,10 +362,11 @@ fun CreateScreen(
 
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable { mDatePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
+                    enabled = false,
                     value = state.followUpDate,
                     onValueChange = { viewModel.updateFollowUpDate(it) },
                     label = { Text("Follow Up Date*") },
@@ -362,16 +383,16 @@ fun CreateScreen(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "",
                     modifier = Modifier
-                        .clickable { mDatePickerDialog.show() }
                         .padding(10.dp)
                 )
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable { mTimePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
+                    enabled = false,
                     value = state.followUpTime,
                     onValueChange = { viewModel.updateFollowUpTime(it) },
                     label = { Text("Follow Up Time*") },
@@ -386,7 +407,6 @@ fun CreateScreen(
                     imageVector = Icons.Default.AddCircle,
                     contentDescription = "",
                     modifier = Modifier
-                        .clickable { mTimePickerDialog.show() }
                         .padding(10.dp)
                 )
             }
@@ -451,7 +471,8 @@ fun CreateScreen(
             }
             Button(
                 onClick = {
-                    viewModel.saveFST(  userId = userID,
+                    viewModel.saveFST(
+                        userId = userID,
                         customerName = state.customerName,
                         phoneNumber = state.phoneNumber,
                         alternatePhoneNumber = state.alternatePhoneNumber,
@@ -463,7 +484,8 @@ fun CreateScreen(
                         followUpTime = state.followUpTime,
                         followUpActionCall = if (state.followUpActionCall) 1 else 0,
                         followUpActionVisit = if (state.followUpActionVisit) 1 else 0,
-                        comments = state.comments) // Save to the database
+                        comments = state.comments
+                    ) // Save to the database
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Red)

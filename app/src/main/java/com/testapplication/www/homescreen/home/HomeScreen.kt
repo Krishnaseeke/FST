@@ -258,6 +258,7 @@ fun HomeScreen(
                     com.testapplication.www.homescreen.home.displayList(
                         context = context,
                         userId = userID,
+                        "",
                         valueType = "visit"
                     ) { userId, itemId ->toCreate.invoke(userId,itemId)
                         // Here you can define what you want to do with userId and itemId
@@ -300,6 +301,7 @@ fun HomeScreen(
                     com.testapplication.www.homescreen.home.displayList(
                         context = context,
                         userId = userID,
+                        "",
                         valueType = "call"
                     ) { userId, itemId ->
                         // Here you can define what you want to do with userId and itemId
