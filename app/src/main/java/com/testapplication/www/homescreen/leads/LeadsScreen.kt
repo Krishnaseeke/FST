@@ -45,7 +45,7 @@ fun LeadScreen(
     modifier: Modifier = Modifier
 ) {
     val preferencesManager = PreferencesManager(context)
-    var dateSelected: Date? = null
+    var dateSelected: String? = null
 
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
@@ -108,7 +108,7 @@ fun LeadScreen(
                 com.testapplication.www.homescreen.home.displayList(
                     context = context,
                     userId = userID,
-                    dateSelected?.convertDateToString(),
+                    dateSelected,
                     valueType = "visit"
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId

@@ -145,7 +145,7 @@ fun CustomButton(
 }
 
 @Composable
-fun setCustomDate(): Date {
+fun setCustomDate(defaultDate: String = ""): String? {
 
     // Fetching the Local Context
     val mContext = LocalContext.current
@@ -153,15 +153,10 @@ fun setCustomDate(): Date {
     // Declaring a Calendar instance
     val mCalendar = Calendar.getInstance()
 
-    // Getting today's date
-    val todayYear = mCalendar.get(Calendar.YEAR)
-    val todayMonth = mCalendar.get(Calendar.MONTH)
-    val todayDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+    // State variable to hold the selected date as String
+    val selectedDate = remember { mutableStateOf<String?>(null) }
 
-    // State variable to hold the selected date (initially today's date)
-    val selectedDate = remember { mutableStateOf(Calendar.getInstance().time) }
-
-    // Function to format the date string with leading zeros for year
+    // Function to format the date string
     @SuppressLint("SimpleDateFormat")
     fun formatDate(date: Date): String {
         val formatter = SimpleDateFormat("dd/MM/yyyy")
@@ -169,37 +164,41 @@ fun setCustomDate(): Date {
     }
 
     // Updating the selectedDate state based on user selection
-    val onDateSet: (DatePicker, Int, Int, Int) -> Unit = { _, year, month, dayOfMonth ->
+    val onDateSet: (DatePickerDialog, Int, Int, Int) -> Unit = { _, year, month, dayOfMonth ->
         mCalendar.set(Calendar.YEAR, year)
         mCalendar.set(Calendar.MONTH, month)
         mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        selectedDate.value = mCalendar.time
+        selectedDate.value = formatDate(mCalendar.time)
     }
 
-    // Check if selected date is today
-    val isTodaySelected = mCalendar.get(Calendar.YEAR) == todayYear &&
-            mCalendar.get(Calendar.MONTH) == todayMonth &&
-            mCalendar.get(Calendar.DAY_OF_MONTH) == todayDay
-
-    val text = if (isTodaySelected) {
-        "Select Date:${formatDate(selectedDate.value)}"
-    } else {
-        "Select Date:${formatDate(selectedDate.value)}"
+    // Set initial date if defaultDate is not empty
+    if (defaultDate.isNotEmpty()) {
+        @SuppressLint("SimpleDateFormat")
+        val initialDate = SimpleDateFormat("dd/MM/yyyy").parse(defaultDate)
+        if (initialDate != null) {
+            selectedDate.value = formatDate(initialDate)
+            mCalendar.time = initialDate
+        }
     }
 
-    // Return the selected date
+    // Text to display on the date selector
+    val text = "Select Date: ${selectedDate.value ?: "Not selected"}"
 
+    // Composable for the date selector
     Column(modifier = Modifier
         .fillMaxWidth()
         .clickable {
             DatePickerDialog(
                 mContext,
-                onDateSet,
-                todayYear,
-                todayMonth,
-                todayDay
+                { _, year, month, dayOfMonth ->
+                    onDateSet(DatePickerDialog(mContext), year, month, dayOfMonth)
+                },
+                mCalendar.get(Calendar.YEAR),
+                mCalendar.get(Calendar.MONTH),
+                mCalendar.get(Calendar.DAY_OF_MONTH)
             ).show()
-        }) {
+        }
+    ) {
         Text(
             text = text,
             color = Color.Black,
@@ -208,12 +207,13 @@ fun setCustomDate(): Date {
         )
     }
 
-    Log.e("TAG", "setCustomDate: $selectedDate" )
+    Log.e("TAG", "setCustomDate: ${selectedDate.value}")
+
+    // Return the selected date as a string or null if none selected
     return selectedDate.value
 }
 
-fun Date.convertDateToString():String {
+fun Date.convertDateToString(): String {
     val formatter = SimpleDateFormat("dd/MM/yyyy")
     return formatter.format(this)
 }
-
