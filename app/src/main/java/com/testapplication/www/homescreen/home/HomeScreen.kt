@@ -1,5 +1,6 @@
 package com.testapplication.www.homescreen.home
 
+import CreateScreenDB
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -30,7 +31,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -60,9 +69,18 @@ fun HomeScreen(
 ) {
     val ctx = LocalContext.current
     val viewModel: HomeScreenViewModel =
-        androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel() }
+        androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel(ctx) }
     viewModel.initialize(context,userID)
-    var checked = false
+
+    var checked by remember { mutableStateOf(false) }
+
+
+    // Fetch initial check-in status
+//    LaunchedEffect(Unit) {
+//        viewModel.getCheckInStatus(userID) { status ->
+//            checked = status == 1
+//        }
+//    }
 
     val preferencesManager = PreferencesManager(context)
     Column(modifier = Modifier.background(Color.LightGray)) {
@@ -118,6 +136,8 @@ fun HomeScreen(
             Arrangement.Top,
             Alignment.Start
         ) {
+
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -135,6 +155,11 @@ fun HomeScreen(
                     checked = checked,
                     onCheckedChange = {
                         checked = it
+                        val dateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                            Date()
+                        )
+                        val checkInStatus = if (it) 1 else 0
+                        viewModel.insertCheckIn(userID, checkInStatus, dateTime)
                     },
                     colors = SwitchDefaults.colors(Color.LightGray)
                 )

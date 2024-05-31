@@ -21,10 +21,12 @@ import android.widget.DatePicker
 import android.widget.Toast
 import android.app.TimePickerDialog
 import android.widget.TimePicker
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
@@ -159,6 +161,7 @@ fun CreateScreen(
                 label = { Text("Customer Name*") },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
@@ -170,6 +173,8 @@ fun CreateScreen(
                 label = { Text("Phone Number*") },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
@@ -181,6 +186,8 @@ fun CreateScreen(
                 label = { Text("Alternate Phone Number") },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
@@ -266,6 +273,7 @@ fun CreateScreen(
 
                 OutlinedTextField(
                     enabled = false,
+                    singleLine = true,
                     value = if (state.businessCategory.isNotEmpty()) state.businessCategory else "Select category",
                     onValueChange = { viewModel.updateBusinessCategory(it) },
                     trailingIcon = {
@@ -303,6 +311,7 @@ fun CreateScreen(
 
                 OutlinedTextField(
                     enabled = false,
+                    singleLine = true,
                     value = if (state.callStatus.isNotEmpty()) state.callStatus else "Select category",
                     onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
@@ -340,6 +349,7 @@ fun CreateScreen(
 
                 OutlinedTextField(
                     enabled = false,
+                    singleLine = true,
                     value = if (state.leadStatus.isNotEmpty()) state.leadStatus else "Select category",
                     onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {
@@ -371,6 +381,7 @@ fun CreateScreen(
                     onValueChange = { viewModel.updateFollowUpDate(it) },
                     label = { Text("Follow Up Date*") },
                     colors = textFieldColors,
+                    singleLine = true,
                     textStyle = textFieldStyle,
                     modifier = Modifier
                         .weight(1f) // Make field responsive
@@ -396,6 +407,7 @@ fun CreateScreen(
                     value = state.followUpTime,
                     onValueChange = { viewModel.updateFollowUpTime(it) },
                     label = { Text("Follow Up Time*") },
+                    singleLine = true,
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier

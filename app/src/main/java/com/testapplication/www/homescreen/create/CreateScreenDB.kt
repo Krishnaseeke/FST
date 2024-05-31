@@ -1,5 +1,6 @@
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
@@ -7,23 +8,30 @@ class CreateScreenDB(context: Context?) :
     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        val query = ("CREATE TABLE " + TABLE_NAME + " ("
+        val createTableQuery = ("CREATE TABLE " + TABLE_NAME + " ("
                 + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + USER_ID_COL + " INTEGER, "
                 + CUSTOMER_NAME_COL + " TEXT, "
-                + PHONE_NUMBER_COL + " TEXT, "  // Change data type to TEXT
-                + ALTERNATE_PHONE_COL + " TEXT, "  // Change data type to TEXT
+                + PHONE_NUMBER_COL + " TEXT, "
+                + ALTERNATE_PHONE_COL + " TEXT, "
                 + ADDRESS_COL + " TEXT, "
                 + BUSINESS_CATEGORY_COL + " TEXT, "
                 + CALL_STATUS_COL + " TEXT, "
                 + LEAD_STATUS_COL + " TEXT, "
-                + FOLLOW_UP_DATE_COL + " TEXT, "  // Change data type to TEXT
-                + FOLLOW_UP_TIME_COL + " TEXT, "  // Change data type to TEXT
-                + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "  // Change data type to INTEGER
-                + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "  // Change data type to INTEGER
+                + FOLLOW_UP_DATE_COL + " TEXT, "
+                + FOLLOW_UP_TIME_COL + " TEXT, "
+                + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "
+                + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "
                 + COMMENTS_COL + " TEXT)")
 
-        db.execSQL(query)
+        val createCheckInTableQuery = ("CREATE TABLE " + CHECKIN_TABLE_NAME + " ("
+                + CHECKIN_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + CHECKIN_USER_ID_COL + " INTEGER, "
+                + CHECKIN_STATUS_COL + " INTEGER, "
+                + CHECKIN_TIME_COL + " TEXT)")
+
+        db.execSQL(createTableQuery)
+        db.execSQL(createCheckInTableQuery)
     }
 
     fun createFST(
@@ -37,8 +45,8 @@ class CreateScreenDB(context: Context?) :
         leadStatus: String?,
         followUpDate: String?,
         followUpTime: String?,
-        followUpActionCall: Int,  // Change parameter name and data type to Int
-        followUpActionVisit: Int,  // Change parameter name and data type to Int
+        followUpActionCall: Int,
+        followUpActionVisit: Int,
         comments: String?
     ): Boolean {
         val db = this.writableDatabase
@@ -94,20 +102,52 @@ class CreateScreenDB(context: Context?) :
         }
 
         val rowsUpdated = db.update(TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
-        db.close() // Close the database after the update operation
-
-        // Return true if at least one row was updated, otherwise false
+        db.close()
         return rowsUpdated > 0
+    }
+
+    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(CHECKIN_USER_ID_COL, userId)
+            put(CHECKIN_STATUS_COL, checkInStatus)
+            put(CHECKIN_TIME_COL, checkInTime)
+        }
+        val result = db.insert(CHECKIN_TABLE_NAME, null, values)
+        db.close()
+        // Return true if insert was successful (result is not -1), otherwise return false
+        return result != -1L
+    }
+
+    fun getCheckInStatus(userId: Long?): Int {
+        val db = this.readableDatabase
+        val cursor: Cursor = db.query(
+            CHECKIN_TABLE_NAME,
+            arrayOf(CHECKIN_STATUS_COL),
+            "$CHECKIN_USER_ID_COL = ?",
+            arrayOf(userId.toString()),
+            null,
+            null,
+            null
+        )
+        var checkInStatus = -1
+        while (cursor.moveToLast()) {
+            checkInStatus = cursor.getInt(cursor.getColumnIndexOrThrow(CHECKIN_STATUS_COL))
+        }
+        cursor.close()
+        db.close()
+        return checkInStatus
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        db.execSQL("DROP TABLE IF EXISTS $CHECKIN_TABLE_NAME")
         onCreate(db)
     }
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 2
+        private const val DB_VERSION = 3 // Incremented version to trigger onUpgrade
         private const val TABLE_NAME = "create_screen_data"
         private const val ID_COL = "id"
         private const val USER_ID_COL = "user_id"
@@ -120,10 +160,15 @@ class CreateScreenDB(context: Context?) :
         private const val LEAD_STATUS_COL = "lead_status"
         private const val FOLLOW_UP_DATE_COL = "follow_up_date"
         private const val FOLLOW_UP_TIME_COL = "follow_up_time"
-        private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
-        private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
+        private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"
+        private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"
         private const val COMMENTS_COL = "comments"
+
+        // CheckIn table constants
+        private const val CHECKIN_TABLE_NAME = "checkin_data"
+        private const val CHECKIN_ID_COL = "id"
+        private const val CHECKIN_USER_ID_COL = "user_id"
+        private const val CHECKIN_STATUS_COL = "checkin_status"
+        private const val CHECKIN_TIME_COL = "checkin_time"
     }
 }
-
-

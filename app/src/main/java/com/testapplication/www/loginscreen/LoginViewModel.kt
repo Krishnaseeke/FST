@@ -37,8 +37,14 @@ class LoginViewModel(context: Context) : ViewModel() {
         val phoneText = phoneNumber.value.text
         val passwordText = password.value.text
 
-        if (phoneText.isBlank() || passwordText.isBlank()) {
+        if (phoneText.isBlank() && passwordText.isBlank()) {
             showToast(context, "Fields cannot be empty")
+            return
+        }else if(phoneText.isBlank() ){
+            showToast(context, "Phone Number cannot be empty")
+            return
+        }else if(passwordText.isBlank()){
+            showToast(context, "Password cannot be empty")
             return
         }
 
