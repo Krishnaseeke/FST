@@ -131,7 +131,7 @@ class CreateScreenDB(context: Context?) :
             null
         )
         var checkInStatus = -1
-        if (cursor.moveToFirst()) {
+        while (cursor.moveToLast()) {
             checkInStatus = cursor.getInt(cursor.getColumnIndexOrThrow(CHECKIN_STATUS_COL))
         }
         cursor.close()

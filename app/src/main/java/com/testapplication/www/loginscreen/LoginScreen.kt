@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.util.CustomButton
@@ -61,14 +62,16 @@ fun LoginScreen(
             CustomTextField(
                 phoneNumber = phoneNumber,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = "Enter your Phone Number"
+                placeholder = "Enter your Phone Number",
+                keyboardType = KeyboardType.Phone
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldText(text = "Password")
             CustomTextField(
                 phoneNumber = password,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = "Enter your Password"
+                placeholder = "Enter your Password",
+                keyboardType = KeyboardType.Password
             )
 
             Spacer(modifier = Modifier.height(25.dp))

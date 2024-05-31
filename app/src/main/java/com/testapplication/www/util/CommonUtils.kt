@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DateRange
@@ -43,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,7 +85,9 @@ fun TextFieldText(text: String){
 fun CustomTextField(
     phoneNumber: MutableState<TextFieldValue>,
     modifier: Modifier = Modifier,
-    placeholder: String = "Enter your Phone Number"
+    placeholder: String = "Enter your Phone Number",
+    keyboardType: KeyboardType = KeyboardType.Text
+
 ) {
     TextField(
         value = phoneNumber.value,
@@ -94,6 +98,7 @@ fun CustomTextField(
             color = Color.Black,
             textAlign = TextAlign.Justify
         ),
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
         modifier = modifier
             .padding(start = 10.dp, top = 5.dp, bottom = 1.dp, end = 10.dp)
             .fillMaxWidth()
@@ -130,9 +135,7 @@ fun CustomButton(
             .fillMaxWidth()
             .height(buttonHeight)
             .padding(top = 20.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = buttonColor
-        )
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
     ) {
         Text(
             text = buttonText,
