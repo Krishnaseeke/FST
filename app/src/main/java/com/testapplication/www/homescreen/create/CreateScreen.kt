@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import com.testapplication.www.homescreen.create.AttachImageButton
 import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
@@ -35,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CreateScreen(
@@ -218,28 +221,7 @@ fun CreateScreen(
                         fontStyle = FontStyle.Normal,
                         modifier = Modifier.padding(10.dp)
                     )
-                    Button(
-                        onClick = {
-                            // Implement attachment functionality
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth() // Ensure the button fills the available space
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(Color.LightGray)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Add icon",
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Text(
-                            text = "Attach Image",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontStyle = FontStyle.Normal,
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
+                    AttachImageButton()
                 }
 
             }
