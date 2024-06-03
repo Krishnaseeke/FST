@@ -82,6 +82,16 @@ fun HomeScreen(
         checked = preferencesManager.getCheckInStatus(false)
     }
 
+    val checkInColors = SwitchDefaults.colors(
+        checkedBorderColor = Color.Transparent,
+        uncheckedThumbColor = Color.Gray,
+        checkedThumbColor = Color.White,
+        checkedIconColor = Color.White,
+        uncheckedBorderColor = Color.Transparent,
+        disabledCheckedTrackColor = Color.White,
+        checkedTrackColor = Color.Black
+    )
+
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -159,7 +169,7 @@ fun HomeScreen(
                         val checkInStatus = if (it) 1 else 0
                         viewModel.insertCheckIn(userID, checkInStatus, dateTime)
                     },
-                    colors = SwitchDefaults.colors(Color.LightGray)
+                    colors = checkInColors
                 )
             }
         }
