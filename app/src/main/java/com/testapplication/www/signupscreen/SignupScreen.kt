@@ -1,22 +1,12 @@
 package com.testapplication.www.signupscreen
 
-
 import LoginViewModel
 import SignupScreenDB
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.util.CustomButton
 import com.testapplication.www.util.CustomTextField
 import com.testapplication.www.util.HeaderText
 import com.testapplication.www.util.TextFieldText
+
 
 @Composable
 fun SignupScreen(
@@ -45,6 +36,8 @@ fun SignupScreen(
     val phoneNumber = viewModel.phoneNumber
     val password = viewModel.password
     val toastMessage = viewModel.toastMessage.value
+
+    val preferencesManager = PreferencesManager(context) // Instantiate PreferencesManager
 
     Column(
         modifier = modifier
@@ -93,6 +86,7 @@ fun SignupScreen(
             CustomButton(
                 onClick = {
                     viewModel.signup(context) { userId ->
+                        preferencesManager.saveCheckInStatus(false) // Set check-in status to 0 (false)
                         toHome(userId)
                     }
                 },
