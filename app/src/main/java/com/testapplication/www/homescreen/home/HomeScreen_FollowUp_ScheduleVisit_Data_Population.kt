@@ -5,6 +5,7 @@ import CreateScreenViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.testapplication.www.common.PreferencesManager
 import java.util.logging.Logger
 
 
@@ -88,6 +90,7 @@ fun displayList(
     toCreate: (userId: Long, itemId: Long) -> Unit
 ) {
     val userId = userId
+    val preferencesManager = PreferencesManager(context)
 
 
     val followUpActionCallData = fetchDataFromDB(context, userId, valueType)
@@ -118,7 +121,11 @@ fun displayList(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth().clickable {
-                                toCreate.invoke(userId, screenData.id)
+                                if(preferencesManager.getCheckInStatus(false)) {
+                                    toCreate.invoke(userId, screenData.id)
+                                }else{
+                                    Toast.makeText(context, "Please Check-In to Edit FST", Toast.LENGTH_SHORT).show()
+                                }
                             }
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -187,7 +194,7 @@ fun displayList(
                                 contentDescription = "Navigate",
                                 modifier = Modifier
                                     .clickable {
-                                        toCreate.invoke(userId, screenData.id)
+                                     //   toCreate.invoke(userId, screenData.id)
                                     }
                             )
                         }
@@ -198,7 +205,11 @@ fun displayList(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth().clickable {
-                                toCreate.invoke(userId, screenData.id)
+                                if(preferencesManager.getCheckInStatus(false)) {
+                                    toCreate.invoke(userId, screenData.id)
+                                }else{
+                                    Toast.makeText(context, "Please Check-In to Edit FST", Toast.LENGTH_SHORT).show()
+                                }
                             }
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)

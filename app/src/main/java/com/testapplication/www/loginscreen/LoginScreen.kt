@@ -16,10 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.util.CustomButton
 import com.testapplication.www.util.CustomTextField
 import com.testapplication.www.util.HeaderText
 import com.testapplication.www.util.TextFieldText
+
 
 @Composable
 fun LoginScreen(
@@ -33,6 +35,8 @@ fun LoginScreen(
     val phoneNumber = viewModel.phoneNumber
     val password = viewModel.password
     val toastMessage = viewModel.toastMessage.value
+
+    val preferencesManager = PreferencesManager(context) // Instantiate PreferencesManager
 
     Column(
         modifier = Modifier
@@ -82,6 +86,7 @@ fun LoginScreen(
                     val readablefile = createdb.readableDatabase
                     readablefile.close()
                     viewModel.login(context) { userId ->
+                        preferencesManager.saveCheckInStatus(false) // Set check-in status to 0 (false)
                         toHome(userId)
                     }
                 },
