@@ -56,6 +56,7 @@ import java.util.Date
 import java.util.Locale
 
 
+
 @Composable
 fun HomeScreen(
     toOnboarding: () -> Unit,
@@ -64,25 +65,23 @@ fun HomeScreen(
     toLeadsScreen: (Any?) -> Unit,
     userID: Long?,
     context: Context,
-    toCreate: (Long?,Long?) -> Unit,
+    toCreate: (Long?, Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
     val viewModel: HomeScreenViewModel =
         androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel(ctx) }
-    viewModel.initialize(context,userID)
+    viewModel.initialize(context, userID)
 
     var checked by remember { mutableStateOf(false) }
 
+    val preferencesManager = PreferencesManager(context)
 
     // Fetch initial check-in status
-//    LaunchedEffect(Unit) {
-//        viewModel.getCheckInStatus(userID) { status ->
-//            checked = status == 1
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        checked = preferencesManager.getCheckInStatus(false)
+    }
 
-    val preferencesManager = PreferencesManager(context)
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -136,8 +135,6 @@ fun HomeScreen(
             Arrangement.Top,
             Alignment.Start
         ) {
-
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -155,6 +152,7 @@ fun HomeScreen(
                     checked = checked,
                     onCheckedChange = {
                         checked = it
+                        preferencesManager.saveCheckInStatus(it)
                         val dateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
                             Date()
                         )
@@ -164,7 +162,6 @@ fun HomeScreen(
                     colors = SwitchDefaults.colors(Color.LightGray)
                 )
             }
-
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
@@ -173,7 +170,6 @@ fun HomeScreen(
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
         ) {
-
             Column(
                 modifier = Modifier
                     .wrapContentHeight()
@@ -259,7 +255,6 @@ fun HomeScreen(
                     .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-
                 Row(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -285,13 +280,10 @@ fun HomeScreen(
                         userId = userID,
                         "",
                         valueType = "visit"
-                    ) { userId, itemId ->toCreate.invoke(userId,itemId)
-                        // Here you can define what you want to do with userId and itemId
-                        // For example, you can navigate to another screen or perform some action
+                    ) { userId, itemId ->
+                        toCreate.invoke(userId, itemId)
                     }
                 }
-
-
             }
             Spacer(modifier = Modifier.height(5.dp))
             Column(
@@ -329,15 +321,11 @@ fun HomeScreen(
                         "",
                         valueType = "call"
                     ) { userId, itemId ->
-                        // Here you can define what you want to do with userId and itemId
-                        // For example, you can navigate to another screen or perform some action
-                        toCreate.invoke(userId,itemId)
+                        toCreate.invoke(userId, itemId)
                     }
                 }
-
             }
         }
-
     }
 
     Box(
@@ -360,8 +348,12 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    toCreate(userID,0)
-                    Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
+                    if(checked) {
+                        toCreate(userID, 0)
+                        Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(ctx, "Please Check-In to Create FST", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 contentColor = Color.White,
                 containerColor = Color.Red,
@@ -385,6 +377,4 @@ fun HomeScreen(
             }
         }
     }
-
-
 }

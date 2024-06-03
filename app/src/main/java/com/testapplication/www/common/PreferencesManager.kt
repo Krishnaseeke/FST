@@ -26,5 +26,16 @@ class PreferencesManager(context: Context) {
         val editor = sharedPreferences.edit()
         editor.clear().apply()
     }
-}
 
+    // Save CheckIn status
+    fun saveCheckInStatus(isCheckedIn: Boolean) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("checkInStatus", isCheckedIn)
+        editor.apply()
+    }
+
+    // Get CheckIn status
+    fun getCheckInStatus(defaultValue: Boolean): Boolean {
+        return sharedPreferences.getBoolean("checkInStatus", defaultValue)
+    }
+}
