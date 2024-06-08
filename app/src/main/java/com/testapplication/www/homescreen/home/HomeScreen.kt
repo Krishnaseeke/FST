@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -82,6 +83,16 @@ fun HomeScreen(
         checked = preferencesManager.getCheckInStatus(false)
     }
 
+    val checkInColors = SwitchDefaults.colors(
+        checkedBorderColor = Color.Transparent,
+        uncheckedThumbColor = Color.Gray,
+        checkedThumbColor = Color.White,
+        checkedIconColor = Color.White,
+        uncheckedBorderColor = Color.Transparent,
+        disabledCheckedTrackColor = Color.White,
+        checkedTrackColor = Color.Black
+    )
+
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -129,7 +140,7 @@ fun HomeScreen(
                 .wrapContentHeight()
                 .background(Color.White)
                 .padding(start = 10.dp, top = 10.dp, bottom = 15.dp)
-                .width(500.dp)
+                .fillMaxWidth(1f)
                 .clip(shape = RoundedCornerShape(5.dp)),
 
             Arrangement.Top,
@@ -137,7 +148,7 @@ fun HomeScreen(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(1f)
             ) {
                 Text(
                     text = "Check-In",
@@ -159,24 +170,24 @@ fun HomeScreen(
                         val checkInStatus = if (it) 1 else 0
                         viewModel.insertCheckIn(userID, checkInStatus, dateTime)
                     },
-                    colors = SwitchDefaults.colors(Color.LightGray)
+                    colors = checkInColors
                 )
             }
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
-            modifier = Modifier
+            modifier = Modifier.fillMaxHeight(1f)
                 .padding(start = 5.dp, end = 5.dp)
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
         ) {
             Column(
                 modifier = Modifier
-                    .wrapContentHeight()
+                    .fillMaxHeight(1f)
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(Color.White)
                     .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp)
-                    .width(500.dp),
+                    .fillMaxWidth(1f),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 // First Row
@@ -251,7 +262,7 @@ fun HomeScreen(
                     .height(350.dp)
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(Color.White)
-                    .width(500.dp)
+                    .fillMaxWidth(1f)
                     .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
@@ -292,7 +303,7 @@ fun HomeScreen(
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(Color.White)
                     .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp)
-                    .width(500.dp),
+                    .fillMaxWidth(1f),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Row(

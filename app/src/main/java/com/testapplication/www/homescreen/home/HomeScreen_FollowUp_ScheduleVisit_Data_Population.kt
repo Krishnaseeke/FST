@@ -193,9 +193,7 @@ fun displayList(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "Navigate",
                                 modifier = Modifier
-                                    .clickable {
-                                     //   toCreate.invoke(userId, screenData.id)
-                                    }
+
                             )
                         }
 
@@ -276,7 +274,7 @@ fun displayList(
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "Navigate",
-                                modifier = Modifier
+                                modifier = Modifier,
 
                             )
                         }
