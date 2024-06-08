@@ -101,7 +101,7 @@ fun LeadScreen(
         Column( modifier = Modifier
             .clip(shape = RoundedCornerShape(5.dp))
             .background(Color.White)
-            .width(500.dp)
+            .fillMaxWidth(1f)
             .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
             if (userID != null) {
