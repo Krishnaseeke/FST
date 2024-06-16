@@ -1,7 +1,21 @@
 package com.testapplication.www.homescreen.home
 
+import android.content.pm.PackageManager
+import android.location.Location
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.app.ActivityCompat
+import com.google.accompanist.permissions.*
+import com.google.android.gms.location.LocationServices
+import android.Manifest
+
+
 import CreateScreenDB
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +39,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -56,8 +72,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     toOnboarding: () -> Unit,
@@ -75,12 +90,22 @@ fun HomeScreen(
     viewModel.initialize(context, userID)
 
     var checked by remember { mutableStateOf(false) }
+    var showLocationDialog by remember { mutableStateOf(false) }
+    val locationPermissionState = rememberMultiplePermissionsState(
+        listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    )
 
     val preferencesManager = PreferencesManager(context)
 
     // Fetch initial check-in status
     LaunchedEffect(Unit) {
         checked = preferencesManager.getCheckInStatus(false)
+        if (!locationPermissionState.allPermissionsGranted) {
+            locationPermissionState.launchMultiplePermissionRequest()
+        }
     }
 
     val checkInColors = SwitchDefaults.colors(
@@ -92,6 +117,69 @@ fun HomeScreen(
         disabledCheckedTrackColor = Color.White,
         checkedTrackColor = Color.Black
     )
+
+    // Function to open app settings for location permissions
+    fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", context.packageName, null)
+        intent.data = uri
+        context.startActivity(intent)
+    }
+
+    // Check location permissions when the screen is displayed
+    LaunchedEffect(locationPermissionState.allPermissionsGranted) {
+        if (locationPermissionState.allPermissionsGranted) {
+            // Call function to get last known location
+            getLastLocation(ctx)
+        } else {
+            Toast.makeText(
+                ctx,
+                "Location permissions are required to use this app.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    Row(){
+        if (showLocationDialog) {
+            AlertDialog(
+                onDismissRequest = { showLocationDialog = false },
+                title = {
+                    Text(
+                        text = "Enable Location Services",
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = { Text("Please enable location services manually in FST app settings." ,
+                    color = Color.Black,
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold) },
+                containerColor = Color.White,
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            openAppSettings()
+                            showLocationDialog = false
+                        }
+                    ) {
+                        Text(
+                            "Allow",
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                            fontStyle = FontStyle.Normal,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+
 
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
@@ -162,13 +250,18 @@ fun HomeScreen(
                 Switch(
                     checked = checked,
                     onCheckedChange = {
-                        checked = it
-                        preferencesManager.saveCheckInStatus(it)
-                        val dateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                            Date()
-                        )
-                        val checkInStatus = if (it) 1 else 0
-                        viewModel.insertCheckIn(userID, checkInStatus, dateTime)
+                        if (locationPermissionState.allPermissionsGranted) {
+                            checked = it
+                            preferencesManager.saveCheckInStatus(it)
+                            val dateTime =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                    Date()
+                                )
+                            val checkInStatus = if (it) 1 else 0
+                            viewModel.insertCheckIn(userID, checkInStatus, dateTime)
+                        } else {
+                            showLocationDialog = true
+                        }
                     },
                     colors = checkInColors
                 )
@@ -176,7 +269,8 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
-            modifier = Modifier.fillMaxHeight(1f)
+            modifier = Modifier
+                .fillMaxHeight(1f)
                 .padding(start = 5.dp, end = 5.dp)
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
@@ -359,11 +453,12 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    if(checked) {
+                    if (checked) {
                         toCreate(userID, 0)
                         Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
-                    }else{
-                        Toast.makeText(ctx, "Please Check-In to Create FST", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(ctx, "Please Check-In to Create FST", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 },
                 contentColor = Color.White,
@@ -386,6 +481,29 @@ fun HomeScreen(
                 toFollowupCalls = { toFollowupCalls(userID) }) {
 
             }
+        }
+    }
+}
+
+private fun getLastLocation(context: Context) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    if (ActivityCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        // Request missing location permission.
+        return
+    }
+    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        if (location != null) {
+            // Handle the location object
+            Toast.makeText(
+                context,
+                "Latitude: ${location.latitude}, Longitude: ${location.longitude}",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }
