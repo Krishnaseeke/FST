@@ -2,7 +2,6 @@ package com.testapplication.www.common
 
 import CreateScreen
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -30,7 +29,8 @@ enum class Screens {
     Leads,
     BottomNavigation,
     Create,
-    DisplayList
+    DisplayList,
+    FaceRecognition
 
 }
 
@@ -48,6 +48,7 @@ fun Root(context: Context) {
                 toLoginScreen = { navController.navigate(Screens.Login.name) },
                 toSignupScreen = { navController.navigate(Screens.SignUp.name) },
                 toHomeScreen = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                toFaceRecognition = { navController.navigate(Screens.FaceRecognition.name) },
                 modifier = Modifier,
                 context
             )

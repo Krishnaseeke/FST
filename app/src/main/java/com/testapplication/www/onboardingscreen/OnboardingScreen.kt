@@ -22,8 +22,9 @@ fun OnboardingScreen(
     toLoginScreen: () -> Unit,
     toSignupScreen: () -> Unit,
     toHomeScreen: (Any?) -> Unit,
+    toFaceRecognition: () -> Unit, // New callback
     modifier: Modifier = Modifier,
-    context: Context
+    context: Context,
 ) {
     val preferencesManager = PreferencesManager(context)
     var userValue = preferencesManager.getUserId(-1)
@@ -31,14 +32,17 @@ fun OnboardingScreen(
         toHomeScreen(userValue)
     } else {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(Color.White),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CustomButton(
-                onClick = toSignupScreen,
+                onClick = {
+                    toFaceRecognition() // Invoke the new callback
+
+                },
                 buttonText = "Signup",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,5 +66,4 @@ fun OnboardingScreen(
             )
         }
     }
-
 }
