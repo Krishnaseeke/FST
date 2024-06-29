@@ -1,5 +1,6 @@
 package com.testapplication.www.common
 
+import CheckInScreen
 import CreateScreen
 import android.content.Context
 import android.util.Log
@@ -30,7 +31,8 @@ enum class Screens {
     Leads,
     BottomNavigation,
     Create,
-    DisplayList
+    DisplayList,
+    CheckIn
 
 }
 
@@ -77,7 +79,8 @@ fun Root(context: Context) {
                 context,
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
-                }
+                },
+                toCheckIn = { userId -> navController.navigate("${Screens.CheckIn.name}/$userId") },
             )
 
         }
@@ -168,6 +171,16 @@ fun Root(context: Context) {
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}/$userId/$itemId")
                 }
+            )
+        }
+
+        composable("${Screens.CheckIn.name}/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
+
+            CheckInScreen(
+                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                userID = userId,
+                context = context
             )
         }
 

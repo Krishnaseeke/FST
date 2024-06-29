@@ -82,6 +82,7 @@ fun HomeScreen(
     userID: Long?,
     context: Context,
     toCreate: (Long?, Long?) -> Unit,
+    toCheckIn:(Any?)-> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -259,6 +260,9 @@ fun HomeScreen(
                                 )
                             val checkInStatus = if (it) 1 else 0
                             viewModel.insertCheckIn(userID, checkInStatus, dateTime)
+                            if(checkInStatus==1){
+                                toCheckIn(ctx)
+                            }
                         } else {
                             showLocationDialog = true
                         }
@@ -485,7 +489,7 @@ fun HomeScreen(
     }
 }
 
-private fun getLastLocation(context: Context) {
+public fun getLastLocation(context: Context) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     if (ActivityCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
