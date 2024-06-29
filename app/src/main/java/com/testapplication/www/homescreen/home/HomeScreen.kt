@@ -260,7 +260,7 @@ fun HomeScreen(
                                 )
                             val checkInStatus = if (it) 1 else 0
                             if(checkInStatus==1){
-                                toCheckIn(ctx)
+                                toCheckIn(userID)
                             }else{
                                 viewModel.insertCheckIn(userID,1, dateTime,"",null)
                             }

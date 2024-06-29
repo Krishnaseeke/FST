@@ -45,7 +45,8 @@ fun Root(context: Context) {
 
         ) {
 
-        composable(Screens.Onboarding.name) {
+        composable(Screens.Onboarding.name) {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             OnboardingScreen(
                 toLoginScreen = { navController.navigate(Screens.Login.name) },
                 toSignupScreen = { navController.navigate(Screens.SignUp.name) },
@@ -54,14 +55,16 @@ fun Root(context: Context) {
                 context
             )
         }
-        composable(Screens.SignUp.name) {
+        composable(Screens.SignUp.name) {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             SignupScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 context
             )
         }
-        composable(Screens.Login.name) {
+        composable(Screens.Login.name) {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             LoginScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
