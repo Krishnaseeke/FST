@@ -28,11 +28,14 @@ class CreateScreenDB(context: Context?) :
                 + CHECKIN_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + CHECKIN_USER_ID_COL + " INTEGER, "
                 + CHECKIN_STATUS_COL + " INTEGER, "
-                + CHECKIN_TIME_COL + " TEXT)")
+                + CHECKIN_TIME_COL + " TEXT, "
+                + CHECKIN_LOCATION_COL + " TEXT, " // New Column
+                + CHECKIN_IMAGE_COL + " TEXT)"); // New Column
 
         db.execSQL(createTableQuery)
         db.execSQL(createCheckInTableQuery)
     }
+
 
     fun createFST(
         userId: Long,
@@ -106,12 +109,14 @@ class CreateScreenDB(context: Context?) :
         return rowsUpdated > 0
     }
 
-    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String): Boolean {
+    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String, location: String?, checkInImage: String?): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(CHECKIN_USER_ID_COL, userId)
             put(CHECKIN_STATUS_COL, checkInStatus)
             put(CHECKIN_TIME_COL, checkInTime)
+            put(CHECKIN_LOCATION_COL, location)
+            put(CHECKIN_IMAGE_COL, checkInImage)
         }
         val result = db.insert(CHECKIN_TABLE_NAME, null, values)
         db.close()
@@ -119,11 +124,12 @@ class CreateScreenDB(context: Context?) :
         return result != -1L
     }
 
-    fun getCheckInStatus(userId: Long?): Int {
+
+    fun getCheckInStatus(userId: Long?): Pair<Int, String?> {
         val db = this.readableDatabase
         val cursor: Cursor = db.query(
             CHECKIN_TABLE_NAME,
-            arrayOf(CHECKIN_STATUS_COL),
+            arrayOf(CHECKIN_STATUS_COL, CHECKIN_LOCATION_COL),
             "$CHECKIN_USER_ID_COL = ?",
             arrayOf(userId.toString()),
             null,
@@ -131,13 +137,16 @@ class CreateScreenDB(context: Context?) :
             null
         )
         var checkInStatus = -1
+        var location: String? = null
         while (cursor.moveToLast()) {
             checkInStatus = cursor.getInt(cursor.getColumnIndexOrThrow(CHECKIN_STATUS_COL))
+            location = cursor.getString(cursor.getColumnIndexOrThrow(CHECKIN_LOCATION_COL))
         }
         cursor.close()
         db.close()
-        return checkInStatus
+        return Pair(checkInStatus, location)
     }
+
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
@@ -147,7 +156,7 @@ class CreateScreenDB(context: Context?) :
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 3 // Incremented version to trigger onUpgrade
+        private const val DB_VERSION = 4 // Incremented version to trigger onUpgrade
         private const val TABLE_NAME = "create_screen_data"
         private const val ID_COL = "id"
         private const val USER_ID_COL = "user_id"
@@ -170,5 +179,8 @@ class CreateScreenDB(context: Context?) :
         private const val CHECKIN_USER_ID_COL = "user_id"
         private const val CHECKIN_STATUS_COL = "checkin_status"
         private const val CHECKIN_TIME_COL = "checkin_time"
+        private const val CHECKIN_LOCATION_COL = "location" // New Column
+        private const val CHECKIN_IMAGE_COL = "checkin_image" // New Column
     }
+
 }

@@ -28,18 +28,27 @@ class HomeScreenViewModel(context: Context) : ViewModel() {
 
     private val db: CreateScreenDB = CreateScreenDB(context)
 
-    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String) {
+    fun insertCheckIn(
+        userId: Long?,
+        checkInStatus: Int,
+        checkInTime: String,
+        location: String?,
+        checkInImage: String?
+    ):Boolean {
+        var valueInsert = false
         viewModelScope.launch(Dispatchers.IO) {
-            db.insertCheckIn(userId, checkInStatus, checkInTime)
+           valueInsert = db.insertCheckIn(userId, checkInStatus, checkInTime, location, checkInImage)
         }
+        return valueInsert
     }
 
-    fun getCheckInStatus(userId: Long?, callback: (Int) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val status = db.getCheckInStatus(userId)
-            callback(status)
-        }
-    }
+
+//    fun getCheckInStatus(userId: Long?, callback: (Int) -> Unit) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val status = db.getCheckInStatus(userId)
+//            callback(status)
+//        }
+//    }
 
 
 }

@@ -259,9 +259,10 @@ fun HomeScreen(
                                     Date()
                                 )
                             val checkInStatus = if (it) 1 else 0
-                            viewModel.insertCheckIn(userID, checkInStatus, dateTime)
                             if(checkInStatus==1){
                                 toCheckIn(ctx)
+                            }else{
+                                viewModel.insertCheckIn(userID,1, dateTime,"",null)
                             }
                         } else {
                             showLocationDialog = true

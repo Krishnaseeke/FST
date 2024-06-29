@@ -46,9 +46,22 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.testapplication.www.R
+import com.testapplication.www.homescreen.home.HomeScreenViewModel
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 
+
+
+// Convert Bitmap to ByteArray
+fun Bitmap.toByteArray(): ByteArray {
+    val stream = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+    return stream.toByteArray()
+}
+
+// Your existing composable function
 @Composable
 fun CheckInScreen(
     toHome: (Any?) -> Unit,
@@ -56,7 +69,10 @@ fun CheckInScreen(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    val viewModel: HomeScreenViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel(context) }
+
+    var capturedImagePath by remember { mutableStateOf<String?>(null) }
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
     val lifecycleOwner = LocalContext.current as LifecycleOwner
     var address by remember { mutableStateOf("") }
@@ -118,7 +134,6 @@ fun CheckInScreen(
             .background(Color.LightGray)
             .fillMaxSize()
     ) {
-
         Column(
             modifier = Modifier
                 .wrapContentHeight()
@@ -189,9 +204,10 @@ fun CheckInScreen(
                     },
                     modifier = Modifier.fillMaxSize()
                 )
-                capturedImage?.let {
+                capturedImagePath?.let { path ->
+                    val bitmap = BitmapFactory.decodeFile(path)
                     Image(
-                        bitmap = it.asImageBitmap(),
+                        bitmap = bitmap.asImageBitmap(),
                         contentDescription = "Captured Image",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -220,15 +236,15 @@ fun CheckInScreen(
                 .background(Color.White)
         ) {
             Button(onClick = {
-                if (capturedImage == null) {
+                if (capturedImagePath == null) {
                     val cameraPermissionCheckResult = ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.CAMERA
                     )
                     if (cameraPermissionCheckResult == PackageManager.PERMISSION_GRANTED) {
                         previewView?.let {
-                            captureImage(context, it, lifecycleOwner) { bitmap ->
-                                capturedImage = bitmap
+                            captureImage(context, it, lifecycleOwner) { path ->
+                                capturedImagePath = path
                                 getLastLocation(fusedLocationClient, context) { location ->
                                     address = getAddressFromLocation(location, context)
                                 }
@@ -238,15 +254,20 @@ fun CheckInScreen(
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
                 } else {
-                    // Handle Check-In Logic
+                    val dateTime =
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                            Date()
+                        )
+                    viewModel.insertCheckIn(userID, 0, dateTime, address, capturedImagePath)
                     toHome(context)
                 }
             }) {
-                Text(text = if (capturedImage == null) "Capture Photo" else "Check-In")
+                Text(text = if (capturedImagePath == null) "Capture Photo" else "Check-In")
             }
         }
     }
 }
+
 
 fun startCameraPreview(context: Context, previewView: PreviewView, lifecycleOwner: LifecycleOwner) {
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -273,7 +294,7 @@ fun captureImage(
     context: Context,
     previewView: PreviewView,
     lifecycleOwner: LifecycleOwner,
-    onImageCaptured: (Bitmap) -> Unit
+    onImageCaptured: (String) -> Unit // Change to return file path
 ) {
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
@@ -302,8 +323,10 @@ fun captureImage(
                 ContextCompat.getMainExecutor(context),
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        val bitmap = BitmapFactory.decodeFile(outputFileResults.savedUri?.path)
-                        onImageCaptured(bitmap)
+                        val savedUri = outputFileResults.savedUri
+                        savedUri?.let {
+                            onImageCaptured(it.path ?: "")
+                        }
                         cameraProvider.unbindAll() // Unbind all to stop the camera
                     }
 
@@ -318,16 +341,17 @@ fun captureImage(
 }
 
 fun createTempFile(context: Context): File {
-    val tempFile = File(context.cacheDir, "${System.currentTimeMillis()}.jpg")
+    val tempFile = File(context.getExternalFilesDir(null), "${System.currentTimeMillis()}.jpg")
     tempFile.createNewFile()
     return tempFile
 }
 
-fun getAddressFromBitmap(bitmap: Bitmap, context: Context): String {
-    // Dummy coordinates; will be replaced by real coordinates from getLastLocation
-    val latLng = LatLng(0.0, 0.0)
-    return getAddress(latLng, context)
-}
+
+//fun createTempFile(context: Context): File {
+//    val tempFile = File(context.cacheDir, "${System.currentTimeMillis()}.jpg")
+//    tempFile.createNewFile()
+//    return tempFile
+//}
 
 fun getLastLocation(
     fusedLocationClient: FusedLocationProviderClient,
@@ -367,12 +391,6 @@ fun getAddress(latLng: LatLng, context: Context): String {
     return if (addresses != null && addresses.isNotEmpty()) {
         address = addresses[0]
         val fullAddress = address.getAddressLine(0)
-//        val city = address.locality
-//        val state = address.adminArea
-//        val country = address.countryName
-//        val postalCode = address.postalCode
-//        val knownName = address.featureName
-//        "$fullAddress, $city, $state, $country, $postalCode, $knownName"
         fullAddress
     } else {
         "Location not found"

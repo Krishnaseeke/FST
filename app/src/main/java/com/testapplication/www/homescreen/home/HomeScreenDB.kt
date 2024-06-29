@@ -11,7 +11,7 @@ class HomeScreenDB(context: Context?) :
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 3
+        private const val DB_VERSION = 4
         private const val TABLE_NAME = "create_screen_data"
         private const val USER_ID_COL = "user_id"
         private const val LEAD_STATUS_COL = "lead_status"
