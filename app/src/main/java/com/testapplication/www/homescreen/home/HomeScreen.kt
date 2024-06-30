@@ -252,7 +252,6 @@ fun HomeScreen(
                     checked = checked,
                     onCheckedChange = {
                         if (locationPermissionState.allPermissionsGranted) {
-                            checked = it
                             preferencesManager.saveCheckInStatus(it)
                             val dateTime =
                                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
@@ -261,7 +260,9 @@ fun HomeScreen(
                             val checkInStatus = if (it) 1 else 0
                             if(checkInStatus==1){
                                 toCheckIn(userID)
+                                checked = it
                             }else{
+                                checked = it
                                 viewModel.insertCheckIn(userID,1, dateTime,"",null)
                             }
                         } else {

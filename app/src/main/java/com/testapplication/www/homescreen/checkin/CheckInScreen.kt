@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -51,7 +52,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 
 // Convert Bitmap to ByteArray
@@ -146,7 +146,7 @@ fun CheckInScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Tap the Sign in button to Start your work",
+                    text = "Tap the Check-In button to Start your work",
                     color = Color.Black,
                     fontSize = 16.sp,
                     fontStyle = FontStyle.Normal,
@@ -167,13 +167,15 @@ fun CheckInScreen(
             }
         }
 
+        Spacer(modifier = Modifier.height(2.dp))
+
         Column(
             modifier = Modifier
-                .padding(2.dp)
                 .background(Color.White)
                 .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(1.dp))
-                .weight(1f)
+                .padding(top = 5.
+                dp)
+
         ) {
             Text(
                 text = "Picture",
@@ -181,7 +183,7 @@ fun CheckInScreen(
                 fontSize = 16.sp,
                 fontStyle = FontStyle.Normal,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
             )
 
             Box(
@@ -227,42 +229,61 @@ fun CheckInScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(2.dp))
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.1f)
-                .background(Color.White)
+                .background(Color.Red).weight(1f),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = {
-                if (capturedImagePath == null) {
-                    val cameraPermissionCheckResult = ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.CAMERA
-                    )
-                    if (cameraPermissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        previewView?.let {
-                            captureImage(context, it, lifecycleOwner) { path ->
-                                capturedImagePath = path
-                                getLastLocation(fusedLocationClient, context) { location ->
-                                    address = getAddressFromLocation(location, context)
+            androidx.compose.material3.Button(
+                onClick = {
+                    if (capturedImagePath == null) {
+                        val cameraPermissionCheckResult = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        )
+                        if (cameraPermissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                            previewView?.let {
+                                captureImage(context, it, lifecycleOwner) { path ->
+                                    capturedImagePath = path
+                                    getLastLocation(fusedLocationClient, context) { location ->
+                                        address = getAddressFromLocation(location, context)
+                                    }
                                 }
                             }
+                        } else {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     } else {
-                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        val dateTime =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                Date()
+                            )
+                        if(viewModel.insertCheckIn(userID, 0, dateTime, address, capturedImagePath)){
+                            toHome(userID)
+                        }
+                        else{
+//                            Toast.makeText(
+//                                context,
+//                                "Check-In Failed",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+                            toHome(context)
+                        }
                     }
-                } else {
-                    val dateTime =
-                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                            Date()
-                        )
-                    viewModel.insertCheckIn(userID, 0, dateTime, address, capturedImagePath)
-                    toHome(context)
-                }
-            }) {
-                Text(text = if (capturedImagePath == null) "Capture Photo" else "Check-In")
+                }, modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(Color.Red)
+
+            ) {
+                Text(
+                    text = if (capturedImagePath == null) "Capture Photo" else "Check-In",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(10.dp)
+                )
             }
         }
     }
