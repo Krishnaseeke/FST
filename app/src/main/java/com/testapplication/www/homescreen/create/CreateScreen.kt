@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import com.google.android.gms.location.LocationServices
 import com.testapplication.www.homescreen.create.AttachImageButton
 import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
@@ -58,11 +59,18 @@ fun CreateScreen(
             toHome(userID)
         }
     }
+    var address by remember { mutableStateOf("") }
+
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val showToastMessage = viewModel.showToast.collectAsState().value
     LaunchedEffect(key1 = showToastMessage) {
         if (!showToastMessage.isNullOrEmpty()) {
             Toast.makeText(context, showToastMessage, Toast.LENGTH_SHORT).show()
         }
+        getLastLocation(fusedLocationClient, context) { location ->
+            address = getAddressFromLocation(location, context)
+        }
+
     }
     if (itemId != null) {
         viewModel.fetchExistingRecord(context, itemId)
@@ -197,8 +205,9 @@ fun CreateScreen(
             )
 
             OutlinedTextField(
-                value = state.address,
-                onValueChange = { viewModel.updateAddress(it) },
+                enabled = false,
+                value = address,
+                onValueChange = { viewModel.updateAddress(address) },
                 label = { Text("Address*") },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
@@ -345,7 +354,8 @@ fun CreateScreen(
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
-                        .fillMaxWidth().clickable { lsshowSheet = true }
+                        .fillMaxWidth()
+                        .clickable { lsshowSheet = true }
                         .padding(5.dp)
                 )
             }
@@ -354,7 +364,9 @@ fun CreateScreen(
 
 
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { mDatePickerDialog.show() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { mDatePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -381,7 +393,9 @@ fun CreateScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { mTimePickerDialog.show() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { mTimePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(

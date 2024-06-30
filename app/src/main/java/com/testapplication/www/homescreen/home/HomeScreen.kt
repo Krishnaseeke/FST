@@ -460,8 +460,8 @@ fun HomeScreen(
                 },
                 onClick = {
                     if (checked) {
+                        getLastLocation(ctx)
                         toCreate(userID, 0)
-                        Toast.makeText(ctx, "Create Screen Opens", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(ctx, "Please Check-In to Create FST", Toast.LENGTH_SHORT)
                             .show()
@@ -505,11 +505,11 @@ public fun getLastLocation(context: Context) {
     fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
         if (location != null) {
             // Handle the location object
-            Toast.makeText(
-                context,
-                "Latitude: ${location.latitude}, Longitude: ${location.longitude}",
-                Toast.LENGTH_LONG
-            ).show()
+//            Toast.makeText(
+//                context,
+//                "Latitude: ${location.latitude}, Longitude: ${location.longitude}",
+//                Toast.LENGTH_LONG
+//            ).show()
         }
     }
 }
