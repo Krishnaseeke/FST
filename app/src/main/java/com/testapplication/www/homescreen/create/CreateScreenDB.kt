@@ -22,7 +22,10 @@ class CreateScreenDB(context: Context?) :
                 + FOLLOW_UP_TIME_COL + " TEXT, "
                 + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "
                 + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "
-                + COMMENTS_COL + " TEXT)")
+                + COMMENTS_COL + " TEXT, "
+                + PROOF_IMAGE_COL + " TEXT, "  // New Column
+                + LONGITUDE_LOCATION_COL + " DOUBLE, " // New Column
+                + LATITUDE_LOCATION_COL + " DOUBLE)") // New Column
 
         val createCheckInTableQuery = ("CREATE TABLE " + CHECKIN_TABLE_NAME + " ("
                 + CHECKIN_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -50,7 +53,10 @@ class CreateScreenDB(context: Context?) :
         followUpTime: String?,
         followUpActionCall: Int,
         followUpActionVisit: Int,
-        comments: String?
+        comments: String?,
+        proofImage: String?, // New Parameter
+        longitudeLocation: String?, // New Parameter
+        latitudeLocation: String? // New Parameter
     ): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -67,6 +73,9 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
+            put(PROOF_IMAGE_COL, proofImage) // New Column
+            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
+            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
         db.insert(TABLE_NAME, null, values)
         db.close()
@@ -86,7 +95,10 @@ class CreateScreenDB(context: Context?) :
         followUpTime: String?,
         followUpActionCall: Int,
         followUpActionVisit: Int,
-        comments: String?
+        comments: String?,
+        proofImage: String?, // New Parameter
+        longitudeLocation: String?, // New Parameter
+        latitudeLocation: String? // New Parameter
     ): Boolean {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -102,6 +114,9 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
+            put(PROOF_IMAGE_COL, proofImage) // New Column
+            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
+            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
 
         val rowsUpdated = db.update(TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
@@ -147,16 +162,17 @@ class CreateScreenDB(context: Context?) :
         return Pair(checkInStatus, location)
     }
 
-
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-        db.execSQL("DROP TABLE IF EXISTS $CHECKIN_TABLE_NAME")
-        onCreate(db)
+        if (oldVersion < 5) { // Add these columns if upgrading from version 4 to 5
+            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $PROOF_IMAGE_COL TEXT")
+            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LONGITUDE_LOCATION_COL DOUBLE")
+            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LATITUDE_LOCATION_COL DOUBLE")
+        }
     }
 
     companion object {
         private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 4 // Incremented version to trigger onUpgrade
+        private const val DB_VERSION = 5 // Incremented version to trigger onUpgrade
         private const val TABLE_NAME = "create_screen_data"
         private const val ID_COL = "id"
         private const val USER_ID_COL = "user_id"
@@ -172,6 +188,9 @@ class CreateScreenDB(context: Context?) :
         private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"
         private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"
         private const val COMMENTS_COL = "comments"
+        private const val PROOF_IMAGE_COL = "proof_image" // New Column
+        private const val LONGITUDE_LOCATION_COL = "longitude_location" // New Column
+        private const val LATITUDE_LOCATION_COL = "latitude_location" // New Column
 
         // CheckIn table constants
         private const val CHECKIN_TABLE_NAME = "checkin_data"
@@ -182,5 +201,4 @@ class CreateScreenDB(context: Context?) :
         private const val CHECKIN_LOCATION_COL = "location" // New Column
         private const val CHECKIN_IMAGE_COL = "checkin_image" // New Column
     }
-
 }

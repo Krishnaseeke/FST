@@ -64,7 +64,7 @@ data class ScreenData(
 
 
 private const val DB_NAME = "create_screen_db"
-private const val DB_VERSION = 4
+private const val DB_VERSION = 5
 private const val TABLE_NAME = "create_screen_data"
 private const val ID_COL = "id"
 private const val USER_ID_COL = "user_id"

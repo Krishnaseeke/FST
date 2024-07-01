@@ -492,7 +492,10 @@ fun CreateScreen(
                         followUpTime = state.followUpTime,
                         followUpActionCall = if (state.followUpActionCall) 1 else 0,
                         followUpActionVisit = if (state.followUpActionVisit) 1 else 0,
-                        comments = state.comments
+                        comments = state.comments,
+                        proofImage = state.proofImage,
+                        longitudeLocation = state.longitudeLocation,
+                        latitudeLocation = state.latitudeLocation
                     ) // Save to the database
                 },
                 modifier = Modifier.fillMaxWidth(),
