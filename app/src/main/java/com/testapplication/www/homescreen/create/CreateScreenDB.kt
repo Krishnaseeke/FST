@@ -32,13 +32,13 @@ class CreateScreenDB(context: Context?) :
                 + CHECKIN_USER_ID_COL + " INTEGER, "
                 + CHECKIN_STATUS_COL + " INTEGER, "
                 + CHECKIN_TIME_COL + " TEXT, "
-                + CHECKIN_LOCATION_COL + " TEXT, " // New Column
-                + CHECKIN_IMAGE_COL + " TEXT)"); // New Column
+                + CHECKIN_LONGITUDE_COL + " DOUBLE, " // Replaced Column
+                + CHECKIN_LATITUDE_COL + " DOUBLE, " // Replaced Column
+                + CHECKIN_IMAGE_COL + " TEXT)") // New Column
 
         db.execSQL(createTableQuery)
         db.execSQL(createCheckInTableQuery)
     }
-
 
     fun createFST(
         userId: Long,
@@ -124,27 +124,33 @@ class CreateScreenDB(context: Context?) :
         return rowsUpdated > 0
     }
 
-    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String, location: String?, checkInImage: String?): Boolean {
+    fun insertCheckIn(
+        userId: Long?,
+        checkInStatus: Int,
+        checkInTime: String,
+        longitude: Double?,
+        latitude: Double?,
+        checkInImage: String?
+    ): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(CHECKIN_USER_ID_COL, userId)
             put(CHECKIN_STATUS_COL, checkInStatus)
             put(CHECKIN_TIME_COL, checkInTime)
-            put(CHECKIN_LOCATION_COL, location)
+            put(CHECKIN_LONGITUDE_COL, longitude)
+            put(CHECKIN_LATITUDE_COL, latitude)
             put(CHECKIN_IMAGE_COL, checkInImage)
         }
         val result = db.insert(CHECKIN_TABLE_NAME, null, values)
         db.close()
-        // Return true if insert was successful (result is not -1), otherwise return false
         return result != -1L
     }
 
-
-    fun getCheckInStatus(userId: Long?): Pair<Int, String?> {
+    fun getCheckInStatus(userId: Long?): Pair<Int, Pair<Float?, Float?>> {
         val db = this.readableDatabase
         val cursor: Cursor = db.query(
             CHECKIN_TABLE_NAME,
-            arrayOf(CHECKIN_STATUS_COL, CHECKIN_LOCATION_COL),
+            arrayOf(CHECKIN_STATUS_COL, CHECKIN_LONGITUDE_COL, CHECKIN_LATITUDE_COL),
             "$CHECKIN_USER_ID_COL = ?",
             arrayOf(userId.toString()),
             null,
@@ -152,14 +158,16 @@ class CreateScreenDB(context: Context?) :
             null
         )
         var checkInStatus = -1
-        var location: String? = null
+        var longitude: Float? = null
+        var latitude: Float? = null
         while (cursor.moveToLast()) {
             checkInStatus = cursor.getInt(cursor.getColumnIndexOrThrow(CHECKIN_STATUS_COL))
-            location = cursor.getString(cursor.getColumnIndexOrThrow(CHECKIN_LOCATION_COL))
+            longitude = cursor.getFloat(cursor.getColumnIndexOrThrow(CHECKIN_LONGITUDE_COL))
+            latitude = cursor.getFloat(cursor.getColumnIndexOrThrow(CHECKIN_LATITUDE_COL))
         }
         cursor.close()
         db.close()
-        return Pair(checkInStatus, location)
+        return Pair(checkInStatus, Pair(longitude, latitude))
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -167,6 +175,8 @@ class CreateScreenDB(context: Context?) :
             db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $PROOF_IMAGE_COL TEXT")
             db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LONGITUDE_LOCATION_COL DOUBLE")
             db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LATITUDE_LOCATION_COL DOUBLE")
+            db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LONGITUDE_COL FLOAT")
+            db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LATITUDE_COL FLOAT")
         }
     }
 
@@ -198,7 +208,8 @@ class CreateScreenDB(context: Context?) :
         private const val CHECKIN_USER_ID_COL = "user_id"
         private const val CHECKIN_STATUS_COL = "checkin_status"
         private const val CHECKIN_TIME_COL = "checkin_time"
-        private const val CHECKIN_LOCATION_COL = "location" // New Column
+        private const val CHECKIN_LONGITUDE_COL = "longitude" // New Column
+        private const val CHECKIN_LATITUDE_COL = "latitude" // New Column
         private const val CHECKIN_IMAGE_COL = "checkin_image" // New Column
     }
 }

@@ -60,8 +60,6 @@ fun Bitmap.toByteArray(): ByteArray {
     this.compress(Bitmap.CompressFormat.JPEG, 100, stream)
     return stream.toByteArray()
 }
-
-// Your existing composable function
 @Composable
 fun CheckInScreen(
     toHome: (Any?) -> Unit,
@@ -76,6 +74,8 @@ fun CheckInScreen(
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
     val lifecycleOwner = LocalContext.current as LifecycleOwner
     var address by remember { mutableStateOf("") }
+    var latitude by remember { mutableStateOf(0.0) }
+    var longitude by remember { mutableStateOf(0.0) }
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val locationPermissionLauncher = rememberLauncherForActivityResult(
@@ -84,6 +84,8 @@ fun CheckInScreen(
         if (isGranted) {
             getLastLocation(fusedLocationClient, context) { location ->
                 address = getAddressFromLocation(location, context)
+                latitude = location.latitude
+                longitude = location.longitude
             }
         } else {
             Toast.makeText(context, "Location Permission Denied", Toast.LENGTH_SHORT).show()
@@ -111,6 +113,8 @@ fun CheckInScreen(
         if (locationPermissionCheckResult == PackageManager.PERMISSION_GRANTED) {
             getLastLocation(fusedLocationClient, context) { location ->
                 address = getAddressFromLocation(location, context)
+                latitude = location.latitude
+                longitude = location.longitude
             }
         } else {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -173,8 +177,9 @@ fun CheckInScreen(
             modifier = Modifier
                 .background(Color.White)
                 .fillMaxWidth()
-                .padding(top = 5.
-                dp)
+                .padding(
+                    top = 5.dp
+                )
 
         ) {
             Text(
@@ -233,7 +238,8 @@ fun CheckInScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Red).weight(1f),
+                .background(Color.Red)
+                .weight(1f),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -250,6 +256,8 @@ fun CheckInScreen(
                                     capturedImagePath = path
                                     getLastLocation(fusedLocationClient, context) { location ->
                                         address = getAddressFromLocation(location, context)
+                                        latitude = location.latitude
+                                        longitude = location.longitude
                                     }
                                 }
                             }
@@ -261,7 +269,7 @@ fun CheckInScreen(
                             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
                                 Date()
                             )
-                        if(viewModel.insertCheckIn(userID, 0, dateTime, address, capturedImagePath)){
+                        if(viewModel.insertCheckIn(userID, 0, dateTime, latitude, longitude, capturedImagePath)){
                             toHome(userID)
                         }
                         else{
@@ -401,6 +409,7 @@ fun getLastLocation(
 }
 
 fun getAddressFromLocation(location: Location, context: Context): String {
+
     val latLng = LatLng(location.latitude, location.longitude)
     return getAddress(latLng, context)
 }

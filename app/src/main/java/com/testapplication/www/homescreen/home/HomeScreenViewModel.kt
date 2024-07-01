@@ -32,12 +32,13 @@ class HomeScreenViewModel(context: Context) : ViewModel() {
         userId: Long?,
         checkInStatus: Int,
         checkInTime: String,
-        location: String?,
+        longitude: Double?,
+        latitude: Double?,
         checkInImage: String?
     ):Boolean {
         var valueInsert = false
         viewModelScope.launch(Dispatchers.IO) {
-           valueInsert = db.insertCheckIn(userId, checkInStatus, checkInTime, location, checkInImage)
+           valueInsert = db.insertCheckIn(userId, checkInStatus, checkInTime,longitude,latitude, checkInImage)
         }
         return valueInsert
     }

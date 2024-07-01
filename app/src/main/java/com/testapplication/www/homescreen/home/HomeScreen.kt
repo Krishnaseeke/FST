@@ -263,7 +263,7 @@ fun HomeScreen(
                                 checked = it
                             }else{
                                 checked = it
-                                viewModel.insertCheckIn(userID,1, dateTime,"",null)
+                                viewModel.insertCheckIn(userID,1, dateTime,null,null,null)
                             }
                         } else {
                             showLocationDialog = true
