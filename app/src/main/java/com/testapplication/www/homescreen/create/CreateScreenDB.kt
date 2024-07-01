@@ -115,8 +115,8 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
             put(PROOF_IMAGE_COL, proofImage) // New Column
-            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
-            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
+//            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
+//            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
 
         val rowsUpdated = db.update(TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
