@@ -278,7 +278,7 @@ fun CheckInScreen(
 //                                "Check-In Failed",
 //                                Toast.LENGTH_LONG
 //                            ).show()
-                            toHome(context)
+                            toHome(userID)
                         }
                     }
                 }, modifier = Modifier.fillMaxWidth(),
