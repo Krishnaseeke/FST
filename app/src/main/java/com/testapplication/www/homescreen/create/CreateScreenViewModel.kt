@@ -46,7 +46,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
 
 
     private val DB_NAME = "create_screen_db"
-    private val DB_VERSION = 5
+    private val DB_VERSION = 6
     private val TABLE_NAME = "create_screen_data"
     private val ID_COL = "id"
     private val USER_ID_COL = "user_id"
