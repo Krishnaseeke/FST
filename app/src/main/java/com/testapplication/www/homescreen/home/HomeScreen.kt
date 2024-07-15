@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
+import com.testapplication.www.homescreen.checkin.CheckInViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,13 +83,16 @@ fun HomeScreen(
     userID: Long?,
     context: Context,
     toCreate: (Long?, Long?) -> Unit,
-    toCheckIn:(Any?)-> Unit,
+    toCheckIn: (Any?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
     val viewModel: HomeScreenViewModel =
         androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel(ctx) }
     viewModel.initialize(context, userID)
+
+    val viewModelCheckeIn: CheckInViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel { CheckInViewModel(context) }
 
     var checked by remember { mutableStateOf(false) }
     var showLocationDialog by remember { mutableStateOf(false) }
@@ -141,7 +145,7 @@ fun HomeScreen(
         }
     }
 
-    Row(){
+    Row {
         if (showLocationDialog) {
             AlertDialog(
                 onDismissRequest = { showLocationDialog = false },
@@ -154,11 +158,15 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
-                text = { Text("Please enable location services manually in FST app settings." ,
-                    color = Color.Black,
-                    fontSize = 12.sp,
-                    fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold) },
+                text = {
+                    Text(
+                        "Please enable location services manually in FST app settings.",
+                        color = Color.Black,
+                        fontSize = 12.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 containerColor = Color.White,
                 confirmButton = {
                     Button(
@@ -257,13 +265,12 @@ fun HomeScreen(
                                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
                                     Date()
                                 )
-                            val checkInStatus = if (it) 1 else 0
-                            if(checkInStatus==1){
+                            if (it) {
                                 toCheckIn(userID)
                                 checked = it
-                            }else{
+                            } else {
                                 checked = it
-                                viewModel.insertCheckIn(userID,1, dateTime,null,null,null)
+                                viewModelCheckeIn.insertCheckIn(userID, 1, dateTime, null, null, null)
                             }
                         } else {
                             showLocationDialog = true

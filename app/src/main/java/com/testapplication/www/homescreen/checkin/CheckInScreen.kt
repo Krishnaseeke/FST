@@ -47,7 +47,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.testapplication.www.R
+import com.testapplication.www.homescreen.checkin.CheckInViewModel
 import com.testapplication.www.homescreen.home.HomeScreenViewModel
+import com.testapplication.www.util.collectAsEffect
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
@@ -60,15 +62,16 @@ fun Bitmap.toByteArray(): ByteArray {
     this.compress(Bitmap.CompressFormat.JPEG, 100, stream)
     return stream.toByteArray()
 }
+
 @Composable
 fun CheckInScreen(
-    toHome: (Any?) -> Unit,
+    toHome: () -> Unit,
     userID: Long,
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: HomeScreenViewModel =
-        androidx.lifecycle.viewmodel.compose.viewModel { HomeScreenViewModel(context) }
+    val viewModel: CheckInViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel { CheckInViewModel(context) }
 
     var capturedImagePath by remember { mutableStateOf<String?>(null) }
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
@@ -102,6 +105,18 @@ fun CheckInScreen(
             }
         } else {
             Toast.makeText(context, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    viewModel.checkInStatusFlow.collectAsEffect {
+        if (it) {
+            toHome()
+        } else {
+            Toast.makeText(
+                context,
+                "Check-In Failed",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -164,7 +179,7 @@ fun CheckInScreen(
                     contentDescription = "Close",
                     modifier = Modifier
                         .clickable {
-                            toHome(context)
+                            toHome()
                         }
                         .padding(10.dp)
                 )
@@ -269,17 +284,14 @@ fun CheckInScreen(
                             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
                                 Date()
                             )
-                        if(viewModel.insertCheckIn(userID, 0, dateTime, latitude, longitude, capturedImagePath)){
-                            toHome(userID)
-                        }
-                        else{
-//                            Toast.makeText(
-//                                context,
-//                                "Check-In Failed",
-//                                Toast.LENGTH_LONG
-//                            ).show()
-                            toHome(userID)
-                        }
+                        viewModel.insertCheckIn(
+                            userID,
+                            0,
+                            dateTime,
+                            latitude,
+                            longitude,
+                            capturedImagePath
+                        )
                     }
                 }, modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Red)

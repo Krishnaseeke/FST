@@ -181,7 +181,7 @@ fun Root(context: Context) {
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
 
             CheckInScreen(
-                toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
+                toHome = { navController.popBackStack() },
                 userID = userId,
                 context = context
             )

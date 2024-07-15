@@ -71,8 +71,6 @@ fun CreateScreen(
         }
     }
     var address by remember { mutableStateOf("") }
-    var latitude by remember { mutableStateOf(0.0) }
-    var longitude by remember { mutableStateOf(0.0) }
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val showToastMessage = viewModel.showToast.collectAsState().value

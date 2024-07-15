@@ -24,8 +24,8 @@ class CreateScreenDB(context: Context?) :
                 + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "
                 + COMMENTS_COL + " TEXT, "
                 + PROOF_IMAGE_COL + " TEXT, "  // New Column
-                + LONGITUDE_LOCATION_COL + " DOUBLE, " // New Column
-                + LATITUDE_LOCATION_COL + " DOUBLE)") // New Column
+                + LONGITUDE_LOCATION_COL + " TEXT, " // New Column
+                + LATITUDE_LOCATION_COL + " TEXT)") // New Column
 
         val createCheckInTableQuery = ("CREATE TABLE " + CHECKIN_TABLE_NAME + " ("
                 + CHECKIN_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
