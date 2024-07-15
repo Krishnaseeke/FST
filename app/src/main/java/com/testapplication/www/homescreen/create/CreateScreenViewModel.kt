@@ -27,6 +27,9 @@ data class CreateScreenState(
     val followUpActionCall: Boolean = false,
     val followUpActionVisit: Boolean = false,
     val comments: String = "",
+    val proofImage: String = "", // New field
+    val longitudeLocation: String = "", // New field
+    val latitudeLocation: String = "", // New field
     val isLoading: Boolean = false,
     val isSubmissionSuccessful: Boolean = false
 )
@@ -43,7 +46,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
 
 
     private val DB_NAME = "create_screen_db"
-    private val DB_VERSION = 3
+    private val DB_VERSION = 6
     private val TABLE_NAME = "create_screen_data"
     private val ID_COL = "id"
     private val USER_ID_COL = "user_id"
@@ -59,6 +62,10 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     private val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
     private val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
     private val COMMENTS_COL = "comments"
+    private val CHECKIN_TIME_COL = "checkin_time"
+    private val CHECKIN_LOCATION_COL = "location" // New Column
+    private val CHECKIN_IMAGE_COL = "checkin_image" // New Column
+
 
     private val db = CreateScreenDB(context)
 
@@ -113,11 +120,22 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
         _state.update { it.copy(comments = comments) }
     }
 
+    fun updateProofImage(image: String) {
+        _state.update { it.copy(proofImage = image) }
+    }
+
+    fun updateLongitudeLocation(longitude: String) {
+        _state.update { it.copy(longitudeLocation = longitude) }
+    }
+
+    fun updateLatitudeLocation(latitude: String) {
+        _state.update { it.copy(latitudeLocation = latitude) }
+    }
+
     fun isValidInput(state: CreateScreenState): Boolean {
         // Implement your validation logic here
         // For example, check if required fields are not empty
-        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() &&
-                state.address.isNotEmpty() && state.leadStatus.isNotEmpty() &&
+        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() && state.leadStatus.isNotEmpty() &&
                 (state.followUpDate.isNotEmpty() && state.followUpTime.isNotEmpty())
     }
 
@@ -213,7 +231,10 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
         followUpTime: String?,
         followUpActionCall: Int,
         followUpActionVisit: Int,
-        comments: String?
+        comments: String?,
+        proofImage: String?,
+        longitudeLocation: String?,
+        latitudeLocation: String?
     ) {
         val stateValue = _state.value
         if (isValidInput(stateValue)) {
@@ -237,7 +258,10 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                             followUpTime = followUpTime,
                             followUpActionCall = followUpActionCall,
                             followUpActionVisit = followUpActionVisit,
-                            comments = comments
+                            comments = comments,
+                            proofImage = proofImage,
+                            longitudeLocation = longitudeLocation,
+                            latitudeLocation = latitudeLocation
                         )
                     } else {
                         // Create a new record
@@ -254,7 +278,10 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                             followUpTime = followUpTime,
                             followUpActionCall = followUpActionCall,
                             followUpActionVisit = followUpActionVisit,
-                            comments = comments
+                            comments = comments,
+                            proofImage = proofImage,
+                            longitudeLocation = longitudeLocation,
+                            latitudeLocation = latitudeLocation
                         )
                     }
                 } catch (e: Exception) {

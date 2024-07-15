@@ -1,3 +1,4 @@
+import android.Manifest
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,19 +22,30 @@ import android.content.Context
 import android.widget.DatePicker
 import android.widget.Toast
 import android.app.TimePickerDialog
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.widget.TimePicker
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import com.testapplication.www.homescreen.create.AttachImageButton
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import coil.compose.rememberImagePainter
+import com.google.android.gms.location.LocationServices
+import com.testapplication.www.BuildConfig
 import com.testapplication.www.homescreen.create.BottomSheet
 import com.testapplication.www.homescreen.create.CustomOutlinedTextField
 import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData1
+import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 
@@ -58,11 +70,21 @@ fun CreateScreen(
             toHome(userID)
         }
     }
+    var address by remember { mutableStateOf("") }
+
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val showToastMessage = viewModel.showToast.collectAsState().value
     LaunchedEffect(key1 = showToastMessage) {
         if (!showToastMessage.isNullOrEmpty()) {
             Toast.makeText(context, showToastMessage, Toast.LENGTH_SHORT).show()
         }
+        getLastLocation(fusedLocationClient, context) { location ->
+            address = getAddressFromLocation(location, context)
+            viewModel.updateLongitudeLocation(location.longitude.toString())
+            viewModel.updateLatitudeLocation(location.latitude.toString())
+
+        }
+
     }
     if (itemId != null) {
         viewModel.fetchExistingRecord(context, itemId)
@@ -117,6 +139,42 @@ fun CreateScreen(
     )
 
     val textFieldStyle = TextStyle(color = Color.Black)
+
+
+    //Proof Image
+    val context = LocalContext.current
+
+    // State to manage captured image URI
+    var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    var showAttachImage by remember { mutableStateOf(false) }
+
+    // Create image file and URI
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        context,
+        "${BuildConfig.APPLICATION_ID}.provider",
+        file
+    )
+
+    // Camera launcher
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            capturedImageUri = uri
+            viewModel.updateProofImage(uri.toString())
+        }
+    }
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -197,8 +255,9 @@ fun CreateScreen(
             )
 
             OutlinedTextField(
-                value = state.address,
-                onValueChange = { viewModel.updateAddress(it) },
+                enabled = false,
+                value = address,
+                onValueChange = { viewModel.updateAddress(address) },
                 label = { Text("Address*") },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
@@ -221,7 +280,55 @@ fun CreateScreen(
                         fontStyle = FontStyle.Normal,
                         modifier = Modifier.padding(10.dp)
                     )
-                    AttachImageButton()
+                    // UI Components
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        androidx.compose.material.Button(
+                            onClick = {
+                                val permissionCheckResult = ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                )
+                                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                    cameraLauncher.launch(uri)
+                                } else {
+                                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth() // Ensure the button fills the available space
+                                .height(50.dp),
+                            colors = androidx.compose.material.ButtonDefaults.buttonColors(Color.LightGray)
+                        ) {
+                            androidx.compose.material.Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "Add icon",
+                                modifier = Modifier.padding(5.dp)
+                            )
+                            androidx.compose.material.Text(
+                                text = "Attach Image",
+                                color = Color.Black,
+                                fontSize = 16.sp,
+                                fontStyle = FontStyle.Normal,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        }
+
+                        // Display captured image
+                        if (capturedImageUri != Uri.EMPTY) {
+                            Image(
+                                painter = rememberImagePainter(capturedImageUri),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(16.dp, 8.dp)
+                                    .fillMaxWidth()
+                            )
+                        }
+                    }
                 }
 
             }
@@ -345,7 +452,8 @@ fun CreateScreen(
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
-                        .fillMaxWidth().clickable { lsshowSheet = true }
+                        .fillMaxWidth()
+                        .clickable { lsshowSheet = true }
                         .padding(5.dp)
                 )
             }
@@ -354,7 +462,9 @@ fun CreateScreen(
 
 
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { mDatePickerDialog.show() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { mDatePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -381,7 +491,9 @@ fun CreateScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { mTimePickerDialog.show() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { mTimePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -478,7 +590,10 @@ fun CreateScreen(
                         followUpTime = state.followUpTime,
                         followUpActionCall = if (state.followUpActionCall) 1 else 0,
                         followUpActionVisit = if (state.followUpActionVisit) 1 else 0,
-                        comments = state.comments
+                        comments = state.comments,
+                        proofImage = state.proofImage,
+                        longitudeLocation = state.longitudeLocation,
+                        latitudeLocation = state.latitudeLocation
                     ) // Save to the database
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -494,4 +609,16 @@ fun CreateScreen(
             }
         }
     }
+}
+
+fun Context.createImageFile(): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val imageFileName = "JPEG_${timeStamp}_"
+    val storageDir: File? = externalCacheDir
+    return File.createTempFile(
+        imageFileName, /* prefix */
+        ".jpg", /* suffix */
+        storageDir      /* directory */
+    )
 }

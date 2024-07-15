@@ -4,6 +4,7 @@ import CreateScreenDB
 import CreateScreenViewModel
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -27,6 +28,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +39,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.location.LocationServices
 import com.testapplication.www.common.PreferencesManager
+import getLastLocation
 import java.util.logging.Logger
 
 
@@ -59,12 +66,14 @@ data class ScreenData(
     val date: String,
     val time: String,
     val stringValue: String,
-    val leadStatus: String
+    val leadStatus: String,
+    val longitudeValue: String,
+    val latitudeValue: String
 )
 
 
 private const val DB_NAME = "create_screen_db"
-private const val DB_VERSION = 2
+private const val DB_VERSION = 6
 private const val TABLE_NAME = "create_screen_data"
 private const val ID_COL = "id"
 private const val USER_ID_COL = "user_id"
@@ -80,6 +89,8 @@ private const val FOLLOW_UP_TIME_COL = "follow_up_time"
 private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
 private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
 private const val COMMENTS_COL = "comments"
+private const val CHECKIN_LONGITUDE_COL = "longitude_location" // New Column
+private const val CHECKIN_LATITUDE_COL = "latitude_location" // New Column
 
 @Composable
 fun displayList(
@@ -92,10 +103,17 @@ fun displayList(
     val userId = userId
     val preferencesManager = PreferencesManager(context)
 
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    var currentLatitude by remember { mutableStateOf(0.0) }
+    var itemLatitude by remember { mutableStateOf(0.0) }
+    var currentLongitude by remember { mutableStateOf(0.0) }
+    var itemLongitude by remember { mutableStateOf(0.0) }
+    val dist = FloatArray(1)
+
+
 
     val followUpActionCallData = fetchDataFromDB(context, userId, valueType)
     val followUpActionVisitData = fetchDataFromDB(context, userId, valueType)
-    //val dateRangeData = fetchDataFromDB(context, userId, selectedDate)
     var dataListDisplay: ArrayList<ScreenData> = ArrayList()
     if (valueType == "visit") {
         dataListDisplay.addAll(followUpActionVisitData)
@@ -120,11 +138,18 @@ fun displayList(
                 if (selectedDate == null || selectedDate == "") {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth().clickable {
-                                if(preferencesManager.getCheckInStatus(false)) {
+                            .fillMaxWidth()
+                            .clickable {
+                                if (preferencesManager.getCheckInStatus(false)) {
                                     toCreate.invoke(userId, screenData.id)
-                                }else{
-                                    Toast.makeText(context, "Please Check-In to Edit FST", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please Check-In to Edit FST",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
                                 }
                             }
                             .padding(10.dp),
@@ -199,14 +224,47 @@ fun displayList(
 
                         Divider(modifier = Modifier.padding(top = 2.dp))
                     }
-                }else if (screenData.date==selectedDate){
+                } else if (screenData.date == selectedDate) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth().clickable {
-                                if(preferencesManager.getCheckInStatus(false)) {
-                                    toCreate.invoke(userId, screenData.id)
-                                }else{
-                                    Toast.makeText(context, "Please Check-In to Edit FST", Toast.LENGTH_SHORT).show()
+                            .fillMaxWidth()
+                            .clickable {
+                                if (preferencesManager.getCheckInStatus(false)) {
+                                    //Get the location before Comparsion in if Condition
+                                    getLastLocation(fusedLocationClient, context) { location ->
+                                        currentLongitude = location.longitude
+                                        currentLatitude = location.latitude
+                                    }
+//                                    itemLatitude = screenData.latitudeValue.toDouble()
+//                                    itemLongitude = screenData.longitudeValue.toDouble()
+                                    //Get the Location of each item from DB in Display list
+                                    //Use the Distance Range to go for edit
+                                    Location.distanceBetween(
+                                        currentLatitude, currentLongitude,
+                                        screenData.latitudeValue.toDouble(), screenData.longitudeValue.toDouble(),
+                                        dist
+                                    )
+                                    val RADIUS_IN_METER = 0.5
+
+                                    if (dist[0] / 1000 > RADIUS_IN_METER) {
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Please  in the Range to Edit the Account",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
+                                    }else{
+                                        toCreate.invoke(userId, screenData.id)
+                                    }
+                                } else {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please Check-In to Edit FST",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
                                 }
                             }
                             .padding(10.dp),
@@ -276,7 +334,7 @@ fun displayList(
                                 contentDescription = "Navigate",
                                 modifier = Modifier,
 
-                            )
+                                )
                         }
 
                         Divider(modifier = Modifier.padding(top = 2.dp))
@@ -309,13 +367,17 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
             val time = getString(getColumnIndex(FOLLOW_UP_TIME_COL))
             val stringValue = getString(getColumnIndex(CUSTOMER_NAME_COL))
             val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL)) // Fetch leadStatus
+            val longitudeValue = getString(getColumnIndex(CHECKIN_LONGITUDE_COL))
+            val latitudeValue = getString(getColumnIndex(CHECKIN_LATITUDE_COL))
             data.add(
                 ScreenData(
                     id,
                     date,
                     time,
                     stringValue,
-                    leadStatus
+                    leadStatus,
+                    longitudeValue,
+                    latitudeValue
                 )
             ) // Pass leadStatus to ScreenData
         }
@@ -326,41 +388,5 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
     return data
 }
 
-@SuppressLint("Range")
-private fun fetchDataFromDBforDate(
-    context: Context,
-    userId: Long,
-    selectedDate: String
-): List<ScreenData> {
-    val db = CreateScreenDB(context).readableDatabase
-    val cursor = db.rawQuery(
-        "SELECT * FROM $TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_DATE_COL = ?",
-        arrayOf(userId.toString(), selectedDate)
-    )
-
-    val data = mutableListOf<ScreenData>()
-    with(cursor) {
-        while (moveToNext()) {
-            val id = getLong(getColumnIndex(ID_COL))
-            val date = getString(getColumnIndex(FOLLOW_UP_DATE_COL))
-            val time = getString(getColumnIndex(FOLLOW_UP_TIME_COL))
-            val stringValue = getString(getColumnIndex(CUSTOMER_NAME_COL))
-            val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL))
-            data.add(
-                ScreenData(
-                    id,
-                    date,
-                    time,
-                    stringValue,
-                    leadStatus
-                )
-            )
-        }
-    }
-    cursor.close()
-    db.close()
-
-    return data
-}
 
 

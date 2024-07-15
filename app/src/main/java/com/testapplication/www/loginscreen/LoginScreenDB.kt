@@ -44,7 +44,7 @@ class LoginScreenDB(context: Context?) :
 
     companion object {
         private const val DB_NAME = "test_application_db"
-        private const val DB_VERSION = 1
+        private const val DB_VERSION = 6
         private const val TABLE_NAME = "signup"
         private const val ID_COL = "id"
         private const val PHONE_COL = "phone"

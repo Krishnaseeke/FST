@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -15,6 +16,8 @@ class HomeScreenViewModel(context: Context) : ViewModel() {
     val demosScheduledCount = MutableStateFlow<Int>(0)
     val demosCompletedCount = MutableStateFlow<Int>(0)
     val licensesSoldCount = MutableStateFlow<Int>(0)
+
+
     fun initialize(context: Context, userID: Long?) {
         viewModelScope.launch(Dispatchers.IO) {
             homeScreenDB = HomeScreenDB(context)
@@ -26,20 +29,15 @@ class HomeScreenViewModel(context: Context) : ViewModel() {
     }
 
 
-    private val db: CreateScreenDB = CreateScreenDB(context)
 
-    fun insertCheckIn(userId: Long?, checkInStatus: Int, checkInTime: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.insertCheckIn(userId, checkInStatus, checkInTime)
-        }
-    }
 
-    fun getCheckInStatus(userId: Long?, callback: (Int) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val status = db.getCheckInStatus(userId)
-            callback(status)
-        }
-    }
+
+//    fun getCheckInStatus(userId: Long?, callback: (Int) -> Unit) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val status = db.getCheckInStatus(userId)
+//            callback(status)
+//        }
+//    }
 
 
 }
