@@ -28,8 +28,10 @@ import android.widget.TimePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -272,7 +274,7 @@ fun CreateScreen(
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                Column() {
+                Column {
                     Text(
                         text = "Proof Of Meeting*",
                         color = Color.Black,
@@ -284,11 +286,9 @@ fun CreateScreen(
                     Column(
                         Modifier
                             .fillMaxSize()
-                            .padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        androidx.compose.material.Button(
-                            onClick = {
+                            .background(Color.LightGray)
+                            .padding(10.dp)
+                            .clickable {
                                 val permissionCheckResult = ContextCompat.checkSelfPermission(
                                     context,
                                     Manifest.permission.CAMERA
@@ -299,39 +299,50 @@ fun CreateScreen(
                                     permissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             },
-                            modifier = Modifier
-                                .fillMaxWidth() // Ensure the button fills the available space
-                                .height(50.dp),
-                            colors = androidx.compose.material.ButtonDefaults.buttonColors(Color.LightGray)
-                        ) {
-                            androidx.compose.material.Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = "Add icon",
-                                modifier = Modifier.padding(5.dp)
-                            )
-                            androidx.compose.material.Text(
-                                text = "Attach Image",
-                                color = Color.Black,
-                                fontSize = 16.sp,
-                                fontStyle = FontStyle.Normal,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
-
-                        // Display captured image
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         if (capturedImageUri != Uri.EMPTY) {
-                            Image(
-                                painter = rememberImagePainter(capturedImageUri),
-                                contentDescription = null,
+                            Box(
                                 modifier = Modifier
-                                    .padding(16.dp, 8.dp)
+                                    .height(200.dp)
                                     .fillMaxWidth()
-                            )
+                            ) {
+                                Image(
+                                    painter = rememberImagePainter(capturedImageUri),
+                                    contentDescription = "Image Proof",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                )
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Re-Capture",
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(8.dp)
+                                )
+                            }
+                        } else {
+                            Row {
+                                androidx.compose.material.Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "Add icon",
+                                    modifier = Modifier.padding(5.dp)
+                                )
+                                androidx.compose.material.Text(
+                                    text = "Attach Image",
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontStyle = FontStyle.Normal,
+                                    modifier = Modifier.padding(5.dp)
+                                )
+                            }
                         }
                     }
                 }
-
             }
+
+
 
 
             var csshowSheet by remember { mutableStateOf(false) }
