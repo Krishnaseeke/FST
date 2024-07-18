@@ -159,12 +159,13 @@ fun CreateScreen(
     )
 
     // Camera launcher
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            capturedImageUri = uri
-            viewModel.updateProofImage(uri.toString())
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                capturedImageUri = uri
+                viewModel.updateProofImage(uri.toString())
+            }
         }
-    }
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -287,28 +288,17 @@ fun CreateScreen(
                         Modifier
                             .fillMaxSize()
                             .background(Color.LightGray)
-                            .padding(10.dp)
-                            .clickable {
-                                val permissionCheckResult = ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.CAMERA
-                                )
-                                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                                    cameraLauncher.launch(uri)
-                                } else {
-                                    permissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            },
+                            .padding(4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (capturedImageUri != Uri.EMPTY) {
+                        if (capturedImageUri != Uri.EMPTY || state.proofImage != "") {
                             Box(
                                 modifier = Modifier
                                     .height(200.dp)
                                     .fillMaxWidth()
                             ) {
                                 Image(
-                                    painter = rememberImagePainter(capturedImageUri),
+                                    painter = rememberImagePainter(Uri.parse(state.proofImage)),
                                     contentDescription = "Image Proof",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -320,10 +310,28 @@ fun CreateScreen(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
                                         .padding(8.dp)
+                                        .clickable {
+                                            capturedImageUri = Uri.EMPTY
+                                            state.proofImage = ""
+                                        }
                                 )
                             }
                         } else {
-                            Row {
+                            Row(
+                                Modifier
+                                    .clickable {
+                                        val permissionCheckResult =
+                                            ContextCompat.checkSelfPermission(
+                                                context,
+                                                Manifest.permission.CAMERA
+                                            )
+                                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                            cameraLauncher.launch(uri)
+                                        } else {
+                                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                                        }
+                                    }
+                                    .fillMaxSize(1f),Arrangement.Center) {
                                 androidx.compose.material.Icon(
                                     imageVector = Icons.Filled.Add,
                                     contentDescription = "Add icon",
@@ -343,8 +351,6 @@ fun CreateScreen(
             }
 
 
-
-
             var csshowSheet by remember { mutableStateOf(false) }
             var lsshowSheet by remember { mutableStateOf(false) }
 
@@ -358,7 +364,7 @@ fun CreateScreen(
             val bcIcon =
                 if (bcshowSheet) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
 
-            Box{
+            Box {
                 if (bcshowSheet) {
                     BottomSheet(
                         onDismiss = {
@@ -433,7 +439,7 @@ fun CreateScreen(
                 )
             }
 
-            Box{
+            Box {
                 if (lsshowSheet) {
                     BottomSheet(
                         onDismiss = {
