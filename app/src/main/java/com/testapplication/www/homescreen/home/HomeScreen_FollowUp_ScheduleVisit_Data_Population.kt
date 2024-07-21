@@ -50,6 +50,7 @@ data class ScreenData1(
     val stringValue: String,
     val phoneNumber: String,
     val alternatePhoneNumber: String,
+    val proofImage:String,
     val address: String,
     val businessCategory: String,
     val callStatus: String,

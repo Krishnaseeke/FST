@@ -14,7 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.testapplication.www.common.PreferencesManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.testapplication.www.util.constants.Constants.PREFERENCE_MANAGER_USER_ID_COUNT
+import com.testapplication.www.util.constants.Constants.SIGNIN_CTA_NAME
+import com.testapplication.www.util.constants.Constants.SIGNUP_CTA_NAME
 
 
 @Composable
@@ -25,9 +28,10 @@ fun OnboardingScreen(
     modifier: Modifier = Modifier,
     context: Context
 ) {
-    val preferencesManager = PreferencesManager(context)
-    var userValue = preferencesManager.getUserId(-1)
-    if (userValue > 0) {
+    val onboardingViewModel: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory(context))
+    val userValue = onboardingViewModel.getUserId()
+
+    if (userValue > PREFERENCE_MANAGER_USER_ID_COUNT) {
         toHomeScreen(userValue)
     } else {
         Column(
@@ -39,7 +43,7 @@ fun OnboardingScreen(
         ) {
             CustomButton(
                 onClick = toSignupScreen,
-                buttonText = "Signup",
+                buttonText = SIGNUP_CTA_NAME,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
@@ -51,7 +55,7 @@ fun OnboardingScreen(
 
             CustomButton(
                 onClick = toLoginScreen,
-                buttonText = "Sign-In",
+                buttonText = SIGNIN_CTA_NAME,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),

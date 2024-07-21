@@ -27,7 +27,7 @@ data class CreateScreenState(
     val followUpActionCall: Boolean = false,
     val followUpActionVisit: Boolean = false,
     val comments: String = "",
-    val proofImage: String = "", // New field
+    var proofImage: String = "", // New field
     val longitudeLocation: String = "", // New field
     val latitudeLocation: String = "", // New field
     val isLoading: Boolean = false,
@@ -54,6 +54,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     private val PHONE_NUMBER_COL = "phone_number"
     private val ALTERNATE_PHONE_COL = "alternate_phone_number"
     private val ADDRESS_COL = "address"
+    private val PROOF_IMAGE_COL = "proof_image"
     private val BUSINESS_CATEGORY_COL = "business_category"
     private val CALL_STATUS_COL = "call_status"
     private val LEAD_STATUS_COL = "lead_status"
@@ -158,6 +159,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 val phoneNumber = cursor.getString(cursor.getColumnIndex(PHONE_NUMBER_COL))
                 val alternatePhoneNumber = cursor.getString(cursor.getColumnIndex(ALTERNATE_PHONE_COL))
                 val address = cursor.getString(cursor.getColumnIndex(ADDRESS_COL))
+                val proofImage = cursor.getString(cursor.getColumnIndex(PROOF_IMAGE_COL))
                 val businessCategory = cursor.getString(cursor.getColumnIndex(BUSINESS_CATEGORY_COL))
                 val callStatus = cursor.getString(cursor.getColumnIndex(CALL_STATUS_COL))
                 val leadStatus = cursor.getString(cursor.getColumnIndex(LEAD_STATUS_COL))
@@ -173,6 +175,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                     stringValue,
                     phoneNumber,
                     alternatePhoneNumber,
+                    proofImage,
                     address,
                     businessCategory,
                     callStatus,
@@ -205,6 +208,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 customerName = existingItem.stringValue,
                 phoneNumber = existingItem.phoneNumber,
                 alternatePhoneNumber = existingItem.alternatePhoneNumber,
+                proofImage = existingItem.proofImage,
                 address = existingItem.address,
                 businessCategory = existingItem.businessCategory,
                 callStatus = existingItem.callStatus,
