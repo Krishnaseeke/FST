@@ -2,10 +2,6 @@ package com.testapplication.www.common
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Base64
-import java.io.ByteArrayOutputStream
 
 class PreferencesManager(context: Context) {
     private val sharedPreferences: SharedPreferences =
