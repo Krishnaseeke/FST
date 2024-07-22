@@ -5,6 +5,12 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.testapplication.www.util.constants.Constants.DB_NAME
+import com.testapplication.www.util.constants.Constants.DB_VERSION
+import com.testapplication.www.util.constants.Constants.ID_COL
+import com.testapplication.www.util.constants.Constants.PASSWORD
+import com.testapplication.www.util.constants.Constants.PHONE_COL
+import com.testapplication.www.util.constants.Constants.TABLE_NAME
 
 class LoginScreenDB(context: Context?) :
     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION)  {
@@ -42,14 +48,6 @@ class LoginScreenDB(context: Context?) :
         onCreate(db)
     }
 
-    companion object {
-        private const val DB_NAME = "test_application_db"
-        private const val DB_VERSION = 6
-        private const val TABLE_NAME = "signup"
-        private const val ID_COL = "id"
-        private const val PHONE_COL = "phone"
-        private const val PASSWORD = "password"
-    }
 
 
 

@@ -1,3 +1,6 @@
+package com.testapplication.www.signupscreen
+
+import SignupScreenDB
 import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -6,14 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.loginscreen.LoginScreenDB
-import com.testapplication.www.util.constants.Constants.EMPTY_PASSWORD_ERROR_MSG
-import com.testapplication.www.util.constants.Constants.EMPTY_PHONE_NUMBER_ERROR_MSG
-import com.testapplication.www.util.constants.Constants.PHONE_NUMBER_INVALID_MSG
+import com.testapplication.www.util.constants.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LoginViewModel(context: Context) : ViewModel() {
+class SignupViewModel(context: Context): ViewModel()  {
     private lateinit var dbHandler: LoginScreenDB
     private lateinit var dbSignUp: SignupScreenDB
     private val preferencesManager = PreferencesManager(context)
@@ -36,18 +37,19 @@ class LoginViewModel(context: Context) : ViewModel() {
         dbSignUp = SignupScreenDB(context)
     }
 
-    fun login(context: Context, toHome: (Any?) -> Unit, onValidationError: (String?, String?) -> Unit): Boolean {
+    fun signup(context: Context, toHome: (Any?) -> Unit, onValidationError: (String?, String?) -> Unit): Boolean {
         val phoneText = phoneNumber.value.text
         val passwordText = password.value.text
 
         val phoneError: String? = when {
-            phoneText.isBlank() -> EMPTY_PHONE_NUMBER_ERROR_MSG
-            !phoneText.matches("^[6-9]\\d{9}$".toRegex()) -> PHONE_NUMBER_INVALID_MSG
+            phoneText.isBlank() -> Constants.EMPTY_PHONE_NUMBER_ERROR_MSG
+            !phoneText.matches("^[6-9]\\d{9}$".toRegex()) -> Constants.PHONE_NUMBER_INVALID_MSG
             else -> null
         }
 
         val passwordError: String? = when {
-            passwordText.isBlank() -> EMPTY_PASSWORD_ERROR_MSG
+            passwordText.isBlank() -> Constants.EMPTY_PASSWORD_ERROR_MSG
+            !passwordText.matches("^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=])(?=\\S+$).{6,}\$".toRegex()) -> Constants.PASSWORD_ERROR_MSG
             else -> null
         }
 
@@ -56,23 +58,21 @@ class LoginViewModel(context: Context) : ViewModel() {
             return true
         }
 
-
-
         viewModelScope.launch {
-            val loginSuccessful = withContext(Dispatchers.IO) {
-                val phoneLong = phoneText.toLong()
-                dbHandler.validateLogin(phoneLong, passwordText)
+            val phoneLong = phoneText.toLong()
+            val signupSuccessful = withContext(Dispatchers.IO) {
+                dbSignUp.signup(phoneLong, passwordText)
             }
 
-            if (loginSuccessful) {
+            if (signupSuccessful) {
                 val userId = withContext(Dispatchers.IO) {
-                    dbSignUp.getUserIdByPhoneNumber(phoneText.toLong())
+                    dbSignUp.getUserIdByPhoneNumber(phoneLong)
                 }
                 preferencesManager.saveUserId(userId)
                 toHome(userId)
-                showToast(context, "Login successful")
+                showToast(context, Constants.SUCCESSFUL_SIGNUP_TOAST)
             } else {
-                onValidationError("","Credentials don't exist, Please SignUp")
+                onValidationError("", Constants.EXISTING_USER_MSG)
             }
         }
         return false
