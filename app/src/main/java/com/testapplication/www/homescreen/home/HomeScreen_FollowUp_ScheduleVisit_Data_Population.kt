@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_CALL_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import getLastLocation
 import java.util.logging.Logger
 
@@ -351,8 +353,8 @@ fun displayList(
 private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): List<ScreenData> {
     val db = CreateScreenDB(context).readableDatabase
     val followUpAction = when (valueType) {
-        "visit" -> FOLLOW_UP_ACTION_VISIT_COL
-        "call" -> FOLLOW_UP_ACTION_CALL_COL
+        SCHEDULED_VISIT_LIST_TYPE -> FOLLOW_UP_ACTION_VISIT_COL
+        FOLLOW_UP_CALL_LIST_TYPE -> FOLLOW_UP_ACTION_CALL_COL
         else -> throw IllegalArgumentException("Invalid valueType")
     }
     val cursor = db.rawQuery(

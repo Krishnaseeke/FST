@@ -23,6 +23,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.testapplication.www.util.constants.Constants.SCREEN_FOLLOW_UP_CALLS
+import com.testapplication.www.util.constants.Constants.SCREEN_LEADS
+import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT
 
 @Composable
 fun BottomBar(
@@ -37,14 +40,20 @@ fun BottomBar(
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(20.dp, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp), clip = false) // Stronger shadow with rounded corners
+            .shadow(
+                20.dp,
+                RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+                clip = false
+            ) // Stronger shadow with rounded corners
             .background(Color.White), // Ensure background is white
         containerColor = Color.Transparent // To allow shadow visibility
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.background(color = Color.White).fillMaxWidth(1f)
+            modifier = Modifier
+                .background(color = Color.White)
+                .fillMaxWidth(1f)
         ) {
             // Home Icon
             BottomNavigationItem(Icons.Default.Home, "Home", toHome, currentScreen == "Home")
@@ -53,29 +62,30 @@ fun BottomBar(
             // Scheduled Visits Icon
             BottomNavigationItem(
                 Icons.Default.DateRange,
-                "Scheduled visits",
+                SCREEN_SCHEDULED_VISIT,
                 toScheduledVisits,
-                currentScreen == "Scheduled visits"
+                currentScreen == SCREEN_SCHEDULED_VISIT
             )
 
             // Follow-up Calls Icon
             BottomNavigationItem(
                 Icons.Default.Call,
-                "Follow up Calls",
+                SCREEN_FOLLOW_UP_CALLS,
                 toFollowupCalls,
-                currentScreen == "Follow up Calls"
+                currentScreen == SCREEN_FOLLOW_UP_CALLS
             )
 
             // Leads Icon
             BottomNavigationItem(
                 Icons.Default.Person,
-                "Leads",
+                SCREEN_LEADS,
                 toLeadsScreen,
-                currentScreen == "Leads"
+                currentScreen == SCREEN_LEADS
             )
         }
     }
 }
+
 @Composable
 fun BottomNavigationItem(
     icon: ImageVector,
@@ -88,7 +98,9 @@ fun BottomNavigationItem(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick).background(color = Color.White)
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .background(color = Color.White)
     ) {
         Icon(
             imageVector = icon,

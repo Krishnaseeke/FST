@@ -13,6 +13,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -216,8 +219,38 @@ fun setCustomDate(defaultDate: String = ""): String? {
     return selectedDate.value
 }
 
-@SuppressLint("SimpleDateFormat")
-fun Date.convertDateToString(): String {
-    val formatter = SimpleDateFormat("dd/MM/yyyy")
-    return formatter.format(this)
+@Composable
+fun Logout(preferencesManager: PreferencesManager, toOnboarding: () -> Unit) {
+    Icon(
+        imageVector = Icons.Default.Delete,
+        contentDescription = "Delete",
+        modifier = Modifier
+            .clickable {
+                preferencesManager.clearPreferences()
+                toOnboarding()
+            }
+            .padding(10.dp)
+    )
+}
+
+@Composable
+fun ExitApp(){
+    androidx.compose.material3.Icon(
+        imageVector = Icons.Default.ExitToApp,
+        contentDescription = "Back",
+        modifier = Modifier
+            .clickable { }
+            .padding(10.dp)
+    )
+}
+
+@Composable
+fun ScreenHeaders(text:String){
+    Text(
+        text = text,
+        color = Color.Black,
+        fontSize = 25.sp,
+        fontStyle = FontStyle.Normal,
+        fontWeight = FontWeight.Bold
+    )
 }

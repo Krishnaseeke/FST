@@ -32,4 +32,17 @@ object Constants {
     const val PHONE_COL = "phone"
     const val PASSWORD = "password"
 
+    //ScreenHeaders
+    const val SCREEN_SCHEDULED_VISIT = "Scheduled Visits"
+    const val SCREEN_FOLLOW_UP_CALLS = "Follow Up Calls"
+    const val SCREEN_LEADS = "Leads"
+    const val SCREEN_HOME = ""
+    const val SCREEN_CREATE = ""
+    const val SCREEN_CHECK_IN = ""
+
+    //Item Display List Value Type
+    const val FOLLOW_UP_CALL_LIST_TYPE = "call"
+    const val LEADS_LIST_TYPE = ""
+    const val SCHEDULED_VISIT_LIST_TYPE = "visit"
+
 }
