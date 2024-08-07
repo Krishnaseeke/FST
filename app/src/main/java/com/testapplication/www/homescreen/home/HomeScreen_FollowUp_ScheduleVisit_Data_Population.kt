@@ -46,7 +46,9 @@ import com.google.android.gms.location.LocationServices
 import com.testapplication.www.R
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.util.ActionType
+import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.HeaderText
+import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_CALL_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import getLastLocation
@@ -132,7 +134,19 @@ fun displayList(
 //    else if(selectedDate!=null){
 //        dataListDisplay = dateRangeData
 //    }
+    var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
 
+    if (showAlert) {
+        AllowSettingPopup(
+            context = context,
+            showDialog = showAlert,
+            onDismiss = { showAlert = Constants.DEFAULT_ALERT_POP_UP },
+            title = Constants.GENERAL_ALERT_TITLE,
+            description = Constants.CHECK_IN_EDIT_ALERT_DESCRIPTION,
+            confirmButtonText = Constants.GENERAL_ALERT_ALLOW_CTA,
+            onConfirm = { /* Handle confirmation if needed */ }
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -165,13 +179,7 @@ fun displayList(
                                 if (preferencesManager.getCheckInStatus(false)) {
                                     toCreate.invoke(userId, screenData.id)
                                 } else {
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            "Please Check-In to Edit FST",
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
+                                    showAlert = Constants.SHOW_ALERT_POP_UP
                                 }
                             }
                             .padding(10.dp),
@@ -282,13 +290,7 @@ fun displayList(
                                         toCreate.invoke(userId, screenData.id)
                                     }
                                 } else {
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            "Please Check-In to Edit FST",
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
+                                    showAlert = Constants.SHOW_ALERT_POP_UP
                                 }
                             }
                             .padding(10.dp),

@@ -60,6 +60,7 @@ object Constants {
     //Alert
     const val GENERAL_ALERT_TITLE = "Alert!!!"
     const val CHECK_IN_ALERT_DESCRIPTION = "Please Check-In to Create FST"
+    const val CHECK_IN_EDIT_ALERT_DESCRIPTION = "Please Check-In to Edit FST"
     const val GENERAL_ALERT_ALLOW_CTA = "OK"
 
     //Create
