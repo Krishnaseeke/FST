@@ -7,7 +7,11 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +39,10 @@ fun LoginScreen(
     val phoneNumber = viewModel.phoneNumber
     val password = viewModel.password
     val toastMessage = viewModel.toastMessage.value
+    var isPhoneError by rememberSaveable { mutableStateOf(false) }
+    var isPasswordError by rememberSaveable { mutableStateOf(false) }
+    var phoneErrorMessage by rememberSaveable { mutableStateOf("") }
+    var passwordErrorMessage by rememberSaveable { mutableStateOf("") }
 
     val preferencesManager = PreferencesManager(context) // Instantiate PreferencesManager
 
@@ -67,7 +75,13 @@ fun LoginScreen(
                 phoneNumber = phoneNumber,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "Enter your Phone Number",
-                keyboardType = KeyboardType.Phone
+                keyboardType = KeyboardType.Phone,
+                isError = isPhoneError,
+                errorMessage = phoneErrorMessage,
+                onValueChange = {
+                    isPhoneError = false
+                    phoneErrorMessage = ""
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldText(text = "Password")
@@ -75,7 +89,13 @@ fun LoginScreen(
                 phoneNumber = password,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = "Enter your Password",
-                keyboardType = KeyboardType.Password
+                keyboardType = KeyboardType.Password,
+                isError = isPasswordError,
+                errorMessage = passwordErrorMessage,
+                onValueChange = {
+                    isPasswordError = false
+                    passwordErrorMessage = ""
+                }
             )
 
             Spacer(modifier = Modifier.height(25.dp))
@@ -85,9 +105,14 @@ fun LoginScreen(
                     val createdb = CreateScreenDB(context)
                     val readablefile = createdb.readableDatabase
                     readablefile.close()
-                    viewModel.login(context) { userId ->
+                    viewModel.login(context, {
                         preferencesManager.saveCheckInStatus(false) // Set check-in status to 0 (false)
-                        toHome(userId)
+                        toHome(it)
+                    }) { phoneError, passwordError ->
+                        isPhoneError = phoneError != null
+                        isPasswordError = passwordError != null
+                        phoneErrorMessage = phoneError ?: ""
+                        passwordErrorMessage = passwordError ?: ""
                     }
                 },
                 buttonText = "Sign-In",

@@ -14,9 +14,11 @@ import android.Manifest
 import CreateScreenDB
 import android.content.Context
 import android.content.Intent
+import android.media.Image
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -66,9 +69,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
+import com.testapplication.www.util.ActionType
+import com.testapplication.www.util.AllowSettingPopup
+import com.testapplication.www.util.LogoutOrExitScreen
+import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.ALERT_ALLOW_CTA
+import com.testapplication.www.util.constants.Constants.ALERT_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.ALERT_TITLE
+import com.testapplication.www.util.constants.Constants.CHECK_IN_ALERT_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
+import com.testapplication.www.util.constants.Constants.DEFAULT_CHECK_IN_STATUS
+import com.testapplication.www.util.constants.Constants.DEFAULT_LOCATION_ALERT_DIALOG
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_CALL_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_ALLOW_CTA
+import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_TITLE
+import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.SCREEN_CHECK_IN
+import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
+import com.testapplication.www.util.constants.Constants.SCREEN_FOLLOW_UP_CALLS
+import com.testapplication.www.util.constants.Constants.SCREEN_HOME
+import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT
+import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import com.testapplication.www.util.constants.Constants.SHOW_ALL_CTA
+import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_COMPLETED
+import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_SCHEDULED
+import com.testapplication.www.util.constants.Constants.TABLE_LEADS_CREATED
+import com.testapplication.www.util.constants.Constants.TABLE_LICENSES_SOLD
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -94,8 +124,8 @@ fun HomeScreen(
     val viewModelCheckeIn: CheckInViewModel =
         androidx.lifecycle.viewmodel.compose.viewModel { CheckInViewModel(context) }
 
-    var checked by remember { mutableStateOf(false) }
-    var showLocationDialog by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(DEFAULT_CHECK_IN_STATUS) }
+    var showLocationDialog by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
     val locationPermissionState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -103,11 +133,15 @@ fun HomeScreen(
         )
     )
 
+    var latitude by remember { mutableStateOf(0.0) }
+    var longitude by remember { mutableStateOf(0.0) }
+
     val preferencesManager = PreferencesManager(context)
+    var showAlert by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
 
     // Fetch initial check-in status
     LaunchedEffect(Unit) {
-        checked = preferencesManager.getCheckInStatus(false)
+        checked = preferencesManager.getCheckInStatus(DEFAULT_CHECK_IN_STATUS)
         if (!locationPermissionState.allPermissionsGranted) {
             locationPermissionState.launchMultiplePermissionRequest()
         }
@@ -123,71 +157,51 @@ fun HomeScreen(
         checkedTrackColor = Color.Black
     )
 
-    // Function to open app settings for location permissions
-    fun openAppSettings() {
+
+//    // Check location permissions when the screen is displayed
+//    LaunchedEffect(locationPermissionState.allPermissionsGranted) {
+//        if (locationPermissionState.allPermissionsGranted) {
+//            // Call function to get last known location
+//
+//            getLastLocation(ctx)
+//        } else {
+//            Toast.makeText(
+//                ctx,
+//                "Location permissions are required to use this app.",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//        }
+//    }
+
+    fun openAppSettings(context: Context) {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         val uri = Uri.fromParts("package", context.packageName, null)
         intent.data = uri
         context.startActivity(intent)
     }
 
-    // Check location permissions when the screen is displayed
-    LaunchedEffect(locationPermissionState.allPermissionsGranted) {
-        if (locationPermissionState.allPermissionsGranted) {
-            // Call function to get last known location
-            getLastLocation(ctx)
-        } else {
-            Toast.makeText(
-                ctx,
-                "Location permissions are required to use this app.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    AllowSettingPopup(
+        context = ctx,
+        showDialog = showLocationDialog,
+        onDismiss = { showLocationDialog = DEFAULT_LOCATION_ALERT_DIALOG  },
+        title = ALERT_TITLE,
+        description =ALERT_DESCRIPTION,
+        confirmButtonText = ALERT_ALLOW_CTA,
+        onConfirm = {openAppSettings(context) }
+    )
 
-    Row {
-        if (showLocationDialog) {
-            AlertDialog(
-                onDismissRequest = { showLocationDialog = false },
-                title = {
-                    Text(
-                        text = "Enable Location Services",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                text = {
-                    Text(
-                        "Please enable location services manually in FST app settings.",
-                        color = Color.Black,
-                        fontSize = 12.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                containerColor = Color.White,
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            openAppSettings()
-                            showLocationDialog = false
-                        }
-                    ) {
-                        Text(
-                            "Allow",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontStyle = FontStyle.Normal,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            )
-        }
-    }
 
+    if (showAlert) {
+        AllowSettingPopup(
+            context = ctx,
+            showDialog = showAlert,
+            onDismiss = { showAlert = DEFAULT_ALERT_POP_UP},
+            title = GENERAL_ALERT_TITLE,
+            description = CHECK_IN_ALERT_DESCRIPTION,
+            confirmButtonText = GENERAL_ALERT_ALLOW_CTA,
+            onConfirm = { /* Handle confirmation if needed */ }
+        )
+    }
 
 
     Column(modifier = Modifier.background(Color.LightGray)) {
@@ -203,7 +217,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Home",
+                    text = SCREEN_HOME,
                     color = Color.Black,
                     fontSize = 25.sp,
                     fontStyle = FontStyle.Normal,
@@ -211,24 +225,8 @@ fun HomeScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    modifier = Modifier
-                        .clickable {
-                            preferencesManager.clearPreferences()
-                            toOnboarding()
-                        }
-                        .padding(10.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.ExitToApp,
-                    contentDescription = "Back",
-                    modifier = Modifier
-                        .clickable { }
-                        .padding(10.dp)
-                )
+                LogoutOrExitScreen(preferencesManager, toOnboarding, ActionType.LOGOUT)
+                LogoutOrExitScreen(preferencesManager, toOnboarding, ActionType.EXIT)
             }
         }
         Spacer(modifier = Modifier.height(5.dp))
@@ -248,7 +246,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(1f)
             ) {
                 Text(
-                    text = "Check-In",
+                    text = SCREEN_CHECK_IN,
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Normal,
@@ -270,10 +268,17 @@ fun HomeScreen(
                                 checked = it
                             } else {
                                 checked = it
-                                viewModelCheckeIn.insertCheckIn(userID, 1, dateTime, null, null, null)
+                                viewModelCheckeIn.insertCheckIn(
+                                    userID,
+                                    1,
+                                    dateTime,
+                                    null,
+                                    null,
+                                    null
+                                )
                             }
                         } else {
-                            showLocationDialog = true
+                            showLocationDialog = SHOW_ALERT_POP_UP
                         }
                     },
                     colors = checkInColors
@@ -307,7 +312,7 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = "Leads Created")
+                        customTextHome(text = TABLE_LEADS_CREATED)
                         customValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
                     }
                     Divider(
@@ -321,7 +326,7 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = "Demos Scheduled")
+                        customTextHome(text = TABLE_DEMOS_SCHEDULED)
                         customValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
                     }
                 }
@@ -340,7 +345,7 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = "Demos Completed")
+                        customTextHome(text = TABLE_DEMOS_COMPLETED)
                         customValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
                     }
 
@@ -357,7 +362,7 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = "Licenses Sold")
+                        customTextHome(text = TABLE_LICENSES_SOLD)
                         customValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
                     }
                 }
@@ -378,14 +383,14 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     customTextHome(
-                        text = "Scheduled Visits",
+                        text = SCREEN_SCHEDULED_VISIT ,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableText(text = buildAnnotatedString {
-                        append("Show All")
-                        withStyle(style = SpanStyle(color = Color.Blue)) {
+                        append(SHOW_ALL_CTA)
+                        withStyle(style = SpanStyle(color = Color.Black)) {
                         }
                     }, onClick = {
                         toScheduledVisits(userID)
@@ -397,7 +402,7 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         "",
-                        valueType = "visit"
+                        valueType = SCHEDULED_VISIT_LIST_TYPE
                     ) { userId, itemId ->
                         toCreate.invoke(userId, itemId)
                     }
@@ -418,14 +423,14 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     customTextHome(
-                        text = "Follow Up Calls",
+                        text = SCREEN_FOLLOW_UP_CALLS,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableText(text = buildAnnotatedString {
-                        append("Show All")
-                        withStyle(style = SpanStyle(color = Color.Blue)) {
+                        append(SHOW_ALL_CTA)
+                        withStyle(style = SpanStyle(color = Color.Black)) {
                         }
                     }, onClick = {
                         toFollowupCalls(userID)
@@ -437,7 +442,7 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         "",
-                        valueType = "call"
+                        valueType = FOLLOW_UP_CALL_LIST_TYPE
                     ) { userId, itemId ->
                         toCreate.invoke(userId, itemId)
                     }
@@ -459,7 +464,7 @@ fun HomeScreen(
             ExtendedFloatingActionButton(
                 text = {
                     Text(
-                        text = "Create",
+                        text = SCREEN_CREATE,
                         color = Color.White,
                         fontSize = 20.sp,
                         fontStyle = FontStyle.Normal
@@ -470,14 +475,14 @@ fun HomeScreen(
                         getLastLocation(ctx)
                         toCreate(userID, 0)
                     } else {
-                        Toast.makeText(ctx, "Please Check-In to Create FST", Toast.LENGTH_SHORT)
-                            .show()
+                        showAlert = SHOW_ALERT_POP_UP
+
                     }
                 },
                 contentColor = Color.White,
                 containerColor = Color.Red,
                 modifier = Modifier.clip(shape = RoundedCornerShape(30.dp)),
-                icon = { Icon(Icons.Filled.AddCircle, "Add icon") }
+                icon = { Icon(Icons.Filled.AddCircle, ADD_ICON_DESCRIPTION) }
             )
         }
 
@@ -486,7 +491,7 @@ fun HomeScreen(
                 .align(Alignment.BottomCenter)
         ) {
             BottomBar(
-                currentScreen = "Home",
+                currentScreen = SCREEN_HOME,
                 toOnboarding = { toOnboarding() },
                 toLeadsScreen = { toLeadsScreen(userID) },
                 toHome = { },
@@ -497,6 +502,8 @@ fun HomeScreen(
         }
     }
 }
+
+
 
 public fun getLastLocation(context: Context) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -511,6 +518,7 @@ public fun getLastLocation(context: Context) {
     }
     fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
         if (location != null) {
+
             // Handle the location object
 //            Toast.makeText(
 //                context,
