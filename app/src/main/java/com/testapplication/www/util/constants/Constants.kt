@@ -36,13 +36,42 @@ object Constants {
     const val SCREEN_SCHEDULED_VISIT = "Scheduled Visits"
     const val SCREEN_FOLLOW_UP_CALLS = "Follow Up Calls"
     const val SCREEN_LEADS = "Leads"
-    const val SCREEN_HOME = ""
-    const val SCREEN_CREATE = ""
-    const val SCREEN_CHECK_IN = ""
+    const val SCREEN_HOME = "Home"
+    const val SCREEN_CREATE = "Create"
+    const val SCREEN_CHECK_IN = "Check-In"
+
+    //Home Screen Leads Table Names
+    const val TABLE_LEADS_CREATED = "Leads Created"
+    const val TABLE_DEMOS_SCHEDULED = "Demos Scheduled"
+    const val TABLE_DEMOS_COMPLETED = "Demos Completed"
+    const val TABLE_LICENSES_SOLD = "Licenses Sold"
+
+    //HomeScreen Default State
+    const val DEFAULT_CHECK_IN_STATUS = false
+    const val DEFAULT_LOCATION_ALERT_DIALOG = false
+
+    //Location Alert Pop-up
+    const val ALERT_TITLE = "Enable Location Services"
+    const val ALERT_DESCRIPTION = "Please enable location services manually in FST app settings."
+    const val ALERT_ALLOW_CTA = "Allow"
+    const val DEFAULT_ALERT_POP_UP = false
+    const val SHOW_ALERT_POP_UP = true
+
+    //Alert
+    const val GENERAL_ALERT_TITLE = "Alert!!!"
+    const val CHECK_IN_ALERT_DESCRIPTION = "Please Check-In to Create FST"
+    const val GENERAL_ALERT_ALLOW_CTA = "OK"
+
+    //Create
+    const val ADD_ICON_DESCRIPTION = "Add Icon"
+
+    //Home Screen Icon Description
+
 
     //Item Display List Value Type
     const val FOLLOW_UP_CALL_LIST_TYPE = "call"
     const val LEADS_LIST_TYPE = ""
     const val SCHEDULED_VISIT_LIST_TYPE = "visit"
+    const val SHOW_ALL_CTA = "Show All"
 
 }

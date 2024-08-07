@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
-import com.testapplication.www.util.ExitApp
-import com.testapplication.www.util.Logout
+import com.testapplication.www.util.ActionType
+import com.testapplication.www.util.LogoutOrExitScreen
 import com.testapplication.www.util.ScreenHeaders
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCREEN_LEADS
@@ -54,8 +54,8 @@ fun LeadScreen(
             ) {
                 ScreenHeaders(SCREEN_LEADS)
                 Spacer(modifier = Modifier.weight(1f))
-                Logout(preferencesManager, toOnboarding)
-                ExitApp()
+                LogoutOrExitScreen(preferencesManager, toOnboarding, ActionType.LOGOUT)
+                LogoutOrExitScreen(preferencesManager, toOnboarding, ActionType.EXIT)
             }
         }
         Spacer(modifier = Modifier.height(5.dp))

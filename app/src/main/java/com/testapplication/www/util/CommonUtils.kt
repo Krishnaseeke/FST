@@ -1,21 +1,29 @@
 package com.testapplication.www.util
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -23,11 +31,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +49,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import com.testapplication.www.R
+import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.util.constants.Constants
+import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -219,30 +235,6 @@ fun setCustomDate(defaultDate: String = ""): String? {
     return selectedDate.value
 }
 
-@Composable
-fun Logout(preferencesManager: PreferencesManager, toOnboarding: () -> Unit) {
-    Icon(
-        imageVector = Icons.Default.Delete,
-        contentDescription = "Delete",
-        modifier = Modifier
-            .clickable {
-                preferencesManager.clearPreferences()
-                toOnboarding()
-            }
-            .padding(10.dp)
-    )
-}
-
-@Composable
-fun ExitApp(){
-    androidx.compose.material3.Icon(
-        imageVector = Icons.Default.ExitToApp,
-        contentDescription = "Back",
-        modifier = Modifier
-            .clickable { }
-            .padding(10.dp)
-    )
-}
 
 @Composable
 fun ScreenHeaders(text:String){
@@ -254,3 +246,138 @@ fun ScreenHeaders(text:String){
         fontWeight = FontWeight.Bold
     )
 }
+
+
+@Composable
+fun LogoutOrExitScreen(
+    preferencesManager: PreferencesManager,
+    toOnboarding: () -> Unit,
+    actionType: ActionType
+) {
+    val activity: MainActivity = MainActivity()
+    var showDialog by remember { mutableStateOf(false) }
+
+    Icon(
+        painter = painterResource(id = if (actionType == ActionType.LOGOUT) R.drawable.logout else R.drawable.exit),
+        contentDescription = if (actionType == ActionType.LOGOUT) "Logout" else "Exit",
+        modifier = Modifier
+            .clickable {
+                showDialog = true
+            }
+            .padding(10.dp)
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog = false
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (actionType == ActionType.LOGOUT) {
+                        preferencesManager.clearPreferences()
+                        toOnboarding()
+                    } else if (actionType == ActionType.EXIT) {
+                        activity.finish()
+                        System.exit(0)
+                    }
+                    showDialog = false
+                }) {
+                    Text("Yes",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                }) {
+                    Text("No",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text("Confirmation",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text(if (actionType == ActionType.LOGOUT) "Are you sure you want to Logout?" else "Are you sure you want to Exit?",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold)
+            },
+            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
+            containerColor = Color.White
+        )
+    }
+}
+
+enum class ActionType {
+    LOGOUT, EXIT
+}
+
+@Composable
+fun AllowSettingPopup(
+    context: Context,
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    title: String,
+    description: String,
+    confirmButtonText: String,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            title = {
+                Text(
+                    text = title,
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = description,
+                    color = Color.Black,
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            containerColor = Color.White,
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onConfirm()
+                        onDismiss()
+                    }, colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text(
+                        text = confirmButtonText,
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        )
+    }
+}
+
+
+
+
+
