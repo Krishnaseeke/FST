@@ -7,12 +7,14 @@ import android.content.Context
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,13 +36,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
+import com.testapplication.www.R
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.util.ActionType
+import com.testapplication.www.util.HeaderText
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_CALL_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import getLastLocation
@@ -132,11 +138,24 @@ fun displayList(
             .fillMaxSize()
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
+
     ) {
+
+        if(dataListDisplay.isEmpty()){
+            Image(
+                painter = painterResource(id = R.mipmap.nodatafound_foreground),
+                contentDescription = "No data found",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )
+        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(10.dp)
         ) {
+
+
             items(dataListDisplay) { screenData ->
                 if (selectedDate == null || selectedDate == "") {
                     Column(
@@ -243,8 +262,10 @@ fun displayList(
                                     //Get the Location of each item from DB in Display list
                                     //Use the Distance Range to go for edit
                                     Location.distanceBetween(
-                                        currentLatitude, currentLongitude,
-                                        screenData.latitudeValue.toDouble(), screenData.longitudeValue.toDouble(),
+                                        currentLatitude,
+                                        currentLongitude,
+                                        screenData.latitudeValue.toDouble(),
+                                        screenData.longitudeValue.toDouble(),
                                         dist
                                     )
                                     val RADIUS_IN_METER = 0.5
@@ -257,7 +278,7 @@ fun displayList(
                                                 Toast.LENGTH_SHORT
                                             )
                                             .show()
-                                    }else{
+                                    } else {
                                         toCreate.invoke(userId, screenData.id)
                                     }
                                 } else {
