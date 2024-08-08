@@ -1,11 +1,9 @@
 package com.testapplication.www.homescreen.home
 
-import CreateScreenDB
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -27,17 +25,6 @@ class HomeScreenViewModel(context: Context) : ViewModel() {
             licensesSoldCount.value = homeScreenDB?.getLicensesSoldCount(userID) ?: 0
         }
     }
-
-
-
-
-
-//    fun getCheckInStatus(userId: Long?, callback: (Int) -> Unit) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val status = db.getCheckInStatus(userId)
-//            callback(status)
-//        }
-//    }
 
 
 }

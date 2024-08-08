@@ -278,8 +278,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_LEADS_CREATED)
-                        customValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_LEADS_CREATED)
+                        CustomValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
                     }
                     Divider(
                         modifier = Modifier
@@ -292,8 +292,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_DEMOS_SCHEDULED)
-                        customValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_DEMOS_SCHEDULED)
+                        CustomValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
                     }
                 }
                 // Divider after first row
@@ -311,8 +311,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_DEMOS_COMPLETED)
-                        customValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_DEMOS_COMPLETED)
+                        CustomValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
                     }
 
                     Divider(
@@ -328,8 +328,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_LICENSES_SOLD)
-                        customValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_LICENSES_SOLD)
+                        CustomValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
                     }
                 }
             }
@@ -348,7 +348,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    customTextHome(
+                    CustomTextHome(
                         text = SCREEN_SCHEDULED_VISIT ,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -364,7 +364,7 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    com.testapplication.www.homescreen.home.displayList(
+                    com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
                         "",
@@ -388,7 +388,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    customTextHome(
+                    CustomTextHome(
                         text = SCREEN_FOLLOW_UP_CALLS,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -404,7 +404,7 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    com.testapplication.www.homescreen.home.displayList(
+                    com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
                         "",

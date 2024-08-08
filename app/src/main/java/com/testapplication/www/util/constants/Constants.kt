@@ -73,6 +73,7 @@ object Constants {
     const val FOLLOW_UP_CALL_LIST_TYPE = "call"
     const val LEADS_LIST_TYPE = "leads"
     const val SCHEDULED_VISIT_LIST_TYPE = "visit"
+    const val INVALID_LIST_TYPE = "Invalid valueType"
     const val SHOW_ALL_CTA = "Show All"
 
 

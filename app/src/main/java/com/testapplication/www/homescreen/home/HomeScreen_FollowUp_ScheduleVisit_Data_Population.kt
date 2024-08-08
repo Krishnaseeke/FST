@@ -37,6 +37,7 @@ import com.testapplication.www.util.constants.Constants.FOLLOW_UP_CALL_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_DATE_COL
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_TIME_COL
 import com.testapplication.www.util.constants.Constants.ID_COL
+import com.testapplication.www.util.constants.Constants.INVALID_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.LEADS_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
 import com.testapplication.www.util.constants.Constants.NO_DATA_FOUND_IMAGE_DESCRIPTION
@@ -44,13 +45,12 @@ import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYP
 import com.testapplication.www.util.constants.Constants.USER_ID_COL
 
 
-
 data class ScreenData1(
     val id: Long,
     val stringValue: String,
     val phoneNumber: String,
     val alternatePhoneNumber: String,
-    val proofImage:String,
+    val proofImage: String,
     val address: String,
     val businessCategory: String,
     val callStatus: String,
@@ -73,16 +73,15 @@ data class ScreenData(
 )
 
 
-
 @Composable
-fun displayList(
+fun DisplayList(
     context: Context,
     userId: Long,
     selectedDate: String?,
     valueType: String,
     toCreate: (userId: Long, itemId: Long) -> Unit
 ) {
-    val userId = userId
+
     val preferencesManager = PreferencesManager(context)
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -91,17 +90,17 @@ fun displayList(
     val dist = FloatArray(1)
 
 
-
-    val ItemData = fetchDataFromDB(context, userId, valueType)
+    val itemData = fetchDataFromDB(context, userId, valueType)
 
     var dataListDisplay: ArrayList<ScreenData> = ArrayList()
     if (valueType == SCHEDULED_VISIT_LIST_TYPE) {
-        dataListDisplay.addAll(ItemData)
+        dataListDisplay.addAll(itemData)
     } else if (valueType == FOLLOW_UP_CALL_LIST_TYPE) {
-        dataListDisplay.addAll(ItemData)
-    }else if(valueType == LEADS_LIST_TYPE){
-        dataListDisplay.addAll(ItemData)
+        dataListDisplay.addAll(itemData)
+    } else if (valueType == LEADS_LIST_TYPE) {
+        dataListDisplay.addAll(itemData)
     }
+    val sortedDataListDisplay = dataListDisplay.sortedBy { it.date }
     var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
 
     if (showAlert) {
@@ -123,7 +122,7 @@ fun displayList(
 
     ) {
 
-        if(dataListDisplay.isEmpty()){
+        if (dataListDisplay.isEmpty()) {
             Image(
                 painter = painterResource(id = R.mipmap.nodatafound_foreground),
                 contentDescription = NO_DATA_FOUND_IMAGE_DESCRIPTION,
@@ -138,7 +137,7 @@ fun displayList(
         ) {
 
 
-            items(dataListDisplay) { screenData ->
+            items(sortedDataListDisplay) { screenData ->
                 if (selectedDate == null || selectedDate == "") {
                     SelectedDateItemRow(
                         screenData = screenData,
@@ -173,8 +172,8 @@ fun displayList(
             }
 
         }
-        }
     }
+}
 
 
 @SuppressLint("Range")
@@ -185,20 +184,31 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
 
     when (valueType) {
         SCHEDULED_VISIT_LIST_TYPE -> {
-            query = "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_ACTION_VISIT_COL = 1"
+            query =
+                "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_ACTION_VISIT_COL = 1"
             selectionArgs = arrayOf(userId.toString())
         }
-        FOLLOW_UP_CALL_LIST_TYPE -> {
-            query = "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_ACTION_CALL_COL = 1"
-            selectionArgs = arrayOf(userId.toString())
-        }
-        LEADS_LIST_TYPE -> {
-            query = "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $LEAD_STATUS_COL IN (?, ?, ?, ?)"
-            selectionArgs = arrayOf(userId.toString(), "First Meet", "Requires Follow Up", "Interested", "Demo Re-scheduled")
-        }
-        else -> throw IllegalArgumentException("Invalid valueType")
-    }
 
+        FOLLOW_UP_CALL_LIST_TYPE -> {
+            query =
+                "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_ACTION_CALL_COL = 1"
+            selectionArgs = arrayOf(userId.toString())
+        }
+
+        LEADS_LIST_TYPE -> {
+            query =
+                "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $LEAD_STATUS_COL IN (?, ?, ?, ?)"
+            selectionArgs = arrayOf(
+                userId.toString(),
+                "First Meet",
+                "Requires Follow Up",
+                "Interested",
+                "Demo Re-scheduled"
+            )
+        }
+
+        else -> throw IllegalArgumentException(INVALID_LIST_TYPE)
+    }
 
 
     val cursor = db.rawQuery(query, selectionArgs)

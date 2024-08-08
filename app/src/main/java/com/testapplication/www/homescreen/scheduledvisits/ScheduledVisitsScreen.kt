@@ -76,7 +76,7 @@ fun ScheduledVisitsScreen(
             .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
             if (userID != null) {
-                com.testapplication.www.homescreen.home.displayList(
+                com.testapplication.www.homescreen.home.DisplayList(
                     context = context,
                     userId = userID,
                     dateSelected,
