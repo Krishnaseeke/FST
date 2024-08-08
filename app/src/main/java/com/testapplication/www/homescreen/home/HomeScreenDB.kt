@@ -4,29 +4,28 @@ import CreateScreenDB
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.testapplication.www.util.constants.Constants.CREATE_DB_NAME
+import com.testapplication.www.util.constants.Constants.CREATE_TABLE_NAME
+import com.testapplication.www.util.constants.Constants.DB_VERSION
+import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
+import com.testapplication.www.util.constants.Constants.USER_ID_COL
 
 // Database class to fetch required data for HomeScreen.
 class HomeScreenDB(context: Context?) :
-    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+    SQLiteOpenHelper(context, CREATE_DB_NAME, null, DB_VERSION) {
 
-    companion object {
-        private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 6
-        private const val TABLE_NAME = "create_screen_data"
-        private const val USER_ID_COL = "user_id"
-        private const val LEAD_STATUS_COL = "lead_status"
-    }
 
     override fun onCreate(db: SQLiteDatabase) {
         // The database schema should already exist from the existing CreateScreenDB class.
     }
 
+    //This is required - Just to Instialize the DB after Login/Signup
     val createdb = CreateScreenDB(context)
     val readablefile = createdb.readableDatabase
 
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        db.execSQL("DROP TABLE IF EXISTS $CREATE_TABLE_NAME")
         onCreate(db)
     }
 
@@ -38,7 +37,7 @@ class HomeScreenDB(context: Context?) :
         if (userId != null) {
             val query = """
                 SELECT COUNT(*)
-                FROM $TABLE_NAME
+                FROM $CREATE_TABLE_NAME
                 WHERE $USER_ID_COL = ?
                   AND $LEAD_STATUS_COL IN (${statuses.joinToString(",") { "?" }})
             """
