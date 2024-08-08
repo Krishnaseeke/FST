@@ -71,8 +71,31 @@ object Constants {
 
     //Item Display List Value Type
     const val FOLLOW_UP_CALL_LIST_TYPE = "call"
-    const val LEADS_LIST_TYPE = ""
+    const val LEADS_LIST_TYPE = "leads"
     const val SCHEDULED_VISIT_LIST_TYPE = "visit"
     const val SHOW_ALL_CTA = "Show All"
+
+
+    //CREATE DB STRINGS
+    const val CREATE_DB_NAME = "create_screen_db"
+    const val CREATE_TABLE_NAME = "create_screen_data"
+    const val USER_ID_COL = "user_id"
+    const val CUSTOMER_NAME_COL = "customer_name"
+    const val PHONE_NUMBER_COL = "phone_number"
+    const val ALTERNATE_PHONE_COL = "alternate_phone_number"
+    const val ADDRESS_COL = "address"
+    const val BUSINESS_CATEGORY_COL = "business_category"
+    const val CALL_STATUS_COL = "call_status"
+    const val LEAD_STATUS_COL = "lead_status"
+    const val FOLLOW_UP_DATE_COL = "follow_up_date"
+    const val FOLLOW_UP_TIME_COL = "follow_up_time"
+    const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
+    const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
+    const val COMMENTS_COL = "comments"
+    const val CHECKIN_LONGITUDE_COL = "longitude_location" // New Column
+    const val CHECKIN_LATITUDE_COL = "latitude_location" // New Column
+
+    //Image Descriptions
+    const val NO_DATA_FOUND_IMAGE_DESCRIPTION = "No Data Found"
 
 }

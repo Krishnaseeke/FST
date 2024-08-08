@@ -22,7 +22,7 @@ import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.LogoutOrExitScreen
 import com.testapplication.www.util.ScreenHeaders
-import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.LEADS_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCREEN_LEADS
 import com.testapplication.www.util.setCustomDate
 
@@ -79,7 +79,7 @@ fun LeadScreen(
                     context = context,
                     userId = userID,
                     dateSelected,
-                    valueType = SCHEDULED_VISIT_LIST_TYPE
+                    valueType = LEADS_LIST_TYPE
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId
                     // For example, you can navigate to another screen or perform some action
