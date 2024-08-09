@@ -1,44 +1,46 @@
 package com.testapplication.www.util
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.location.Location
-import android.net.Uri
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,17 +62,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.testapplication.www.R
 import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.home.ScreenData
-import com.testapplication.www.homescreen.home.getLastLocation
 import com.testapplication.www.util.constants.Constants
-import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
 import getLastLocation
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -504,4 +506,43 @@ fun SelectedDateItemRow(
     }
 }
 
+@Composable
+fun PopupMessage(
+    message: String,
+    duration: Long = 2000,
+    onDismiss: () -> Unit
+) {
+    var showPopup by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(duration)
+        showPopup = false
+        onDismiss()
+    }
+
+    if (showPopup) {
+        Dialog(onDismissRequest = {
+            showPopup = false
+            onDismiss()
+        }) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(125.dp)
+                    .background(Color.Transparent)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Load the image from resources
+                    Image(
+                        painter = painterResource(id = R.mipmap.success), // replace 'success' with your image resource name
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(1f).padding(3.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = message)
+                }
+            }
+        }
+    }
+}
 

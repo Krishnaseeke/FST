@@ -40,6 +40,33 @@ object Constants {
     const val SCREEN_CREATE = "Create"
     const val SCREEN_CHECK_IN = "Check-In"
 
+
+    //Create Screen
+    const val CREATE_SCREEN_BACK_CTA_DESCRIPTION = "Back"
+    const val CREATE_CUSTOMER_NAME_FIELD = "Customer Name*"
+    const val CREATE_CUSTOMER_MOBILE_NO_FIELD = "Phone Number*"
+    const val CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD = "Alternate Phone Number"
+    const val CREATE_ADDRESS_FIELD = "Address*"
+    const val CREATE_PROOF_OF_MEETING_FIELD = "Proof Of Meeting*"
+    const val CREATE_IMAGE_RECAPTURE_DESCRIPTION = "Re-Capture"
+    const val CREATE_ATTACH_IMAGE_CTA = "Attach Image"
+    const val CREATE_BUSSINESS_CATEGORY_FIELD_LIST = "BussinessCategory"
+    const val CREATE_BUSSINESS_CATEGORY_FIELD = "Business Category"
+    const val CREATE_CATEGORY_FIELD_LABEL_TEXT =  "Select Category"
+    const val CREATE_DROP_DOWN_ICON_DESCRIPTION = "Dropdown Icon"
+    const val CREATE_CALL_STATUS_FIELD_LIST = "CallStatus"
+    const val CREATE_CALL_STATUS_FIELD = "Call Status"
+    const val CREATE_LEAD_STATUS_FIELD_LIST = "LeadStatus"
+    const val CREATE_LEAD_STATUS_FIELD = "Lead Status"
+    const val CREATE_FOLLOW_UP_DATE_FIELD = "Follow Up Date*"
+    const val CREATE_FOLLOW_UP_TIME_FIELD = "Follow Up Time*"
+    const val CREATE_FOLLOW_UP_ACTION_RADIO_BTN = "Follow Up Action*"
+    const val CREATE_FOLLOW_UP_CALL_RADIO_BTN = "Call"
+    const val CREATE_FOLLOW_UP_VISIT_RADIO_BTN = "Visit"
+    const val CREATE_COMMENTS_FIELD = "Comments"
+    const val CREATE_SAVE_BTN = "Save"
+
+
     //Home Screen Leads Table Names
     const val TABLE_LEADS_CREATED = "Leads Created"
     const val TABLE_DEMOS_SCHEDULED = "Demos Scheduled"

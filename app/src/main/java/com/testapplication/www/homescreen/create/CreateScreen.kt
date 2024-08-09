@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,8 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Calendar
@@ -28,9 +25,7 @@ import android.widget.TimePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -42,9 +37,32 @@ import coil.compose.rememberImagePainter
 import com.google.android.gms.location.LocationServices
 import com.testapplication.www.BuildConfig
 import com.testapplication.www.homescreen.create.BottomSheet
-import com.testapplication.www.homescreen.create.CustomOutlinedTextField
-import com.testapplication.www.homescreen.create.DropdownLists
-import com.testapplication.www.homescreen.home.ScreenData1
+import com.testapplication.www.util.PopupMessage
+import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.CREATE_ADDRESS_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_ATTACH_IMAGE_CTA
+import com.testapplication.www.util.constants.Constants.CREATE_BUSSINESS_CATEGORY_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_BUSSINESS_CATEGORY_FIELD_LIST
+import com.testapplication.www.util.constants.Constants.CREATE_CALL_STATUS_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_CALL_STATUS_FIELD_LIST
+import com.testapplication.www.util.constants.Constants.CREATE_CATEGORY_FIELD_LABEL_TEXT
+import com.testapplication.www.util.constants.Constants.CREATE_COMMENTS_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_CUSTOMER_MOBILE_NO_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_CUSTOMER_NAME_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_DROP_DOWN_ICON_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.CREATE_FOLLOW_UP_ACTION_RADIO_BTN
+import com.testapplication.www.util.constants.Constants.CREATE_FOLLOW_UP_CALL_RADIO_BTN
+import com.testapplication.www.util.constants.Constants.CREATE_FOLLOW_UP_DATE_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_FOLLOW_UP_TIME_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_FOLLOW_UP_VISIT_RADIO_BTN
+import com.testapplication.www.util.constants.Constants.CREATE_IMAGE_RECAPTURE_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.CREATE_LEAD_STATUS_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_LEAD_STATUS_FIELD_LIST
+import com.testapplication.www.util.constants.Constants.CREATE_PROOF_OF_MEETING_FIELD
+import com.testapplication.www.util.constants.Constants.CREATE_SAVE_BTN
+import com.testapplication.www.util.constants.Constants.CREATE_SCREEN_BACK_CTA_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -66,11 +84,20 @@ fun CreateScreen(
         viewModel { CreateScreenViewModel(context, userID, itemId) }
     val state by viewModel.state.collectAsState()
     // Navigate to home on successful submission
+    var showPopup by remember { mutableStateOf(true) }
     LaunchedEffect(state.isSubmissionSuccessful) {
         if (state.isSubmissionSuccessful) {
-            Toast.makeText(context, "Successfully FST Created", Toast.LENGTH_SHORT).show()
-            toHome(userID)
+
         }
+    }
+
+    if (state.isSubmissionSuccessful) {
+        PopupMessage(
+            message = "Success",
+            onDismiss = {
+                toHome(userID)
+            }
+        )
     }
     var address by remember { mutableStateOf("") }
 
@@ -194,13 +221,13 @@ fun CreateScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = CREATE_SCREEN_BACK_CTA_DESCRIPTION,
                 modifier = Modifier
                     .clickable { toHome(userID) }
                     .padding(10.dp) //Need
             )
             Text(
-                text = "Create",
+                text = SCREEN_CREATE,
                 color = Color.Black,
                 fontSize = 24.sp, // Adjusted to be responsive
                 fontStyle = FontStyle.Normal,
@@ -222,7 +249,7 @@ fun CreateScreen(
             OutlinedTextField(
                 value = state.customerName,
                 onValueChange = { viewModel.updateCustomerName(it) },
-                label = { Text("Customer Name*") },
+                label = { Text(CREATE_CUSTOMER_NAME_FIELD) },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 singleLine = true,
@@ -234,7 +261,7 @@ fun CreateScreen(
             OutlinedTextField(
                 value = state.phoneNumber,
                 onValueChange = { viewModel.updatePhoneNumber(it) },
-                label = { Text("Phone Number*") },
+                label = { Text(CREATE_CUSTOMER_MOBILE_NO_FIELD) },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 singleLine = true,
@@ -247,7 +274,7 @@ fun CreateScreen(
             OutlinedTextField(
                 value = state.alternatePhoneNumber,
                 onValueChange = { viewModel.updateAlternatePhoneNumber(it) },
-                label = { Text("Alternate Phone Number") },
+                label = { Text(CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD) },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 singleLine = true,
@@ -261,7 +288,7 @@ fun CreateScreen(
                 enabled = false,
                 value = address,
                 onValueChange = { viewModel.updateAddress(address) },
-                label = { Text("Address*") },
+                label = { Text(CREATE_ADDRESS_FIELD) },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 modifier = Modifier
@@ -277,7 +304,7 @@ fun CreateScreen(
             ) {
                 Column {
                     Text(
-                        text = "Proof Of Meeting*",
+                        text = CREATE_PROOF_OF_MEETING_FIELD,
                         color = Color.Black,
                         fontSize = 14.sp,
                         fontStyle = FontStyle.Normal,
@@ -306,7 +333,7 @@ fun CreateScreen(
                                 )
                                 Icon(
                                     imageVector = Icons.Filled.Close,
-                                    contentDescription = "Re-Capture",
+                                    contentDescription = CREATE_IMAGE_RECAPTURE_DESCRIPTION,
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
                                         .padding(8.dp)
@@ -334,11 +361,11 @@ fun CreateScreen(
                                     .fillMaxSize(1f),Arrangement.Center) {
                                 androidx.compose.material.Icon(
                                     imageVector = Icons.Filled.Add,
-                                    contentDescription = "Add icon",
+                                    contentDescription = ADD_ICON_DESCRIPTION,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 androidx.compose.material.Text(
-                                    text = "Attach Image",
+                                    text = CREATE_ATTACH_IMAGE_CTA,
                                     color = Color.Black,
                                     fontSize = 16.sp,
                                     fontStyle = FontStyle.Normal,
@@ -373,23 +400,23 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.businessCategory = category
                             bcshowSheet = false
-                        }, "BussinessCategory"
+                        }, CREATE_BUSSINESS_CATEGORY_FIELD_LIST
                     )
                 }
 
                 OutlinedTextField(
                     enabled = false,
                     singleLine = true,
-                    value = if (state.businessCategory.isNotEmpty()) state.businessCategory else "Select category",
+                    value = if (state.businessCategory.isNotEmpty()) state.businessCategory else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateBusinessCategory(it) },
                     trailingIcon = {
                         Icon(
                             bcIcon,
-                            "Dropdown Icon",
+                            CREATE_DROP_DOWN_ICON_DESCRIPTION,
                             tint = Color.Black // Specify icon tint
                         )
                     },
-                    label = { Text("Business Category") },
+                    label = { Text(CREATE_BUSSINESS_CATEGORY_FIELD) },
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
@@ -411,23 +438,23 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.callStatus = category
                             csshowSheet = false
-                        }, "CallStatus"
+                        },  CREATE_CALL_STATUS_FIELD_LIST
                     )
                 }
 
                 OutlinedTextField(
                     enabled = false,
                     singleLine = true,
-                    value = if (state.callStatus.isNotEmpty()) state.callStatus else "Select category",
+                    value = if (state.callStatus.isNotEmpty()) state.callStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateCallStatus(it) },
                     trailingIcon = {
                         Icon(
                             csIcon,
-                            "Dropdown Icon",
+                            CREATE_DROP_DOWN_ICON_DESCRIPTION,
                             tint = Color.Black // Specify icon tint
                         )
                     },
-                    label = { Text("Call Status") },
+                    label = { Text(CREATE_CALL_STATUS_FIELD) },
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
@@ -448,7 +475,7 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.leadStatus = category
                             lsshowSheet = false
-                        }, "LeadStatus"
+                        }, CREATE_LEAD_STATUS_FIELD_LIST
                     )
                 }
 
@@ -456,16 +483,16 @@ fun CreateScreen(
                 OutlinedTextField(
                     enabled = false,
                     singleLine = true,
-                    value = if (state.leadStatus.isNotEmpty()) state.leadStatus else "Select category",
+                    value = if (state.leadStatus.isNotEmpty()) state.leadStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateLeadStatus(it) },
                     trailingIcon = {
                         Icon(
                             lsIcon,
-                            "Dropdown Icon",
+                            CREATE_DROP_DOWN_ICON_DESCRIPTION,
                             tint = Color.Black // Specify icon tint
                         )
                     },
-                    label = { Text("Lead Status") },
+                    label = { Text(CREATE_LEAD_STATUS_FIELD) },
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
                     modifier = Modifier
@@ -488,7 +515,7 @@ fun CreateScreen(
                     enabled = false,
                     value = state.followUpDate,
                     onValueChange = { viewModel.updateFollowUpDate(it) },
-                    label = { Text("Follow Up Date*") },
+                    label = { Text(CREATE_FOLLOW_UP_DATE_FIELD) },
                     colors = textFieldColors,
                     singleLine = true,
                     textStyle = textFieldStyle,
@@ -517,7 +544,7 @@ fun CreateScreen(
                     enabled = false,
                     value = state.followUpTime,
                     onValueChange = { viewModel.updateFollowUpTime(it) },
-                    label = { Text("Follow Up Time*") },
+                    label = { Text(CREATE_FOLLOW_UP_TIME_FIELD) },
                     singleLine = true,
                     colors = textFieldColors,
                     textStyle = textFieldStyle,
@@ -539,7 +566,7 @@ fun CreateScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
-                    text = "Follow Up Action*",
+                    text = CREATE_FOLLOW_UP_ACTION_RADIO_BTN,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(10.dp)
                 )
@@ -552,7 +579,7 @@ fun CreateScreen(
                         selected = state.followUpActionCall,
                         onClick = { viewModel.toggleFollowUpActionCall() }
                     )
-                    Text("Call", modifier = Modifier.padding(10.dp))
+                    Text(CREATE_FOLLOW_UP_CALL_RADIO_BTN, modifier = Modifier.padding(10.dp))
                 }
 
                 Row(
@@ -563,14 +590,14 @@ fun CreateScreen(
                         selected = state.followUpActionVisit,
                         onClick = { viewModel.toggleFollowUpActionVisit() }
                     )
-                    Text("Visit", modifier = Modifier.padding(10.dp))
+                    Text(CREATE_FOLLOW_UP_VISIT_RADIO_BTN, modifier = Modifier.padding(10.dp))
                 }
             }
 
             OutlinedTextField(
                 value = state.comments,
                 onValueChange = { viewModel.updateComments(it) },
-                label = { Text("Comments") },
+                label = { Text(CREATE_COMMENTS_FIELD) },
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 modifier = Modifier
@@ -617,7 +644,7 @@ fun CreateScreen(
                 colors = ButtonDefaults.buttonColors(Color.Red)
             ) {
                 Text(
-                    text = "Save",
+                    text = CREATE_SAVE_BTN,
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
