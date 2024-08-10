@@ -76,6 +76,8 @@ import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
 import kotlinx.coroutines.delay
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -155,12 +157,19 @@ fun CreateScreen(
     val mTimePickerDialog = TimePickerDialog(
         mContext,
         { _: TimePicker, hour: Int, minute: Int ->
-            val formattedTime = String.format("%02d:%02d", hour, minute)
+            // Convert the hour and minute to LocalTime
+            val localTime = LocalTime.of(hour, minute)
+
+            // Format the time to 12-hour format with AM/PM
+            val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+            val formattedTime = localTime.format(timeFormatter)
+
+            // Save the formatted time with AM/PM
             viewModel.updateFollowUpTime(formattedTime)
         },
         mHour,
         mMinute,
-        true  // Use 24-hour format
+        false  // Set to false for 12-hour format
     )
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -523,6 +532,9 @@ fun CreateScreen(
                         .padding(10.dp)
                 )
             }
+            val timeFormatter = remember {
+                DateTimeFormatter.ofPattern("hh:mm a") // 12-hour format with AM/PM
+            }
 
             Row(
                 modifier = Modifier
@@ -531,8 +543,13 @@ fun CreateScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CustomOutlinedTextField(
-                    value = state.followUpTime,
-                    onValueChange = { viewModel.updateFollowUpTime(it) },
+                    value = state.followUpTime,  // This should already be formatted with AM/PM
+                    onValueChange = {
+                        // Parse the input string back to a LocalTime object
+                        val parsedTime = LocalTime.parse(it, timeFormatter)
+                        val formattedTime = parsedTime.format(timeFormatter) // Format the time with AM/PM
+                        viewModel.updateFollowUpTime(formattedTime) // Save the formatted time in the state
+                    },
                     label = CREATE_FOLLOW_UP_TIME_FIELD,
                     isError = state.isFollowUpTimeSelected,
                     enabled = false
@@ -552,6 +569,7 @@ fun CreateScreen(
             ) {
                 Text(
                     text = CREATE_FOLLOW_UP_ACTION_RADIO_BTN,
+                    color = if (state.isFollowUpActionSelected && (!state.followUpActionCall && !state.followUpActionVisit)) Color.Red else Color.Black,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(10.dp)
                 )
@@ -578,6 +596,7 @@ fun CreateScreen(
                     Text(CREATE_FOLLOW_UP_VISIT_RADIO_BTN, modifier = Modifier.padding(10.dp))
                 }
             }
+
 
             OutlinedTextField(
                 value = state.comments,

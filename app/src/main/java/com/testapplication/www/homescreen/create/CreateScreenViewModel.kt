@@ -138,11 +138,21 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     }
 
     fun toggleFollowUpActionCall() {
-        _state.update { it.copy(followUpActionCall = !it.followUpActionCall) }
+        _state.update {
+            it.copy(
+                followUpActionCall = true,
+                followUpActionVisit = false
+            )
+        }
     }
 
     fun toggleFollowUpActionVisit() {
-        _state.update { it.copy(followUpActionVisit = !it.followUpActionVisit) }
+        _state.update {
+            it.copy(
+                followUpActionCall = false,
+                followUpActionVisit = true
+            )
+        }
     }
 
     fun updateComments(comments: String) {
@@ -164,8 +174,8 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     fun isValidInput(state: CreateScreenState): Boolean {
         // Implement your validation logic here
         // For example, check if required fields are not empty
-        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() && state.leadStatus.isNotEmpty() &&
-                (state.followUpDate.isNotEmpty() || state.followUpTime.isNotEmpty()) && state.proofImage.isNotEmpty()
+        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() &&
+                (state.followUpDate.isNotEmpty() || state.followUpTime.isNotEmpty()) && state.proofImage.isNotEmpty() && (state.followUpActionVisit || state.followUpActionCall)
     }
 
     init {
@@ -353,7 +363,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 isLeadStatusSelected = stateValue.leadStatus.isNullOrBlank(),
                 isFollowUpDateSelected = stateValue.followUpDate.isNullOrBlank(),
                 isFollowUpTimeSelected = stateValue.followUpTime.isNullOrBlank(),
-//            isFollowUpActionSelected = stateValue.followUpActionVisit.equals()
+                isFollowUpActionSelected = !stateValue.followUpActionVisit && !stateValue.followUpActionCall
             )
         }
     }

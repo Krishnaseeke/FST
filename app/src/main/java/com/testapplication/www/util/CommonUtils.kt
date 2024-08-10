@@ -515,7 +515,6 @@ fun OnSavingDialog(
         }
     }
 }
-
 @Composable
 fun CustomOutlinedTextField(
     value: String,
@@ -526,28 +525,37 @@ fun CustomOutlinedTextField(
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    // Define colors for the text field
+    // Determine border and label color based on the error and enabled state
+    val borderColor = when {
+        isError -> Color.Red
+        enabled -> Color.Black
+        else -> Color.Black
+    }
+
+    val labelColor = when {
+        isError -> Color.Red
+        enabled -> Color.Black
+        else -> Color.Black
+    }
+
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color.Black,
-        unfocusedBorderColor = Color.Black,
-        focusedLabelColor = Color.Black,
-        unfocusedLabelColor = Color.Black,
+        focusedBorderColor = borderColor,
+        unfocusedBorderColor = borderColor,
+        focusedLabelColor = labelColor,
+        unfocusedLabelColor = labelColor,
         disabledTextColor = Color.Black,
-        disabledBorderColor = Color.Black,
-        disabledLabelColor = Color.Black,
+        disabledBorderColor = borderColor,
+        disabledLabelColor = labelColor,
         errorBorderColor = Color.Red,
-        errorPlaceholderColor = Color.Red,
-        errorLabelColor = Color.Red
+        errorLabelColor = Color.Red,
     )
 
-    // Define text style for the text field
     val textFieldStyle = TextStyle(color = Color.Black)
 
-    // Use the OutlinedTextField composable
     OutlinedTextField(
-        value = value, // Ensure this is a String
-        onValueChange = onValueChange, // This should take a String and return Unit
-        label = { Text(label) }, // This must be a composable function
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
         colors = textFieldColors,
         textStyle = textFieldStyle,
         singleLine = true,
@@ -557,7 +565,6 @@ fun CustomOutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(5.dp)
-
     )
 }
 

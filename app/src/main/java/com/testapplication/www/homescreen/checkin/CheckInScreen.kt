@@ -44,7 +44,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
+import com.testapplication.www.util.OnSavingDialog
 import com.testapplication.www.util.collectAsEffect
+import com.testapplication.www.util.constants.Constants
+import kotlinx.coroutines.delay
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
@@ -96,17 +99,30 @@ fun CheckInScreen(
         }
     }
 
-    viewModel.checkInStatusFlow.collectAsEffect {
-        if (it) {
+    val state by viewModel.state.collectAsState()
+
+    var showDialog by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
+    if (state.isSubmissionSuccessful) {
+        OnSavingDialog(
+            showDialog = Constants.SHOW_ALERT_POP_UP,
+            onDismiss = { showDialog = Constants.DEFAULT_ALERT_POP_UP })
+        LaunchedEffect(Unit) {
+            delay(Constants.ON_SAVE_DIALOG_DELAY)
             toHome()
-        } else {
-            Toast.makeText(
-                context,
-                "Check-In Failed",
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
+
+//    viewModel.checkInStatusFlow.collectAsEffect {
+//        if (it) {
+//            toHome()
+//        } else {
+//            Toast.makeText(
+//                context,
+//                "Check-In Failed",
+//                Toast.LENGTH_LONG
+//            ).show()
+//        }
+//    }
 
     LaunchedEffect(Unit) {
         val locationPermissionCheckResult = ContextCompat.checkSelfPermission(
@@ -278,7 +294,8 @@ fun CheckInScreen(
                             dateTime,
                             latitude,
                             longitude,
-                            capturedImagePath
+                            capturedImagePath,
+                            context
                         )
                     }
                 }, modifier = Modifier.fillMaxWidth(),

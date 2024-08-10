@@ -129,6 +129,7 @@ fun HomeScreen(
         }
     }
 
+
     val checkInColors = SwitchDefaults.colors(
         checkedBorderColor = Color.Transparent,
         uncheckedThumbColor = Color.Gray,
@@ -241,7 +242,8 @@ fun HomeScreen(
                                     dateTime,
                                     null,
                                     null,
-                                    null
+                                    null,
+                                    context
                                 )
                             }
                         } else {
