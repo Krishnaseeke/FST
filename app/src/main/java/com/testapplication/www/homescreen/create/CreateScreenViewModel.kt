@@ -237,8 +237,8 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
             if (screeData != null) {
                 populateFields(screeData)
             } else {
-                // Handle the case where the record is not found
-                _showToast.emit("Record not found")
+//                // Handle the case where the record is not found
+//                _showToast.emit("Record not found")
 
             }
         }
