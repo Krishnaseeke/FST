@@ -25,19 +25,25 @@ import android.widget.TimePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberImagePainter
 import com.google.android.gms.location.LocationServices
 import com.testapplication.www.BuildConfig
 import com.testapplication.www.homescreen.create.BottomSheet
-import com.testapplication.www.util.PopupMessage
+import com.testapplication.www.util.OnSavingDialog
 import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.CREATE_ADDRESS_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_ATTACH_IMAGE_CTA
@@ -62,7 +68,11 @@ import com.testapplication.www.util.constants.Constants.CREATE_LEAD_STATUS_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_PROOF_OF_MEETING_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_SAVE_BTN
 import com.testapplication.www.util.constants.Constants.CREATE_SCREEN_BACK_CTA_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
+import com.testapplication.www.util.constants.Constants.ON_SAVE_DIALOG_DELAY
 import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
+import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import kotlinx.coroutines.delay
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,22 +93,16 @@ fun CreateScreen(
     val viewModel: CreateScreenViewModel =
         viewModel { CreateScreenViewModel(context, userID, itemId) }
     val state by viewModel.state.collectAsState()
-    // Navigate to home on successful submission
-    var showPopup by remember { mutableStateOf(true) }
-    LaunchedEffect(state.isSubmissionSuccessful) {
-        if (state.isSubmissionSuccessful) {
 
+    var showDialog by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
+    if (state.isSubmissionSuccessful) {
+      OnSavingDialog(showDialog = SHOW_ALERT_POP_UP,onDismiss = { showDialog = DEFAULT_ALERT_POP_UP })
+        LaunchedEffect(Unit) {
+            delay(ON_SAVE_DIALOG_DELAY)
+            toHome(userID)
         }
     }
 
-    if (state.isSubmissionSuccessful) {
-        PopupMessage(
-            message = "Success",
-            onDismiss = {
-                toHome(userID)
-            }
-        )
-    }
     var address by remember { mutableStateOf("") }
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -163,19 +167,19 @@ fun CreateScreen(
         unfocusedLabelColor = Color.Black,
         disabledTextColor = Color.Black,
         disabledBorderColor = Color.Black,
-        disabledLabelColor = Color.Black
+        disabledLabelColor = Color.Black,
+        errorBorderColor = Color.Red,
+        errorPlaceholderColor = Color.Red,
+        errorLabelColor = Color.Red
 
     )
 
     val textFieldStyle = TextStyle(color = Color.Black)
 
 
-    //Proof Image
-    val context = LocalContext.current
-
     // State to manage captured image URI
     var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
-    var showAttachImage by remember { mutableStateOf(false) }
+
 
     // Create image file and URI
     val file = context.createImageFile()
@@ -253,10 +257,12 @@ fun CreateScreen(
                 colors = textFieldColors,
                 textStyle = textFieldStyle,
                 singleLine = true,
+                isError = state.isCustomerNameValid,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
             )
+
 
             OutlinedTextField(
                 value = state.phoneNumber,

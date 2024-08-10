@@ -101,6 +101,22 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:1.1.0-alpha08")
     implementation ("androidx.camera:camera-view:1.1.0-alpha08")
 
+    implementation ("androidx.compose.ui:ui:1.6.0")
+    implementation ("androidx.compose.material:material:1.6.0")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.6.0")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.6.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+    // Optional: For supporting additional material design components
+    implementation ("androidx.compose.material3:material3:1.2.0")
+
+    // Optional: For working with animations
+    implementation ("androidx.compose.animation:animation:1.6.0")
+
+    // Optional: For navigation support
+    implementation ("androidx.navigation:navigation-compose:2.7.0")
+
+
 
 
 

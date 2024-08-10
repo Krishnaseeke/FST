@@ -83,6 +83,7 @@ object Constants {
     const val ALERT_ALLOW_CTA = "Allow"
     const val DEFAULT_ALERT_POP_UP = false
     const val SHOW_ALERT_POP_UP = true
+    const val ON_SAVE_DIALOG_DELAY = 500L
 
     //Alert
     const val GENERAL_ALERT_TITLE = "Alert!!!"

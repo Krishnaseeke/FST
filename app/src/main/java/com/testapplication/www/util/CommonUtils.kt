@@ -21,10 +21,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -36,6 +37,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -507,42 +510,75 @@ fun SelectedDateItemRow(
 }
 
 @Composable
-fun PopupMessage(
-    message: String,
-    duration: Long = 2000,
+fun OnSavingDialog(
+    showDialog: Boolean,
     onDismiss: () -> Unit
 ) {
-    var showPopup by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(duration)
-        showPopup = false
-        onDismiss()
-    }
-
-    if (showPopup) {
-        Dialog(onDismissRequest = {
-            showPopup = false
+    if (showDialog) {
+        // Launch a coroutine to delay and dismiss the dialog after 500 milliseconds
+        LaunchedEffect(Unit) {
+            delay(500L)
             onDismiss()
-        }) {
+        }
+
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(125.dp)
-                    .background(Color.Transparent)
+                    .size(100.dp)
+                    .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Load the image from resources
-                    Image(
-                        painter = painterResource(id = R.mipmap.success), // replace 'success' with your image resource name
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(1f).padding(3.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = message)
-                }
+                CircularProgressIndicator(color = Color.Green)
             }
         }
     }
 }
 
+@Composable
+fun CustomOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    isError: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+    height: Dp? = null
+) {
+    // Define colors for the text field
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Color.Black,
+        unfocusedBorderColor = Color.Black,
+        focusedLabelColor = Color.Black,
+        unfocusedLabelColor = Color.Black,
+        disabledTextColor = Color.Black,
+        disabledBorderColor = Color.Black,
+        disabledLabelColor = Color.Black,
+        errorBorderColor = Color.Red,
+        errorPlaceholderColor = Color.Red,
+        errorLabelColor = Color.Red
+    )
+
+    // Define text style for the text field
+    val textFieldStyle = TextStyle(color = Color.Black)
+
+    // Use the OutlinedTextField composable
+    OutlinedTextField(
+        value = value, // Ensure this is a String
+        onValueChange = onValueChange, // This should take a String and return Unit
+        label = { Text(label) }, // This must be a composable function
+        colors = textFieldColors,
+        textStyle = textFieldStyle,
+        singleLine = true,
+        isError = isError,
+        enabled = enabled,
+        keyboardOptions = keyboardOptions,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(5.dp).height(height!!),
+
+    )
+}

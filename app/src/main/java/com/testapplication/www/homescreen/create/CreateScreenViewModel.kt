@@ -31,7 +31,16 @@ data class CreateScreenState(
     val longitudeLocation: String = "", // New field
     val latitudeLocation: String = "", // New field
     val isLoading: Boolean = false,
-    val isSubmissionSuccessful: Boolean = false
+    val isSubmissionSuccessful: Boolean = false,
+    val isCustomerNameValid:Boolean = false,
+    val isPhoneNumberValid: Boolean = false,
+    val isImageAttached: Boolean = false,
+    val isBusinessCategorySelected:Boolean = false,
+    val isCallStatusSelected: Boolean = false,
+    val isLeadStatusSelected: Boolean = false,
+    val isFollowUpDateSelected: Boolean = false,
+    val isFollowUpTimeSelected: Boolean= false,
+    val isFollowUpActionSelected: Boolean = false
 )
 
 class CreateScreenViewModel(context: Context, private val userID: Long, private val itemId: Long?) :
@@ -74,11 +83,16 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     val showToast = _showToast.asStateFlow()
 
     fun updateCustomerName(name: String) {
-        _state.update { it.copy(customerName = name) }
+        _state.update {
+            it.copy(
+                customerName = name,
+                isCustomerNameValid = name.isBlank()
+            )
+        }
     }
 
     fun updatePhoneNumber(number: String) {
-        _state.update { it.copy(phoneNumber = number) }
+        _state.update { it.copy(phoneNumber = number, isPhoneNumberValid = number.isBlank()) }
     }
 
     fun updateAlternatePhoneNumber(number: String) {
@@ -90,7 +104,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     }
 
     fun updateBusinessCategory(category: String) {
-        _state.update { it.copy(businessCategory = category) }
+        _state.update { it.copy(businessCategory = category,) }
     }
 
     fun updateCallStatus(status: String) {
@@ -102,11 +116,11 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     }
 
     fun updateFollowUpDate(date: String) {
-        _state.update { it.copy(followUpDate = date) }
+        _state.update { it.copy(followUpDate = date, isFollowUpDateSelected = date.isBlank()) }
     }
 
     fun updateFollowUpTime(time: String) {
-        _state.update { it.copy(followUpTime = time) }
+        _state.update { it.copy(followUpTime = time, isFollowUpTimeSelected = time.isBlank()) }
     }
 
     fun toggleFollowUpActionCall() {
@@ -302,6 +316,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 }
             }
         } else {
+
             Toast.makeText(ctx1, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
         }
     }
