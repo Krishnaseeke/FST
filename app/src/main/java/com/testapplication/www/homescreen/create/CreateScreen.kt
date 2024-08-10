@@ -273,6 +273,7 @@ fun CreateScreen(
                 value = state.alternatePhoneNumber,
                 onValueChange = { viewModel.updateAlternatePhoneNumber(it) },
                 label = CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD,
+                isError = state.isAlternativePhoneNumberValid,
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
             )
 
@@ -298,7 +299,7 @@ fun CreateScreen(
                 Column {
                     Text(
                         text = CREATE_PROOF_OF_MEETING_FIELD,
-                        color = Color.Black,
+                        color = if (state.isImageAttached && state.proofImage == "") Color.Red else Color.Black,
                         fontSize = 14.sp,
                         fontStyle = FontStyle.Normal,
                         modifier = Modifier.padding(10.dp)

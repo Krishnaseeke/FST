@@ -48,6 +48,7 @@ data class CreateScreenState(
     val isSubmissionSuccessful: Boolean = false,
     val isCustomerNameValid: Boolean = false,
     val isPhoneNumberValid: Boolean = false,
+    val isAlternativePhoneNumberValid: Boolean = false,
     val isImageAttached: Boolean = false,
     val isBusinessCategorySelected: Boolean = false,
     val isCallStatusSelected: Boolean = false,
@@ -68,7 +69,6 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     private var fieldsPopulated = false
 
 
-
     private val db = CreateScreenDB(context)
 
     private val _showToast = MutableStateFlow<String?>(null)
@@ -84,11 +84,33 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     }
 
     fun updatePhoneNumber(number: String) {
-        _state.update { it.copy(phoneNumber = number, isPhoneNumberValid = number.isBlank()) }
+        val maxLength = 10
+        val truncatedNumber = number.take(maxLength)
+
+        val isPhoneNumberValid = truncatedNumber.length == maxLength &&
+                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '5' } == true
+
+        _state.update {
+            it.copy(
+                phoneNumber = truncatedNumber,
+                isPhoneNumberValid = isPhoneNumberValid
+            )
+        }
     }
 
+
     fun updateAlternatePhoneNumber(number: String) {
-        _state.update { it.copy(alternatePhoneNumber = number) }
+        val maxLength = 10
+        val truncatedNumber = number.take(maxLength)
+
+        val isPhoneNumberValid = truncatedNumber.length == maxLength &&
+                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '5' } == true
+        _state.update {
+            it.copy(
+                alternatePhoneNumber = truncatedNumber,
+                isAlternativePhoneNumberValid = isPhoneNumberValid
+            )
+        }
     }
 
     fun updateAddress(address: String) {
@@ -143,7 +165,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
         // Implement your validation logic here
         // For example, check if required fields are not empty
         return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() && state.leadStatus.isNotEmpty() &&
-                (state.followUpDate.isNotEmpty() && state.followUpTime.isNotEmpty())
+                (state.followUpDate.isNotEmpty() || state.followUpTime.isNotEmpty()) && state.proofImage.isNotEmpty()
     }
 
     init {

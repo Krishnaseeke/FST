@@ -130,10 +130,10 @@ class CreateScreenDB(context: Context?) :
     ): Boolean {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(CUSTOMER_NAME_COL, customerName)
-            put(PHONE_NUMBER_COL, phoneNumber)
-            put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
-            put(ADDRESS_COL, address)
+//            put(CUSTOMER_NAME_COL, customerName)
+//            put(PHONE_NUMBER_COL, phoneNumber)
+//            put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
+ //           put(ADDRESS_COL, address)
             put(BUSINESS_CATEGORY_COL, businessCategory)
             put(CALL_STATUS_COL, callStatus)
             put(LEAD_STATUS_COL, leadStatus)
@@ -142,7 +142,7 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
-            put(PROOF_IMAGE_COL, proofImage) // New Column
+//            put(PROOF_IMAGE_COL, proofImage) // New Column
 //            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
 //            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
