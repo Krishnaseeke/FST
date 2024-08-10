@@ -164,34 +164,6 @@ fun CustomTextField(
     }
 }
 
-@Composable
-fun CustomButton(
-    onClick: () -> Unit,
-    buttonText: String,
-    modifier: Modifier = Modifier,
-    buttonColor: Color = Color.LightGray,
-    textColor: Color = Color.White,
-    buttonHeight: Dp = 70.dp,
-    textSize: TextUnit = 20.sp,
-    fontWeight: FontWeight = FontWeight.Bold,
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(buttonHeight)
-            .padding(top = 20.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-    ) {
-        Text(
-            text = buttonText,
-            fontSize = textSize,
-            fontWeight = fontWeight,
-            textAlign = TextAlign.Center,
-            color = textColor
-        )
-    }
-}
 
 @Composable
 fun setCustomDate(defaultDate: String = ""): String? {
@@ -648,3 +620,4 @@ fun CategoryList(onCategorySelected: (String) -> Unit,type:String) {
         }
     }
 }
+

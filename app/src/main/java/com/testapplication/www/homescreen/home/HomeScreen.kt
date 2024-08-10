@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
+import com.testapplication.www.onboardingscreen.pressClickEffect
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.LogoutOrExitScreen
@@ -447,7 +448,7 @@ fun HomeScreen(
                 },
                 contentColor = Color.White,
                 containerColor = Color.Red,
-                modifier = Modifier.clip(shape = RoundedCornerShape(30.dp)),
+                modifier = Modifier.pressClickEffect().clip(shape = RoundedCornerShape(30.dp)),
                 icon = { Icon(Icons.Filled.AddCircle, ADD_ICON_DESCRIPTION) }
             )
         }
