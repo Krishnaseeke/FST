@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
@@ -33,15 +35,19 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -71,6 +77,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.testapplication.www.R
 import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData
 import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
@@ -517,7 +524,7 @@ fun OnSavingDialog(
     if (showDialog) {
         // Launch a coroutine to delay and dismiss the dialog after 500 milliseconds
         LaunchedEffect(Unit) {
-            delay(500L)
+            delay(50L)
             onDismiss()
         }
 
@@ -546,7 +553,6 @@ fun CustomOutlinedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    height: Dp? = null
 ) {
     // Define colors for the text field
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -578,7 +584,67 @@ fun CustomOutlinedTextField(
         keyboardOptions = keyboardOptions,
         modifier = modifier
             .fillMaxWidth()
-            .padding(5.dp).height(height!!),
+            .padding(5.dp)
 
     )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit,value:String) {
+    val modalBottomSheetState = rememberModalBottomSheetState()
+    val isSheetOpened = remember {
+        mutableStateOf(false
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle() }, containerColor = Color.White
+    ) {
+        CategoryList(onCategorySelected,value)
+    }
+
+    LaunchedEffect(modalBottomSheetState.currentValue) {
+        if (modalBottomSheetState.currentValue == SheetValue.Hidden) {
+            if (isSheetOpened.value) {
+                isSheetOpened.value = false
+                onDismiss.invoke()
+            } else {
+                isSheetOpened.value = true
+                modalBottomSheetState.show()
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryList(onCategorySelected: (String) -> Unit,type:String) {
+    var showList = if(type=="BussinessCategory"){
+        DropdownLists.bussinessCategory
+    }else if (type=="CallStatus"){
+        DropdownLists.callStatus
+    }else{
+        DropdownLists.leadStatus
+    }
+
+    LazyColumn {
+        items(showList) { category ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                    .clickable { onCategorySelected(category) } // Trigger callback on item click
+            ) {
+                Text(
+                    text = category,
+                    modifier = Modifier.padding(end = 20.dp)
+                )
+            }
+            Divider()
+        }
+    }
 }

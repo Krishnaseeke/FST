@@ -42,7 +42,8 @@ import androidx.core.content.FileProvider
 import coil.compose.rememberImagePainter
 import com.google.android.gms.location.LocationServices
 import com.testapplication.www.BuildConfig
-import com.testapplication.www.homescreen.create.BottomSheet
+import com.testapplication.www.util.BottomSheet
+import com.testapplication.www.util.CustomOutlinedTextField
 import com.testapplication.www.util.OnSavingDialog
 import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.CREATE_ADDRESS_FIELD
@@ -96,7 +97,9 @@ fun CreateScreen(
 
     var showDialog by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
     if (state.isSubmissionSuccessful) {
-      OnSavingDialog(showDialog = SHOW_ALERT_POP_UP,onDismiss = { showDialog = DEFAULT_ALERT_POP_UP })
+        OnSavingDialog(
+            showDialog = SHOW_ALERT_POP_UP,
+            onDismiss = { showDialog = DEFAULT_ALERT_POP_UP })
         LaunchedEffect(Unit) {
             delay(ON_SAVE_DIALOG_DELAY)
             toHome(userID)
@@ -250,45 +253,29 @@ fun CreateScreen(
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = state.customerName,
                 onValueChange = { viewModel.updateCustomerName(it) },
-                label = { Text(CREATE_CUSTOMER_NAME_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                isError = state.isCustomerNameValid,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_NAME_FIELD,
+                isError = state.isCustomerNameValid
             )
 
 
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = state.phoneNumber,
                 onValueChange = { viewModel.updatePhoneNumber(it) },
-                label = { Text(CREATE_CUSTOMER_MOBILE_NO_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_MOBILE_NO_FIELD,
+                isError = state.isPhoneNumberValid,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
             )
 
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = state.alternatePhoneNumber,
                 onValueChange = { viewModel.updateAlternatePhoneNumber(it) },
-                label = { Text(CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
             )
+
 
             OutlinedTextField(
                 enabled = false,
@@ -364,7 +351,7 @@ fun CreateScreen(
                                             permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }
                                     }
-                                    .fillMaxSize(1f),Arrangement.Center) {
+                                    .fillMaxSize(1f), Arrangement.Center) {
                                 androidx.compose.material.Icon(
                                     imageVector = Icons.Filled.Add,
                                     contentDescription = ADD_ICON_DESCRIPTION,
@@ -415,6 +402,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.businessCategory.isNotEmpty()) state.businessCategory else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateBusinessCategory(it) },
+                    isError = state.isBusinessCategorySelected,
                     trailingIcon = {
                         Icon(
                             bcIcon,
@@ -444,7 +432,7 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.callStatus = category
                             csshowSheet = false
-                        },  CREATE_CALL_STATUS_FIELD_LIST
+                        }, CREATE_CALL_STATUS_FIELD_LIST
                     )
                 }
 
@@ -453,6 +441,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.callStatus.isNotEmpty()) state.callStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateCallStatus(it) },
+                    isError = state.isCallStatusSelected,
                     trailingIcon = {
                         Icon(
                             csIcon,
@@ -491,6 +480,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.leadStatus.isNotEmpty()) state.leadStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateLeadStatus(it) },
+                    isError = state.isLeadStatusSelected,
                     trailingIcon = {
                         Icon(
                             lsIcon,
@@ -517,21 +507,14 @@ fun CreateScreen(
                     .clickable { mDatePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    enabled = false,
+
+                CustomOutlinedTextField(
                     value = state.followUpDate,
                     onValueChange = { viewModel.updateFollowUpDate(it) },
-                    label = { Text(CREATE_FOLLOW_UP_DATE_FIELD) },
-                    colors = textFieldColors,
-                    singleLine = true,
-                    textStyle = textFieldStyle,
-                    modifier = Modifier
-                        .weight(1f) // Make field responsive
-                        .padding(5.dp)
+                    label = CREATE_FOLLOW_UP_DATE_FIELD,
+                    isError = state.isFollowUpDateSelected,
+                    enabled = false
                 )
-
-
-
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "",
@@ -546,17 +529,12 @@ fun CreateScreen(
                     .clickable { mTimePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    enabled = false,
+                CustomOutlinedTextField(
                     value = state.followUpTime,
                     onValueChange = { viewModel.updateFollowUpTime(it) },
-                    label = { Text(CREATE_FOLLOW_UP_TIME_FIELD) },
-                    singleLine = true,
-                    colors = textFieldColors,
-                    textStyle = textFieldStyle,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(5.dp)
+                    label = CREATE_FOLLOW_UP_TIME_FIELD,
+                    isError = state.isFollowUpTimeSelected,
+                    enabled = false
                 )
 
                 Icon(

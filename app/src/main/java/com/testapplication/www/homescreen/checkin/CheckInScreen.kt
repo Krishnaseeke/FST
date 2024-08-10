@@ -19,8 +19,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
@@ -29,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -46,22 +43,13 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.testapplication.www.R
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
-import com.testapplication.www.homescreen.home.HomeScreenViewModel
 import com.testapplication.www.util.collectAsEffect
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-// Convert Bitmap to ByteArray
-fun Bitmap.toByteArray(): ByteArray {
-    val stream = ByteArrayOutputStream()
-    this.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-    return stream.toByteArray()
-}
 
 @Composable
 fun CheckInScreen(
@@ -386,13 +374,6 @@ fun createTempFile(context: Context): File {
     tempFile.createNewFile()
     return tempFile
 }
-
-
-//fun createTempFile(context: Context): File {
-//    val tempFile = File(context.cacheDir, "${System.currentTimeMillis()}.jpg")
-//    tempFile.createNewFile()
-//    return tempFile
-//}
 
 fun getLastLocation(
     fusedLocationClient: FusedLocationProviderClient,
