@@ -1,40 +1,52 @@
 package com.testapplication.www.util
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
+import android.location.Location
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -45,17 +57,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.testapplication.www.R
 import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.homescreen.home.ScreenData
 import com.testapplication.www.util.constants.Constants
-import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
+import getLastLocation
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -378,6 +395,154 @@ fun AllowSettingPopup(
 }
 
 
+@Composable
+fun SelectedDateItemRow(
+    screenData: ScreenData,
+    userId: Long,
+    toCreate: (userId: Long, itemId: Long) -> Unit,
+    preferencesManager: PreferencesManager,
+    showAlert: Boolean,
+    setShowAlert: (Boolean) -> Unit,
+    fusedLocationClient: FusedLocationProviderClient,
+    context: Context,
+    currentLatitude: Double,
+    currentLongitude: Double,
+    setCurrentLatitude: (Double) -> Unit,
+    setCurrentLongitude: (Double) -> Unit
+) {
+    val dist = FloatArray(1)
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                if (preferencesManager.getCheckInStatus(false)) {
+                    getLastLocation(fusedLocationClient, context) { location ->
+                        setCurrentLatitude(location.latitude)
+                        setCurrentLongitude(location.longitude)
+                    }
+                    Location.distanceBetween(
+                        currentLatitude,
+                        currentLongitude,
+                        screenData.latitudeValue.toDouble(),
+                        screenData.longitudeValue.toDouble(),
+                        dist
+                    )
+                    val RADIUS_IN_METER = 1000
 
+                    if (dist[0] / 1000 >= RADIUS_IN_METER) {
+                        Toast
+                            .makeText(
+                                context,
+                                "Please be in the Range to Edit the Account",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                    } else {
+                        toCreate.invoke(userId, screenData.id)
+                    }
+                } else {
+                    setShowAlert(Constants.SHOW_ALERT_POP_UP)
+                }
+            }
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row {
+                    Text(
+                        text = screenData.stringValue + " |",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = screenData.leadStatus,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(5.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                    Text(
+                        text = screenData.time,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(Icons.Default.DateRange, contentDescription = "Date icon")
+                    Text(
+                        text = screenData.date,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = "Navigate",
+                modifier = Modifier
+            )
+        }
+
+        Divider(modifier = Modifier.padding(top = 2.dp))
+    }
+}
+
+@Composable
+fun PopupMessage(
+    message: String,
+    duration: Long = 2000,
+    onDismiss: () -> Unit
+) {
+    var showPopup by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(duration)
+        showPopup = false
+        onDismiss()
+    }
+
+    if (showPopup) {
+        Dialog(onDismissRequest = {
+            showPopup = false
+            onDismiss()
+        }) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(125.dp)
+                    .background(Color.Transparent)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Load the image from resources
+                    Image(
+                        painter = painterResource(id = R.mipmap.success), // replace 'success' with your image resource name
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(1f).padding(3.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = message)
+                }
+            }
+        }
+    }
+}
 

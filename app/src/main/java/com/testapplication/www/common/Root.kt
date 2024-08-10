@@ -14,7 +14,7 @@ import androidx.navigation.navArgument
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.followupcalls.FollowupCallsScreen
 import com.testapplication.www.homescreen.home.HomeScreen
-import com.testapplication.www.homescreen.home.displayList
+import com.testapplication.www.homescreen.home.DisplayList
 import com.testapplication.www.homescreen.leads.LeadScreen
 import com.testapplication.www.homescreen.scheduledvisits.ScheduledVisitsScreen
 import com.testapplication.www.loginscreen.LoginScreen
@@ -166,7 +166,7 @@ fun Root(context: Context) {
         composable("${Screens.DisplayList.name}/{userId}/{itemId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: 0L
-            displayList(
+            DisplayList(
                 context = context,
                 userId = userId,
                 "",

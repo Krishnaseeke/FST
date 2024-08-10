@@ -40,6 +40,33 @@ object Constants {
     const val SCREEN_CREATE = "Create"
     const val SCREEN_CHECK_IN = "Check-In"
 
+
+    //Create Screen
+    const val CREATE_SCREEN_BACK_CTA_DESCRIPTION = "Back"
+    const val CREATE_CUSTOMER_NAME_FIELD = "Customer Name*"
+    const val CREATE_CUSTOMER_MOBILE_NO_FIELD = "Phone Number*"
+    const val CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD = "Alternate Phone Number"
+    const val CREATE_ADDRESS_FIELD = "Address*"
+    const val CREATE_PROOF_OF_MEETING_FIELD = "Proof Of Meeting*"
+    const val CREATE_IMAGE_RECAPTURE_DESCRIPTION = "Re-Capture"
+    const val CREATE_ATTACH_IMAGE_CTA = "Attach Image"
+    const val CREATE_BUSSINESS_CATEGORY_FIELD_LIST = "BussinessCategory"
+    const val CREATE_BUSSINESS_CATEGORY_FIELD = "Business Category"
+    const val CREATE_CATEGORY_FIELD_LABEL_TEXT =  "Select Category"
+    const val CREATE_DROP_DOWN_ICON_DESCRIPTION = "Dropdown Icon"
+    const val CREATE_CALL_STATUS_FIELD_LIST = "CallStatus"
+    const val CREATE_CALL_STATUS_FIELD = "Call Status"
+    const val CREATE_LEAD_STATUS_FIELD_LIST = "LeadStatus"
+    const val CREATE_LEAD_STATUS_FIELD = "Lead Status"
+    const val CREATE_FOLLOW_UP_DATE_FIELD = "Follow Up Date*"
+    const val CREATE_FOLLOW_UP_TIME_FIELD = "Follow Up Time*"
+    const val CREATE_FOLLOW_UP_ACTION_RADIO_BTN = "Follow Up Action*"
+    const val CREATE_FOLLOW_UP_CALL_RADIO_BTN = "Call"
+    const val CREATE_FOLLOW_UP_VISIT_RADIO_BTN = "Visit"
+    const val CREATE_COMMENTS_FIELD = "Comments"
+    const val CREATE_SAVE_BTN = "Save"
+
+
     //Home Screen Leads Table Names
     const val TABLE_LEADS_CREATED = "Leads Created"
     const val TABLE_DEMOS_SCHEDULED = "Demos Scheduled"
@@ -60,6 +87,7 @@ object Constants {
     //Alert
     const val GENERAL_ALERT_TITLE = "Alert!!!"
     const val CHECK_IN_ALERT_DESCRIPTION = "Please Check-In to Create FST"
+    const val CHECK_IN_EDIT_ALERT_DESCRIPTION = "Please Check-In to Edit FST"
     const val GENERAL_ALERT_ALLOW_CTA = "OK"
 
     //Create
@@ -70,8 +98,32 @@ object Constants {
 
     //Item Display List Value Type
     const val FOLLOW_UP_CALL_LIST_TYPE = "call"
-    const val LEADS_LIST_TYPE = ""
+    const val LEADS_LIST_TYPE = "leads"
     const val SCHEDULED_VISIT_LIST_TYPE = "visit"
+    const val INVALID_LIST_TYPE = "Invalid valueType"
     const val SHOW_ALL_CTA = "Show All"
+
+
+    //CREATE DB STRINGS
+    const val CREATE_DB_NAME = "create_screen_db"
+    const val CREATE_TABLE_NAME = "create_screen_data"
+    const val USER_ID_COL = "user_id"
+    const val CUSTOMER_NAME_COL = "customer_name"
+    const val PHONE_NUMBER_COL = "phone_number"
+    const val ALTERNATE_PHONE_COL = "alternate_phone_number"
+    const val ADDRESS_COL = "address"
+    const val BUSINESS_CATEGORY_COL = "business_category"
+    const val CALL_STATUS_COL = "call_status"
+    const val LEAD_STATUS_COL = "lead_status"
+    const val FOLLOW_UP_DATE_COL = "follow_up_date"
+    const val FOLLOW_UP_TIME_COL = "follow_up_time"
+    const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"  // Change column name
+    const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"  // Change column name
+    const val COMMENTS_COL = "comments"
+    const val CHECKIN_LONGITUDE_COL = "longitude_location" // New Column
+    const val CHECKIN_LATITUDE_COL = "latitude_location" // New Column
+
+    //Image Descriptions
+    const val NO_DATA_FOUND_IMAGE_DESCRIPTION = "No Data Found"
 
 }

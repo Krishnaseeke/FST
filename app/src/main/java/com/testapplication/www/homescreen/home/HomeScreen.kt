@@ -2,25 +2,15 @@ package com.testapplication.www.homescreen.home
 
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.ActivityCompat
 import com.google.accompanist.permissions.*
 import com.google.android.gms.location.LocationServices
 import android.Manifest
-
-
-import CreateScreenDB
 import android.content.Context
 import android.content.Intent
-import android.media.Image
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,10 +29,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -61,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -69,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
@@ -133,9 +117,6 @@ fun HomeScreen(
         )
     )
 
-    var latitude by remember { mutableStateOf(0.0) }
-    var longitude by remember { mutableStateOf(0.0) }
-
     val preferencesManager = PreferencesManager(context)
     var showAlert by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
 
@@ -157,21 +138,6 @@ fun HomeScreen(
         checkedTrackColor = Color.Black
     )
 
-
-//    // Check location permissions when the screen is displayed
-//    LaunchedEffect(locationPermissionState.allPermissionsGranted) {
-//        if (locationPermissionState.allPermissionsGranted) {
-//            // Call function to get last known location
-//
-//            getLastLocation(ctx)
-//        } else {
-//            Toast.makeText(
-//                ctx,
-//                "Location permissions are required to use this app.",
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-//    }
 
     fun openAppSettings(context: Context) {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -312,8 +278,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_LEADS_CREATED)
-                        customValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_LEADS_CREATED)
+                        CustomValuesHome(text = viewModel.leadsCreatedCount.collectAsState().value.toString())
                     }
                     Divider(
                         modifier = Modifier
@@ -326,8 +292,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_DEMOS_SCHEDULED)
-                        customValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_DEMOS_SCHEDULED)
+                        CustomValuesHome(text = viewModel.demosScheduledCount.collectAsState().value.toString())
                     }
                 }
                 // Divider after first row
@@ -345,8 +311,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_DEMOS_COMPLETED)
-                        customValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_DEMOS_COMPLETED)
+                        CustomValuesHome(text = viewModel.demosCompletedCount.collectAsState().value.toString())
                     }
 
                     Divider(
@@ -362,8 +328,8 @@ fun HomeScreen(
                             .wrapContentHeight()
                             .weight(1f)
                     ) {
-                        customTextHome(text = TABLE_LICENSES_SOLD)
-                        customValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
+                        CustomTextHome(text = TABLE_LICENSES_SOLD)
+                        CustomValuesHome(text = viewModel.licensesSoldCount.collectAsState().value.toString())
                     }
                 }
             }
@@ -382,7 +348,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    customTextHome(
+                    CustomTextHome(
                         text = SCREEN_SCHEDULED_VISIT ,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -398,7 +364,7 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    com.testapplication.www.homescreen.home.displayList(
+                    com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
                         "",
@@ -422,7 +388,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    customTextHome(
+                    CustomTextHome(
                         text = SCREEN_FOLLOW_UP_CALLS,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -438,7 +404,7 @@ fun HomeScreen(
                 }
 
                 if (userID != null) {
-                    com.testapplication.www.homescreen.home.displayList(
+                    com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
                         "",
@@ -513,18 +479,8 @@ public fun getLastLocation(context: Context) {
             context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        // Request missing location permission.
         return
     }
     fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-        if (location != null) {
-
-            // Handle the location object
-//            Toast.makeText(
-//                context,
-//                "Latitude: ${location.latitude}, Longitude: ${location.longitude}",
-//                Toast.LENGTH_LONG
-//            ).show()
-        }
     }
 }

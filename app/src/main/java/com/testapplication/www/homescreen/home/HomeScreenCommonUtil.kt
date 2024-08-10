@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun customTextHome(
+fun CustomTextHome(
     text: String,
     fontSize: TextUnit = 14.sp,fontWeight: FontWeight = FontWeight.Normal // Default font size is 14.sp
 ) {
@@ -28,7 +28,7 @@ fun customTextHome(
         color = Color.Black,
         fontSize = fontSize,
         fontStyle = FontStyle.Normal,
-        fontWeight = fontWeight,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(5.dp),
         textAlign = TextAlign.Left
     )
@@ -37,7 +37,7 @@ fun customTextHome(
 
 //This only for Value in the Cards
 @Composable
-fun customValuesHome(text: String) {
+fun CustomValuesHome(text: String) {
 
     Text(
         text = text,
