@@ -43,6 +43,8 @@ import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
 import com.testapplication.www.util.constants.Constants.NO_DATA_FOUND_IMAGE_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.USER_ID_COL
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 
 data class ScreenData1(
@@ -100,7 +102,9 @@ fun DisplayList(
     } else if (valueType == LEADS_LIST_TYPE) {
         dataListDisplay.addAll(itemData)
     }
-    val sortedDataListDisplay = dataListDisplay.sortedBy { it.date }
+    val sortedDataListDisplay = dataListDisplay.sortedWith(
+        compareBy({ it.date }, { LocalTime.parse(it.time, DateTimeFormatter.ofPattern("h:mm a")) })
+    )
     var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
 
     if (showAlert) {
@@ -117,7 +121,7 @@ fun DisplayList(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .padding(1.dp),
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
@@ -133,7 +137,7 @@ fun DisplayList(
         }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(10.dp)
+            contentPadding = PaddingValues(1.dp)
         ) {
 
 

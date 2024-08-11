@@ -68,7 +68,7 @@ fun LeadScreen(
             dateSelected = setCustomDate()
         }
         Spacer(modifier = Modifier.height(5.dp))
-        Column( modifier = Modifier
+        Column( modifier = Modifier.weight(1f)
             .clip(shape = RoundedCornerShape(5.dp))
             .background(Color.White)
             .fillMaxWidth(1f)
@@ -87,19 +87,20 @@ fun LeadScreen(
                 }
             }
         }
-    }
+        Column(modifier = Modifier, Arrangement.Bottom) {
+            BottomBar(
+                currentScreen = SCREEN_LEADS,
+                toOnboarding = { toOnboarding() },
+                toLeadsScreen = {},
+                toHome = { toHome(userID) },
+                toScheduledVisits = { toScheduledVisits(userID) },
+                toFollowupCalls = { toFollowupCalls(userID) }) {
 
-
-    Column(modifier = Modifier, Arrangement.Bottom) {
-        BottomBar(
-            currentScreen = SCREEN_LEADS,
-            toOnboarding = { toOnboarding() },
-            toLeadsScreen = {},
-            toHome = { toHome(userID) },
-            toScheduledVisits = { toScheduledVisits(userID) },
-            toFollowupCalls = { toFollowupCalls(userID) }) {
-
+            }
         }
     }
+
+
+
 
 }

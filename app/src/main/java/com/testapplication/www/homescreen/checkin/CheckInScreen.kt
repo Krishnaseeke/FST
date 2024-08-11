@@ -196,24 +196,14 @@ fun CheckInScreen(
             modifier = Modifier
                 .background(Color.White)
                 .fillMaxWidth()
-                .padding(
-                    top = 5.dp
-                )
+                .weight(1f)
 
         ) {
-            Text(
-                text = "Picture",
-                color = Color.Black,
-                fontSize = 16.sp,
-                fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Start,
-            )
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 600.dp)
+                    .fillMaxHeight()
             ) {
                 AndroidView(
                     factory = { context ->
@@ -257,8 +247,7 @@ fun CheckInScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Red)
-                .weight(1f),
+                .background(Color.Red),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -298,7 +287,7 @@ fun CheckInScreen(
                             context
                         )
                     }
-                }, modifier = Modifier.fillMaxWidth(),
+                }, modifier = Modifier.fillMaxWidth().height(60.dp),
                 colors = ButtonDefaults.buttonColors(Color.Red)
 
             ) {

@@ -89,6 +89,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import android.Manifest
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.google.android.gms.maps.model.LatLng
 import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
 import getAddress
@@ -714,5 +716,13 @@ fun CategoryList(onCategorySelected: (String) -> Unit, type: String) {
             Divider()
         }
     }
+}
+
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork ?: return false
+    val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
 
