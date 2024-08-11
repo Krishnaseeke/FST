@@ -419,7 +419,7 @@ fun SelectedDateItemRow(
             showDialog = showAlert,
             onDismiss = { showAlert = Constants.DEFAULT_ALERT_POP_UP },
             title = Constants.GENERAL_ALERT_TITLE,
-            description = " Your Current Location:  $currentAddress\n\n FST Created Location:  $itemAddress\n\n Please Visit the Same Location to Edit this FST",
+            description = "Your Current Location:  \n$currentAddress\n\nFST Created Location:  \n$itemAddress\n\nPlease Visit the Same Location to Edit this FST",
             confirmButtonText = Constants.GENERAL_ALERT_ALLOW_CTA,
             onConfirm = { /* Handle confirmation if needed */ }
         )
