@@ -3,6 +3,7 @@ package com.testapplication.www.util
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
@@ -73,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.testapplication.www.R
 import com.testapplication.www.common.MainActivity
@@ -86,6 +88,10 @@ import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import android.Manifest
+import com.google.android.gms.maps.model.LatLng
+import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import getAddress
 
 @Composable
 fun HeaderText(text: String) {
@@ -109,6 +115,7 @@ fun TextFieldText(text: String) {
         modifier = Modifier.padding(start = 10.dp, top = 10.dp)
     )
 }
+
 @Composable
 fun CustomTextField(
     phoneNumber: MutableState<TextFieldValue>,
@@ -236,7 +243,7 @@ fun setCustomDate(defaultDate: String = ""): String? {
 
 
 @Composable
-fun ScreenHeaders(text:String){
+fun ScreenHeaders(text: String) {
     Text(
         text = text,
         color = Color.Black,
@@ -282,37 +289,45 @@ fun LogoutOrExitScreen(
                     }
                     showDialog = false
                 }) {
-                    Text("Yes",
+                    Text(
+                        "Yes",
                         color = Color.Black,
                         fontSize = 16.sp,
                         fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showDialog = false
                 }) {
-                    Text("No",
+                    Text(
+                        "No",
                         color = Color.Black,
                         fontSize = 16.sp,
                         fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             title = {
-                Text("Confirmation",
+                Text(
+                    "Confirmation",
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             },
             text = {
-                Text(if (actionType == ActionType.LOGOUT) "Are you sure you want to Logout?" else "Are you sure you want to Exit?",
+                Text(
+                    if (actionType == ActionType.LOGOUT) "Are you sure you want to Logout?" else "Are you sure you want to Exit?",
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
             containerColor = Color.White
@@ -392,37 +407,107 @@ fun SelectedDateItemRow(
     setCurrentLatitude: (Double) -> Unit,
     setCurrentLongitude: (Double) -> Unit
 ) {
-    val dist = FloatArray(1)
+    var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
+    var currentAddress by remember { mutableStateOf("") }
+    var itemAddress by remember { mutableStateOf("") }
+
+
+
+    if (showAlert) {
+        AllowSettingPopup(
+            context = context,
+            showDialog = showAlert,
+            onDismiss = { showAlert = Constants.DEFAULT_ALERT_POP_UP },
+            title = Constants.GENERAL_ALERT_TITLE,
+            description = " Your Current Location:  $currentAddress\n\n FST Created Location:  $itemAddress\n\n Please Visit the Same Location to Edit this FST",
+            confirmButtonText = Constants.GENERAL_ALERT_ALLOW_CTA,
+            onConfirm = { /* Handle confirmation if needed */ }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
                 if (preferencesManager.getCheckInStatus(false)) {
-                    getLastLocation(fusedLocationClient, context) { location ->
-                        setCurrentLatitude(location.latitude)
-                        setCurrentLongitude(location.longitude)
-                    }
-                    Location.distanceBetween(
-                        currentLatitude,
-                        currentLongitude,
-                        screenData.latitudeValue.toDouble(),
-                        screenData.longitudeValue.toDouble(),
-                        dist
-                    )
-                    val RADIUS_IN_METER = 1000
+                    // Make sure the appropriate permissions are granted
+                    if (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
 
-                    if (dist[0] / 1000 >= RADIUS_IN_METER) {
+                        // Get the last known location
+                        fusedLocationClient
+                            .getLastLocation()
+                            .addOnSuccessListener { location ->
+                                if (location != null) {
+
+                                    setCurrentLatitude(location.latitude)
+                                    setCurrentLongitude(location.longitude)
+
+                                    // Calculate the distance between the current location and the target location
+                                    val dist = FloatArray(1)//This will be calculated in Meters
+                                    currentAddress = getAddress(
+                                        LatLng(location.latitude, location.longitude),
+                                        context
+                                    )
+                                    itemAddress = getAddress(
+                                        LatLng(
+                                            screenData.latitudeValue.toDouble(),
+                                            screenData.longitudeValue.toDouble()
+                                        ), context
+                                    )
+
+                                    Location.distanceBetween(
+                                        location.latitude,
+                                        location.longitude,
+                                        screenData.latitudeValue.toDouble(),
+                                        screenData.longitudeValue.toDouble(),
+                                        dist
+                                    )
+
+                                    val RADIUS_IN_METERS = 1000
+                                    if (dist[0] >= RADIUS_IN_METERS) {
+                                        showAlert = SHOW_ALERT_POP_UP
+                                    } else {
+                                        // Proceed with the action
+                                        toCreate.invoke(userId, screenData.id)
+                                    }
+                                } else {
+                                    // Handle the case where the location is null
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Unable to fetch location. Please try again.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Handle any errors that occur while trying to get the location
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Failed to get location: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+
+                    } else {
+                        // Handle the case where permission is not granted
                         Toast
                             .makeText(
                                 context,
-                                "Please be in the Range to Edit the Account",
+                                "Location permission is required to use this feature.",
                                 Toast.LENGTH_SHORT
                             )
                             .show()
-                    } else {
-                        toCreate.invoke(userId, screenData.id)
                     }
+
+
                 } else {
                     setShowAlert(Constants.SHOW_ALERT_POP_UP)
                 }
@@ -515,6 +600,7 @@ fun OnSavingDialog(
         }
     }
 }
+
 @Composable
 fun CustomOutlinedTextField(
     value: String,
@@ -571,10 +657,11 @@ fun CustomOutlinedTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit,value:String) {
+fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit, value: String) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     val isSheetOpened = remember {
-        mutableStateOf(false
+        mutableStateOf(
+            false
         )
     }
 
@@ -582,9 +669,10 @@ fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit,valu
         onDismissRequest = { onDismiss() },
         sheetState = modalBottomSheetState,
         dragHandle = {
-            BottomSheetDefaults.DragHandle() }, containerColor = Color.White
+            BottomSheetDefaults.DragHandle()
+        }, containerColor = Color.White
     ) {
-        CategoryList(onCategorySelected,value)
+        CategoryList(onCategorySelected, value)
     }
 
     LaunchedEffect(modalBottomSheetState.currentValue) {
@@ -601,12 +689,12 @@ fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit,valu
 }
 
 @Composable
-fun CategoryList(onCategorySelected: (String) -> Unit,type:String) {
-    var showList = if(type=="BussinessCategory"){
+fun CategoryList(onCategorySelected: (String) -> Unit, type: String) {
+    var showList = if (type == "BussinessCategory") {
         DropdownLists.bussinessCategory
-    }else if (type=="CallStatus"){
+    } else if (type == "CallStatus") {
         DropdownLists.callStatus
-    }else{
+    } else {
         DropdownLists.leadStatus
     }
 
