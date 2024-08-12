@@ -85,10 +85,11 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
 
     fun updatePhoneNumber(number: String) {
         val maxLength = 10
-        val truncatedNumber = number.take(maxLength)
+        val filteredNumber = number.filter { it.isDigit() } // Remove special characters
+        val truncatedNumber = filteredNumber.take(maxLength)
 
         val isPhoneNumberValid = truncatedNumber.length == maxLength &&
-                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '5' } == true
+                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '6' } == true
 
         _state.update {
             it.copy(
@@ -96,15 +97,17 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 isPhoneNumberValid = isPhoneNumberValid
             )
         }
+
     }
 
 
     fun updateAlternatePhoneNumber(number: String) {
         val maxLength = 10
-        val truncatedNumber = number.take(maxLength)
+        val filteredNumber = number.filter { it.isDigit() } // Remove special characters
+        val truncatedNumber = filteredNumber.take(maxLength)
 
         val isPhoneNumberValid = truncatedNumber.length == maxLength &&
-                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '5' } == true
+                truncatedNumber.firstOrNull()?.let { it.isDigit() && it < '6' } == true
         _state.update {
             it.copy(
                 alternatePhoneNumber = truncatedNumber,
@@ -174,7 +177,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
     fun isValidInput(state: CreateScreenState): Boolean {
         // Implement your validation logic here
         // For example, check if required fields are not empty
-        return state.customerName.isNotEmpty() && state.phoneNumber.isNotEmpty() &&
+        return state.customerName.isNotEmpty() && (state.phoneNumber.isNotEmpty() || state.phoneNumber.length < 10) &&
                 (state.followUpDate.isNotEmpty() || state.followUpTime.isNotEmpty()) && state.proofImage.isNotEmpty() && (state.followUpActionVisit || state.followUpActionCall)
     }
 
@@ -338,12 +341,12 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                 } finally {
                     _state.update { it.copy(isLoading = false, isSubmissionSuccessful = isSuccess) }
                 }
-
-                if (isSuccess) {
-                    Toast.makeText(ctx1, "Operation successful", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(ctx1, "Operation failed", Toast.LENGTH_SHORT).show()
-                }
+//
+//                if (isSuccess) {
+//                    Toast.makeText(ctx1, "Operation successful", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Toast.makeText(ctx1, "Operation failed", Toast.LENGTH_SHORT).show()
+//                }
             }
         } else {
             updateValidationState(stateValue)
@@ -356,8 +359,8 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
         _state.update {
             it.copy(
                 isCustomerNameValid = stateValue.customerName.isNullOrBlank(),
-                isPhoneNumberValid = stateValue.phoneNumber.isNullOrBlank(),
-                isImageAttached = stateValue.proofImage.isNullOrBlank(),
+                isPhoneNumberValid = stateValue.phoneNumber.isNullOrBlank() || stateValue.phoneNumber.length<10,
+                isImageAttached = stateValue.proofImage.isNullOrBlank() || stateValue.alternatePhoneNumber.length<10,
                 isBusinessCategorySelected = stateValue.businessCategory.isNullOrBlank(),
                 isCallStatusSelected = stateValue.callStatus.isNullOrBlank(),
                 isLeadStatusSelected = stateValue.leadStatus.isNullOrBlank(),

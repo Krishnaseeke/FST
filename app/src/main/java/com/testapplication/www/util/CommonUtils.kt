@@ -527,17 +527,20 @@ fun SelectedDateItemRow(
             ) {
                 Row {
                     Text(
-                        text = screenData.stringValue + " |",
+                        text = screenData.stringValue,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
+                        modifier = Modifier.weight(1f),
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = screenData.leadStatus,
+                        text = if (screenData.leadStatus.isNotEmpty()) " | " + screenData.leadStatus else "",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 5.dp)
+                        modifier = Modifier.padding(start = 5.dp).weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -545,7 +548,10 @@ fun SelectedDateItemRow(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                    Icon(
+                        painter = painterResource(id = R.drawable.clock),
+                        contentDescription = "Clock"
+                    )
                     Text(
                         text = screenData.time,
                         fontSize = 16.sp,
