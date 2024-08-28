@@ -3,12 +3,40 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.testapplication.www.util.constants.Constants.ADDRESS_COL
+import com.testapplication.www.util.constants.Constants.ALTERNATE_PHONE_COL
+import com.testapplication.www.util.constants.Constants.BUSINESS_CATEGORY_COL
+import com.testapplication.www.util.constants.Constants.CALL_STATUS_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_ID_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_IMAGE_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_LATITUDE_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_LONGITUDE_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_STATUS_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_TABLE_NAME
+import com.testapplication.www.util.constants.Constants.CHECKIN_TIME_COL
+import com.testapplication.www.util.constants.Constants.CHECKIN_USER_ID_COL
+import com.testapplication.www.util.constants.Constants.COMMENTS_COL
+import com.testapplication.www.util.constants.Constants.CREATE_DB_NAME
+import com.testapplication.www.util.constants.Constants.CREATE_TABLE_NAME
+import com.testapplication.www.util.constants.Constants.CUSTOMER_NAME_COL
+import com.testapplication.www.util.constants.Constants.DB_VERSION
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_ACTION_CALL_COL
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_ACTION_VISIT_COL
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_DATE_COL
+import com.testapplication.www.util.constants.Constants.FOLLOW_UP_TIME_COL
+import com.testapplication.www.util.constants.Constants.ID_COL
+import com.testapplication.www.util.constants.Constants.LATITUDE_LOCATION_COL
+import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
+import com.testapplication.www.util.constants.Constants.LONGITUDE_LOCATION_COL
+import com.testapplication.www.util.constants.Constants.PHONE_NUMBER_COL
+import com.testapplication.www.util.constants.Constants.PROOF_IMAGE_COL
+import com.testapplication.www.util.constants.Constants.USER_ID_COL
 
 class CreateScreenDB(context: Context?) :
-    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+    SQLiteOpenHelper(context, CREATE_DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        val createTableQuery = ("CREATE TABLE " + TABLE_NAME + " ("
+        val createTableQuery = ("CREATE TABLE " + CREATE_TABLE_NAME + " ("
                 + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + USER_ID_COL + " INTEGER, "
                 + CUSTOMER_NAME_COL + " TEXT, "
@@ -77,7 +105,7 @@ class CreateScreenDB(context: Context?) :
             put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
             put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
-        db.insert(TABLE_NAME, null, values)
+        db.insert(CREATE_TABLE_NAME, null, values)
         db.close()
         return true
     }
@@ -102,10 +130,10 @@ class CreateScreenDB(context: Context?) :
     ): Boolean {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(CUSTOMER_NAME_COL, customerName)
-            put(PHONE_NUMBER_COL, phoneNumber)
-            put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
-            put(ADDRESS_COL, address)
+//            put(CUSTOMER_NAME_COL, customerName)
+//            put(PHONE_NUMBER_COL, phoneNumber)
+//            put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
+ //           put(ADDRESS_COL, address)
             put(BUSINESS_CATEGORY_COL, businessCategory)
             put(CALL_STATUS_COL, callStatus)
             put(LEAD_STATUS_COL, leadStatus)
@@ -114,12 +142,12 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
-            put(PROOF_IMAGE_COL, proofImage) // New Column
+//            put(PROOF_IMAGE_COL, proofImage) // New Column
 //            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
 //            put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
 
-        val rowsUpdated = db.update(TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
+        val rowsUpdated = db.update(CREATE_TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
         db.close()
         return rowsUpdated > 0
     }
@@ -172,44 +200,12 @@ class CreateScreenDB(context: Context?) :
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 5) { // Add these columns if upgrading from version 4 to 5
-            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $PROOF_IMAGE_COL TEXT")
-            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LONGITUDE_LOCATION_COL DOUBLE")
-            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $LATITUDE_LOCATION_COL DOUBLE")
+            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $PROOF_IMAGE_COL TEXT")
+            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $LONGITUDE_LOCATION_COL DOUBLE")
+            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $LATITUDE_LOCATION_COL DOUBLE")
             db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LONGITUDE_COL FLOAT")
             db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LATITUDE_COL FLOAT")
         }
     }
 
-    companion object {
-        private const val DB_NAME = "create_screen_db"
-        private const val DB_VERSION = 6 // Incremented version to trigger onUpgrade
-        private const val TABLE_NAME = "create_screen_data"
-        private const val ID_COL = "id"
-        private const val USER_ID_COL = "user_id"
-        private const val CUSTOMER_NAME_COL = "customer_name"
-        private const val PHONE_NUMBER_COL = "phone_number"
-        private const val ALTERNATE_PHONE_COL = "alternate_phone_number"
-        private const val ADDRESS_COL = "address"
-        private const val BUSINESS_CATEGORY_COL = "business_category"
-        private const val CALL_STATUS_COL = "call_status"
-        private const val LEAD_STATUS_COL = "lead_status"
-        private const val FOLLOW_UP_DATE_COL = "follow_up_date"
-        private const val FOLLOW_UP_TIME_COL = "follow_up_time"
-        private const val FOLLOW_UP_ACTION_CALL_COL = "follow_up_action_call"
-        private const val FOLLOW_UP_ACTION_VISIT_COL = "follow_up_action_visit"
-        private const val COMMENTS_COL = "comments"
-        private const val PROOF_IMAGE_COL = "proof_image" // New Column
-        private const val LONGITUDE_LOCATION_COL = "longitude_location" // New Column
-        private const val LATITUDE_LOCATION_COL = "latitude_location" // New Column
-
-        // CheckIn table constants
-        private const val CHECKIN_TABLE_NAME = "checkin_data"
-        private const val CHECKIN_ID_COL = "id"
-        private const val CHECKIN_USER_ID_COL = "user_id"
-        private const val CHECKIN_STATUS_COL = "checkin_status"
-        private const val CHECKIN_TIME_COL = "checkin_time"
-        private const val CHECKIN_LONGITUDE_COL = "longitude" // New Column
-        private const val CHECKIN_LATITUDE_COL = "latitude" // New Column
-        private const val CHECKIN_IMAGE_COL = "checkin_image" // New Column
-    }
 }

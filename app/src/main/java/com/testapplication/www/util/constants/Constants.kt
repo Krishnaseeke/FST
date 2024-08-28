@@ -52,7 +52,7 @@ object Constants {
     const val CREATE_ATTACH_IMAGE_CTA = "Attach Image"
     const val CREATE_BUSSINESS_CATEGORY_FIELD_LIST = "BussinessCategory"
     const val CREATE_BUSSINESS_CATEGORY_FIELD = "Business Category"
-    const val CREATE_CATEGORY_FIELD_LABEL_TEXT =  "Select Category"
+    const val CREATE_CATEGORY_FIELD_LABEL_TEXT = "Select Category"
     const val CREATE_DROP_DOWN_ICON_DESCRIPTION = "Dropdown Icon"
     const val CREATE_CALL_STATUS_FIELD_LIST = "CallStatus"
     const val CREATE_CALL_STATUS_FIELD = "Call Status"
@@ -83,6 +83,7 @@ object Constants {
     const val ALERT_ALLOW_CTA = "Allow"
     const val DEFAULT_ALERT_POP_UP = false
     const val SHOW_ALERT_POP_UP = true
+    const val ON_SAVE_DIALOG_DELAY = 500L
 
     //Alert
     const val GENERAL_ALERT_TITLE = "Alert!!!"
@@ -122,6 +123,17 @@ object Constants {
     const val COMMENTS_COL = "comments"
     const val CHECKIN_LONGITUDE_COL = "longitude_location" // New Column
     const val CHECKIN_LATITUDE_COL = "latitude_location" // New Column
+    const val PROOF_IMAGE_COL = "proof_image" // New Column
+    const val LONGITUDE_LOCATION_COL = "longitude_location" // New Column
+    const val LATITUDE_LOCATION_COL = "latitude_location" // New Column
+
+    // CheckIn table constants
+    const val CHECKIN_TABLE_NAME = "checkin_data"
+    const val CHECKIN_ID_COL = "id"
+    const val CHECKIN_USER_ID_COL = "user_id"
+    const val CHECKIN_STATUS_COL = "checkin_status"
+    const val CHECKIN_TIME_COL = "checkin_time"
+    const val CHECKIN_IMAGE_COL = "checkin_image" // New Column
 
     //Image Descriptions
     const val NO_DATA_FOUND_IMAGE_DESCRIPTION = "No Data Found"

@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
-import com.testapplication.www.util.CustomButton
+import com.testapplication.www.onboardingscreen.CustomButton
 import com.testapplication.www.util.CustomTextField
 import com.testapplication.www.util.HeaderText
 import com.testapplication.www.util.TextFieldText
@@ -118,7 +118,7 @@ fun SignupScreen(
                     }
                 },
                 buttonText = SIGNUP_CTA_NAME,
-                buttonColor = Color.LightGray,
+                buttonColor = Color.Black,
                 textColor = Color.White,
                 modifier = Modifier
                     .fillMaxWidth()

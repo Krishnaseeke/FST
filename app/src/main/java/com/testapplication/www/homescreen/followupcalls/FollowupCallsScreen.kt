@@ -67,7 +67,7 @@ fun FollowupCallsScreen(
             dateSelected= setCustomDate()
         }
         Spacer(modifier = Modifier.height(5.dp))
-        Column( modifier = Modifier
+        Column( modifier = Modifier.weight(1f)
             .clip(shape = RoundedCornerShape(5.dp))
             .background(Color.White)
             .fillMaxWidth(1f)
@@ -86,19 +86,18 @@ fun FollowupCallsScreen(
                 }
             }
         }
-    }
+        Column(modifier = Modifier, Arrangement.Bottom) {
+            BottomBar(
+                currentScreen = SCREEN_FOLLOW_UP_CALLS,
+                toOnboarding = { toOnboarding() },
+                toLeadsScreen={toLeadsScreen(userID)},
+                toHome = { toHome(userID) },
+                toScheduledVisits = { toScheduledVisits(userID) },
+                toFollowupCalls = {  }) {
 
-    Column(modifier = Modifier, Arrangement.Bottom) {
-
-
-        BottomBar(
-            currentScreen = SCREEN_FOLLOW_UP_CALLS,
-            toOnboarding = { toOnboarding() },
-            toLeadsScreen={toLeadsScreen(userID)},
-            toHome = { toHome(userID) },
-            toScheduledVisits = { toScheduledVisits(userID) },
-            toFollowupCalls = {  }) {
-
+            }
         }
     }
+
+
 }

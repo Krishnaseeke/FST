@@ -3,6 +3,7 @@ package com.testapplication.www.util
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
@@ -21,10 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -32,13 +36,19 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -64,10 +74,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.testapplication.www.R
 import com.testapplication.www.common.MainActivity
 import com.testapplication.www.common.PreferencesManager
+import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData
 import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
@@ -76,6 +88,12 @@ import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import android.Manifest
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import com.google.android.gms.maps.model.LatLng
+import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import getAddress
 
 @Composable
 fun HeaderText(text: String) {
@@ -99,6 +117,7 @@ fun TextFieldText(text: String) {
         modifier = Modifier.padding(start = 10.dp, top = 10.dp)
     )
 }
+
 @Composable
 fun CustomTextField(
     phoneNumber: MutableState<TextFieldValue>,
@@ -154,34 +173,6 @@ fun CustomTextField(
     }
 }
 
-@Composable
-fun CustomButton(
-    onClick: () -> Unit,
-    buttonText: String,
-    modifier: Modifier = Modifier,
-    buttonColor: Color = Color.LightGray,
-    textColor: Color = Color.White,
-    buttonHeight: Dp = 70.dp,
-    textSize: TextUnit = 20.sp,
-    fontWeight: FontWeight = FontWeight.Bold,
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(buttonHeight)
-            .padding(top = 20.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-    ) {
-        Text(
-            text = buttonText,
-            fontSize = textSize,
-            fontWeight = fontWeight,
-            textAlign = TextAlign.Center,
-            color = textColor
-        )
-    }
-}
 
 @Composable
 fun setCustomDate(defaultDate: String = ""): String? {
@@ -254,7 +245,7 @@ fun setCustomDate(defaultDate: String = ""): String? {
 
 
 @Composable
-fun ScreenHeaders(text:String){
+fun ScreenHeaders(text: String) {
     Text(
         text = text,
         color = Color.Black,
@@ -300,37 +291,45 @@ fun LogoutOrExitScreen(
                     }
                     showDialog = false
                 }) {
-                    Text("Yes",
+                    Text(
+                        "Yes",
                         color = Color.Black,
                         fontSize = 16.sp,
                         fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showDialog = false
                 }) {
-                    Text("No",
+                    Text(
+                        "No",
                         color = Color.Black,
                         fontSize = 16.sp,
                         fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             title = {
-                Text("Confirmation",
+                Text(
+                    "Confirmation",
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             },
             text = {
-                Text(if (actionType == ActionType.LOGOUT) "Are you sure you want to Logout?" else "Are you sure you want to Exit?",
+                Text(
+                    if (actionType == ActionType.LOGOUT) "Are you sure you want to Logout?" else "Are you sure you want to Exit?",
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
             containerColor = Color.White
@@ -410,37 +409,107 @@ fun SelectedDateItemRow(
     setCurrentLatitude: (Double) -> Unit,
     setCurrentLongitude: (Double) -> Unit
 ) {
-    val dist = FloatArray(1)
+    var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
+    var currentAddress by remember { mutableStateOf("") }
+    var itemAddress by remember { mutableStateOf("") }
+
+
+
+    if (showAlert) {
+        AllowSettingPopup(
+            context = context,
+            showDialog = showAlert,
+            onDismiss = { showAlert = Constants.DEFAULT_ALERT_POP_UP },
+            title = Constants.GENERAL_ALERT_TITLE,
+            description = "Your Current Location:  \n$currentAddress\n\nFST Created Location:  \n$itemAddress\n\nPlease Visit the Same Location to Edit this FST",
+            confirmButtonText = Constants.GENERAL_ALERT_ALLOW_CTA,
+            onConfirm = { /* Handle confirmation if needed */ }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
                 if (preferencesManager.getCheckInStatus(false)) {
-                    getLastLocation(fusedLocationClient, context) { location ->
-                        setCurrentLatitude(location.latitude)
-                        setCurrentLongitude(location.longitude)
-                    }
-                    Location.distanceBetween(
-                        currentLatitude,
-                        currentLongitude,
-                        screenData.latitudeValue.toDouble(),
-                        screenData.longitudeValue.toDouble(),
-                        dist
-                    )
-                    val RADIUS_IN_METER = 1000
+                    // Make sure the appropriate permissions are granted
+                    if (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
 
-                    if (dist[0] / 1000 >= RADIUS_IN_METER) {
+                        // Get the last known location
+                        fusedLocationClient
+                            .getLastLocation()
+                            .addOnSuccessListener { location ->
+                                if (location != null) {
+
+                                    setCurrentLatitude(location.latitude)
+                                    setCurrentLongitude(location.longitude)
+
+                                    // Calculate the distance between the current location and the target location
+                                    val dist = FloatArray(1)//This will be calculated in Meters
+                                    currentAddress = getAddress(
+                                        LatLng(location.latitude, location.longitude),
+                                        context
+                                    )
+                                    itemAddress = getAddress(
+                                        LatLng(
+                                            screenData.latitudeValue.toDouble(),
+                                            screenData.longitudeValue.toDouble()
+                                        ), context
+                                    )
+
+                                    Location.distanceBetween(
+                                        location.latitude,
+                                        location.longitude,
+                                        screenData.latitudeValue.toDouble(),
+                                        screenData.longitudeValue.toDouble(),
+                                        dist
+                                    )
+
+                                    val RADIUS_IN_METERS = 1000
+                                    if (dist[0] >= RADIUS_IN_METERS) {
+                                        showAlert = SHOW_ALERT_POP_UP
+                                    } else {
+                                        // Proceed with the action
+                                        toCreate.invoke(userId, screenData.id)
+                                    }
+                                } else {
+                                    // Handle the case where the location is null
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Unable to fetch location. Please try again.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Handle any errors that occur while trying to get the location
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Failed to get location: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+
+                    } else {
+                        // Handle the case where permission is not granted
                         Toast
                             .makeText(
                                 context,
-                                "Please be in the Range to Edit the Account",
+                                "Location permission is required to use this feature.",
                                 Toast.LENGTH_SHORT
                             )
                             .show()
-                    } else {
-                        toCreate.invoke(userId, screenData.id)
                     }
+
+
                 } else {
                     setShowAlert(Constants.SHOW_ALERT_POP_UP)
                 }
@@ -458,17 +527,20 @@ fun SelectedDateItemRow(
             ) {
                 Row {
                     Text(
-                        text = screenData.stringValue + " |",
+                        text = screenData.stringValue,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
+                        modifier = Modifier.weight(1f),
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = screenData.leadStatus,
+                        text = if (screenData.leadStatus.isNotEmpty()) " | " + screenData.leadStatus else "",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 5.dp)
+                        modifier = Modifier.padding(start = 5.dp).weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -476,7 +548,10 @@ fun SelectedDateItemRow(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.AddCircle, contentDescription = "Add icon")
+                    Icon(
+                        painter = painterResource(id = R.drawable.clock),
+                        contentDescription = "Clock"
+                    )
                     Text(
                         text = screenData.time,
                         fontSize = 16.sp,
@@ -507,42 +582,153 @@ fun SelectedDateItemRow(
 }
 
 @Composable
-fun PopupMessage(
-    message: String,
-    duration: Long = 2000,
+fun OnSavingDialog(
+    showDialog: Boolean,
     onDismiss: () -> Unit
 ) {
-    var showPopup by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(duration)
-        showPopup = false
-        onDismiss()
-    }
-
-    if (showPopup) {
-        Dialog(onDismissRequest = {
-            showPopup = false
+    if (showDialog) {
+        // Launch a coroutine to delay and dismiss the dialog after 500 milliseconds
+        LaunchedEffect(Unit) {
+            delay(50L)
             onDismiss()
-        }) {
+        }
+
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(125.dp)
-                    .background(Color.Transparent)
+                    .size(100.dp)
+                    .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Load the image from resources
-                    Image(
-                        painter = painterResource(id = R.mipmap.success), // replace 'success' with your image resource name
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(1f).padding(3.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = message)
-                }
+                CircularProgressIndicator(color = Color.Green)
             }
         }
     }
+}
+
+@Composable
+fun CustomOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    isError: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+) {
+    // Determine border and label color based on the error and enabled state
+    val borderColor = when {
+        isError -> Color.Red
+        enabled -> Color.Black
+        else -> Color.Black
+    }
+
+    val labelColor = when {
+        isError -> Color.Red
+        enabled -> Color.Black
+        else -> Color.Black
+    }
+
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = borderColor,
+        unfocusedBorderColor = borderColor,
+        focusedLabelColor = labelColor,
+        unfocusedLabelColor = labelColor,
+        disabledTextColor = Color.Black,
+        disabledBorderColor = borderColor,
+        disabledLabelColor = labelColor,
+        errorBorderColor = Color.Red,
+        errorLabelColor = Color.Red,
+    )
+
+    val textFieldStyle = TextStyle(color = Color.Black)
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        colors = textFieldColors,
+        textStyle = textFieldStyle,
+        singleLine = true,
+        isError = isError,
+        enabled = enabled,
+        keyboardOptions = keyboardOptions,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheet(onDismiss: () -> Unit, onCategorySelected: (String) -> Unit, value: String) {
+    val modalBottomSheetState = rememberModalBottomSheetState()
+    val isSheetOpened = remember {
+        mutableStateOf(
+            false
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle()
+        }, containerColor = Color.White
+    ) {
+        CategoryList(onCategorySelected, value)
+    }
+
+    LaunchedEffect(modalBottomSheetState.currentValue) {
+        if (modalBottomSheetState.currentValue == SheetValue.Hidden) {
+            if (isSheetOpened.value) {
+                isSheetOpened.value = false
+                onDismiss.invoke()
+            } else {
+                isSheetOpened.value = true
+                modalBottomSheetState.show()
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryList(onCategorySelected: (String) -> Unit, type: String) {
+    var showList = if (type == "BussinessCategory") {
+        DropdownLists.bussinessCategory
+    } else if (type == "CallStatus") {
+        DropdownLists.callStatus
+    } else {
+        DropdownLists.leadStatus
+    }
+
+    LazyColumn {
+        items(showList) { category ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                    .clickable { onCategorySelected(category) } // Trigger callback on item click
+            ) {
+                Text(
+                    text = category,
+                    modifier = Modifier.padding(end = 20.dp)
+                )
+            }
+            Divider()
+        }
+    }
+}
+
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork ?: return false
+    val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
 

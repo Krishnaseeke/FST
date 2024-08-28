@@ -25,19 +25,26 @@ import android.widget.TimePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberImagePainter
 import com.google.android.gms.location.LocationServices
 import com.testapplication.www.BuildConfig
-import com.testapplication.www.homescreen.create.BottomSheet
-import com.testapplication.www.util.PopupMessage
+import com.testapplication.www.util.BottomSheet
+import com.testapplication.www.util.CustomOutlinedTextField
+import com.testapplication.www.util.OnSavingDialog
 import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.CREATE_ADDRESS_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_ATTACH_IMAGE_CTA
@@ -62,9 +69,15 @@ import com.testapplication.www.util.constants.Constants.CREATE_LEAD_STATUS_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_PROOF_OF_MEETING_FIELD
 import com.testapplication.www.util.constants.Constants.CREATE_SAVE_BTN
 import com.testapplication.www.util.constants.Constants.CREATE_SCREEN_BACK_CTA_DESCRIPTION
+import com.testapplication.www.util.constants.Constants.DEFAULT_ALERT_POP_UP
+import com.testapplication.www.util.constants.Constants.ON_SAVE_DIALOG_DELAY
 import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
+import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import kotlinx.coroutines.delay
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -83,22 +96,18 @@ fun CreateScreen(
     val viewModel: CreateScreenViewModel =
         viewModel { CreateScreenViewModel(context, userID, itemId) }
     val state by viewModel.state.collectAsState()
-    // Navigate to home on successful submission
-    var showPopup by remember { mutableStateOf(true) }
-    LaunchedEffect(state.isSubmissionSuccessful) {
-        if (state.isSubmissionSuccessful) {
 
+    var showDialog by remember { mutableStateOf(DEFAULT_ALERT_POP_UP) }
+    if (state.isSubmissionSuccessful) {
+        OnSavingDialog(
+            showDialog = SHOW_ALERT_POP_UP,
+            onDismiss = { showDialog = DEFAULT_ALERT_POP_UP })
+        LaunchedEffect(Unit) {
+            delay(ON_SAVE_DIALOG_DELAY)
+            toHome(userID)
         }
     }
 
-    if (state.isSubmissionSuccessful) {
-        PopupMessage(
-            message = "Success",
-            onDismiss = {
-                toHome(userID)
-            }
-        )
-    }
     var address by remember { mutableStateOf("") }
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -148,12 +157,19 @@ fun CreateScreen(
     val mTimePickerDialog = TimePickerDialog(
         mContext,
         { _: TimePicker, hour: Int, minute: Int ->
-            val formattedTime = String.format("%02d:%02d", hour, minute)
+            // Convert the hour and minute to LocalTime
+            val localTime = LocalTime.of(hour, minute)
+
+            // Format the time to 12-hour format with AM/PM
+            val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+            val formattedTime = localTime.format(timeFormatter)
+
+            // Save the formatted time with AM/PM
             viewModel.updateFollowUpTime(formattedTime)
         },
         mHour,
         mMinute,
-        true  // Use 24-hour format
+        false  // Set to false for 12-hour format
     )
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -163,19 +179,19 @@ fun CreateScreen(
         unfocusedLabelColor = Color.Black,
         disabledTextColor = Color.Black,
         disabledBorderColor = Color.Black,
-        disabledLabelColor = Color.Black
+        disabledLabelColor = Color.Black,
+        errorBorderColor = Color.Red,
+        errorPlaceholderColor = Color.Red,
+        errorLabelColor = Color.Red
 
     )
 
     val textFieldStyle = TextStyle(color = Color.Black)
 
 
-    //Proof Image
-    val context = LocalContext.current
-
     // State to manage captured image URI
     var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
-    var showAttachImage by remember { mutableStateOf(false) }
+
 
     // Create image file and URI
     val file = context.createImageFile()
@@ -246,43 +262,30 @@ fun CreateScreen(
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = state.customerName,
                 onValueChange = { viewModel.updateCustomerName(it) },
-                label = { Text(CREATE_CUSTOMER_NAME_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_NAME_FIELD,
+                isError = state.isCustomerNameValid
             )
 
-            OutlinedTextField(
+
+            CustomOutlinedTextField(
                 value = state.phoneNumber,
                 onValueChange = { viewModel.updatePhoneNumber(it) },
-                label = { Text(CREATE_CUSTOMER_MOBILE_NO_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_MOBILE_NO_FIELD,
+                isError = state.isPhoneNumberValid,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
             )
 
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = state.alternatePhoneNumber,
                 onValueChange = { viewModel.updateAlternatePhoneNumber(it) },
-                label = { Text(CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD) },
-                colors = textFieldColors,
-                textStyle = textFieldStyle,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
+                label = CREATE_CUSTOMER_ALTERNATE_MOBILE_NO_FIELD,
+                isError = state.isAlternativePhoneNumberValid,
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
             )
+
 
             OutlinedTextField(
                 enabled = false,
@@ -305,7 +308,7 @@ fun CreateScreen(
                 Column {
                     Text(
                         text = CREATE_PROOF_OF_MEETING_FIELD,
-                        color = Color.Black,
+                        color = if (state.isImageAttached && state.proofImage == "") Color.Red else Color.Black,
                         fontSize = 14.sp,
                         fontStyle = FontStyle.Normal,
                         modifier = Modifier.padding(10.dp)
@@ -358,7 +361,7 @@ fun CreateScreen(
                                             permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }
                                     }
-                                    .fillMaxSize(1f),Arrangement.Center) {
+                                    .fillMaxSize(1f), Arrangement.Center) {
                                 androidx.compose.material.Icon(
                                     imageVector = Icons.Filled.Add,
                                     contentDescription = ADD_ICON_DESCRIPTION,
@@ -409,6 +412,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.businessCategory.isNotEmpty()) state.businessCategory else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateBusinessCategory(it) },
+                    isError = state.isBusinessCategorySelected,
                     trailingIcon = {
                         Icon(
                             bcIcon,
@@ -438,7 +442,7 @@ fun CreateScreen(
                         onCategorySelected = { category ->
                             state.callStatus = category
                             csshowSheet = false
-                        },  CREATE_CALL_STATUS_FIELD_LIST
+                        }, CREATE_CALL_STATUS_FIELD_LIST
                     )
                 }
 
@@ -447,6 +451,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.callStatus.isNotEmpty()) state.callStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateCallStatus(it) },
+                    isError = state.isCallStatusSelected,
                     trailingIcon = {
                         Icon(
                             csIcon,
@@ -485,6 +490,7 @@ fun CreateScreen(
                     singleLine = true,
                     value = if (state.leadStatus.isNotEmpty()) state.leadStatus else CREATE_CATEGORY_FIELD_LABEL_TEXT,
                     onValueChange = { viewModel.updateLeadStatus(it) },
+                    isError = state.isLeadStatusSelected,
                     trailingIcon = {
                         Icon(
                             lsIcon,
@@ -511,27 +517,23 @@ fun CreateScreen(
                     .clickable { mDatePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    enabled = false,
+
+                CustomOutlinedTextField(
                     value = state.followUpDate,
                     onValueChange = { viewModel.updateFollowUpDate(it) },
-                    label = { Text(CREATE_FOLLOW_UP_DATE_FIELD) },
-                    colors = textFieldColors,
-                    singleLine = true,
-                    textStyle = textFieldStyle,
-                    modifier = Modifier
-                        .weight(1f) // Make field responsive
-                        .padding(5.dp)
+                    label = CREATE_FOLLOW_UP_DATE_FIELD,
+                    isError = state.isFollowUpDateSelected,
+                    enabled = false
                 )
-
-
-
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "",
                     modifier = Modifier
                         .padding(10.dp)
                 )
+            }
+            val timeFormatter = remember {
+                DateTimeFormatter.ofPattern("hh:mm a") // 12-hour format with AM/PM
             }
 
             Row(
@@ -540,17 +542,17 @@ fun CreateScreen(
                     .clickable { mTimePickerDialog.show() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    enabled = false,
-                    value = state.followUpTime,
-                    onValueChange = { viewModel.updateFollowUpTime(it) },
-                    label = { Text(CREATE_FOLLOW_UP_TIME_FIELD) },
-                    singleLine = true,
-                    colors = textFieldColors,
-                    textStyle = textFieldStyle,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(5.dp)
+                CustomOutlinedTextField(
+                    value = state.followUpTime,  // This should already be formatted with AM/PM
+                    onValueChange = {
+                        // Parse the input string back to a LocalTime object
+                        val parsedTime = LocalTime.parse(it, timeFormatter)
+                        val formattedTime = parsedTime.format(timeFormatter) // Format the time with AM/PM
+                        viewModel.updateFollowUpTime(formattedTime) // Save the formatted time in the state
+                    },
+                    label = CREATE_FOLLOW_UP_TIME_FIELD,
+                    isError = state.isFollowUpTimeSelected,
+                    enabled = false
                 )
 
                 Icon(
@@ -567,6 +569,7 @@ fun CreateScreen(
             ) {
                 Text(
                     text = CREATE_FOLLOW_UP_ACTION_RADIO_BTN,
+                    color = if (state.isFollowUpActionSelected && (!state.followUpActionCall && !state.followUpActionVisit)) Color.Red else Color.Black,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(10.dp)
                 )
@@ -593,6 +596,7 @@ fun CreateScreen(
                     Text(CREATE_FOLLOW_UP_VISIT_RADIO_BTN, modifier = Modifier.padding(10.dp))
                 }
             }
+
 
             OutlinedTextField(
                 value = state.comments,

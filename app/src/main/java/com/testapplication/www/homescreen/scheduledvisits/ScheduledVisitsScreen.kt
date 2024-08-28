@@ -69,7 +69,7 @@ fun ScheduledVisitsScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
 
-        Column( modifier = Modifier
+        Column( modifier = Modifier.weight(1f)
             .clip(shape = RoundedCornerShape(5.dp))
             .background(Color.White)
             .fillMaxWidth(1f)
@@ -88,17 +88,18 @@ fun ScheduledVisitsScreen(
                 }
             }
         }
-    }
-    Column(modifier = Modifier, Arrangement.Bottom) {
+        Column(modifier = Modifier, Arrangement.Bottom) {
 
-        BottomBar(
-            currentScreen = SCREEN_SCHEDULED_VISIT,
-            toOnboarding = { toOnboarding() },
-            toLeadsScreen={toLeadsScreen(userID)},
-            toHome = { toHome(userID) },
-            toScheduledVisits = { },
-            toFollowupCalls = { toFollowupCalls(userID) }) {
+            BottomBar(
+                currentScreen = SCREEN_SCHEDULED_VISIT,
+                toOnboarding = { toOnboarding() },
+                toLeadsScreen={toLeadsScreen(userID)},
+                toHome = { toHome(userID) },
+                toScheduledVisits = { },
+                toFollowupCalls = { toFollowupCalls(userID) }) {
 
+            }
         }
     }
+
 }

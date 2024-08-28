@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
+import com.testapplication.www.onboardingscreen.pressClickEffect
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.LogoutOrExitScreen
@@ -83,6 +85,7 @@ import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_COMPLETED
 import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_SCHEDULED
 import com.testapplication.www.util.constants.Constants.TABLE_LEADS_CREATED
 import com.testapplication.www.util.constants.Constants.TABLE_LICENSES_SOLD
+import com.testapplication.www.util.isInternetAvailable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -128,6 +131,7 @@ fun HomeScreen(
         }
     }
 
+
     val checkInColors = SwitchDefaults.colors(
         checkedBorderColor = Color.Transparent,
         uncheckedThumbColor = Color.Gray,
@@ -149,11 +153,11 @@ fun HomeScreen(
     AllowSettingPopup(
         context = ctx,
         showDialog = showLocationDialog,
-        onDismiss = { showLocationDialog = DEFAULT_LOCATION_ALERT_DIALOG  },
+        onDismiss = { showLocationDialog = DEFAULT_LOCATION_ALERT_DIALOG },
         title = ALERT_TITLE,
-        description =ALERT_DESCRIPTION,
+        description = ALERT_DESCRIPTION,
         confirmButtonText = ALERT_ALLOW_CTA,
-        onConfirm = {openAppSettings(context) }
+        onConfirm = { openAppSettings(context) }
     )
 
 
@@ -161,7 +165,7 @@ fun HomeScreen(
         AllowSettingPopup(
             context = ctx,
             showDialog = showAlert,
-            onDismiss = { showAlert = DEFAULT_ALERT_POP_UP},
+            onDismiss = { showAlert = DEFAULT_ALERT_POP_UP },
             title = GENERAL_ALERT_TITLE,
             description = CHECK_IN_ALERT_DESCRIPTION,
             confirmButtonText = GENERAL_ALERT_ALLOW_CTA,
@@ -224,24 +228,27 @@ fun HomeScreen(
                     checked = checked,
                     onCheckedChange = {
                         if (locationPermissionState.allPermissionsGranted) {
-                            preferencesManager.saveCheckInStatus(it)
-                            val dateTime =
-                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                                    Date()
-                                )
-                            if (it) {
-                                toCheckIn(userID)
-                                checked = it
+                            if (isInternetAvailable(context)) { // Check for internet connection
+                                preferencesManager.saveCheckInStatus(it)
+                                val dateTime =
+                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                                if (it) {
+                                    toCheckIn(userID)
+                                    checked = it
+                                } else {
+                                    checked = it
+                                    viewModelCheckeIn.insertCheckIn(
+                                        userID,
+                                        1,
+                                        dateTime,
+                                        null,
+                                        null,
+                                        null,
+                                        context
+                                    )
+                                }
                             } else {
-                                checked = it
-                                viewModelCheckeIn.insertCheckIn(
-                                    userID,
-                                    1,
-                                    dateTime,
-                                    null,
-                                    null,
-                                    null
-                                )
+                                Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             showLocationDialog = SHOW_ALERT_POP_UP
@@ -253,8 +260,7 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
-            modifier = Modifier
-                .fillMaxHeight(1f)
+            modifier = Modifier.weight(1f)
                 .padding(start = 5.dp, end = 5.dp)
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
@@ -349,7 +355,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomTextHome(
-                        text = SCREEN_SCHEDULED_VISIT ,
+                        text = SCREEN_SCHEDULED_VISIT,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -415,6 +421,21 @@ fun HomeScreen(
                 }
             }
         }
+        Column(
+            modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+
+            ) {
+            BottomBar(
+                currentScreen = SCREEN_HOME,
+                toOnboarding = { toOnboarding() },
+                toLeadsScreen = { toLeadsScreen(userID) },
+                toHome = { },
+                toScheduledVisits = { toScheduledVisits(userID) },
+                toFollowupCalls = { toFollowupCalls(userID) }) {
+
+            }
+        }
     }
 
     Box(
@@ -437,38 +458,31 @@ fun HomeScreen(
                     )
                 },
                 onClick = {
-                    if (checked) {
+                    if (checked && isInternetAvailable(context)) {
                         getLastLocation(ctx)
                         toCreate(userID, 0)
                     } else {
-                        showAlert = SHOW_ALERT_POP_UP
+                        if(isInternetAvailable(context)){
+                            showAlert = SHOW_ALERT_POP_UP
+                        }else {
+
+                            Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
+                        }
 
                     }
                 },
                 contentColor = Color.White,
                 containerColor = Color.Red,
-                modifier = Modifier.clip(shape = RoundedCornerShape(30.dp)),
+                modifier = Modifier
+                    .pressClickEffect()
+                    .clip(shape = RoundedCornerShape(30.dp)),
                 icon = { Icon(Icons.Filled.AddCircle, ADD_ICON_DESCRIPTION) }
             )
         }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-        ) {
-            BottomBar(
-                currentScreen = SCREEN_HOME,
-                toOnboarding = { toOnboarding() },
-                toLeadsScreen = { toLeadsScreen(userID) },
-                toHome = { },
-                toScheduledVisits = { toScheduledVisits(userID) },
-                toFollowupCalls = { toFollowupCalls(userID) }) {
 
-            }
-        }
     }
 }
-
 
 
 public fun getLastLocation(context: Context) {
