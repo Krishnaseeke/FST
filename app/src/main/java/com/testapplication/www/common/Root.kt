@@ -3,7 +3,6 @@ package com.testapplication.www.common
 import CheckInScreen
 import CreateScreen
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -12,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
+import com.testapplication.www.homescreen.creationledger.CreationLedgerScreen
 import com.testapplication.www.homescreen.followupcalls.FollowupCallsScreen
 import com.testapplication.www.homescreen.home.HomeScreen
 import com.testapplication.www.homescreen.home.DisplayList
@@ -32,7 +32,8 @@ enum class Screens {
     BottomNavigation,
     Create,
     DisplayList,
-    CheckIn
+    CheckIn,
+    CreationLedger
 
 }
 
@@ -45,7 +46,7 @@ fun Root(context: Context) {
 
         ) {
 
-        composable(Screens.Onboarding.name) {backStackEntry ->
+        composable(Screens.Onboarding.name) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             OnboardingScreen(
                 toLoginScreen = { navController.navigate(Screens.Login.name) },
@@ -55,7 +56,7 @@ fun Root(context: Context) {
                 context
             )
         }
-        composable(Screens.SignUp.name) {backStackEntry ->
+        composable(Screens.SignUp.name) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             SignupScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
@@ -63,7 +64,7 @@ fun Root(context: Context) {
                 context
             )
         }
-        composable(Screens.Login.name) {backStackEntry ->
+        composable(Screens.Login.name) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             LoginScreen(
                 toOnboarding = { navController.navigate(Screens.Onboarding.name) },
@@ -84,7 +85,9 @@ fun Root(context: Context) {
                     navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
                 },
                 toCheckIn = { userId -> navController.navigate("${Screens.CheckIn.name}/$userId") },
-            )
+                toCreationLedger = { userId -> navController.navigate("${Screens.CreationLedger.name}/$userId") },
+
+                )
 
         }
         composable("${Screens.Scheduledvisits.name}/{userId}") { backStackEntry ->
@@ -94,6 +97,7 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
+                toCreationLedger = { userId -> navController.navigate("${Screens.CreationLedger.name}/$userId") },
                 context,
                 userID = userId,
                 toCreate = { userId, itemId ->
@@ -108,6 +112,7 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
+                toCreationLedger = { userId -> navController.navigate("${Screens.CreationLedger.name}/$userId") },
                 context, userID = userId,
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
@@ -122,6 +127,7 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
+                toCreationLedger = { userId -> navController.navigate("${Screens.CreationLedger.name}/$userId") },
                 userID = userId,
                 context,
                 toCreate = { userId, itemId ->
@@ -173,7 +179,8 @@ fun Root(context: Context) {
                 valueType = "",
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}/$userId/$itemId")
-                }
+                },
+                toCreationLedger = { userId -> navController.navigate("${Screens.CreationLedger.name}/$userId") },
             )
         }
 
@@ -183,6 +190,20 @@ fun Root(context: Context) {
             CheckInScreen(
                 toHome = { navController.popBackStack() },
                 userID = userId,
+                context = context
+            )
+        }
+
+        composable("${Screens.CreationLedger.name}/{userId}/{itemId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: 0L
+            CreationLedgerScreen(
+                toHome = { navController.popBackStack() },
+                toCreate = { userId, itemId ->
+                    navController.navigate("${Screens.Create.name}/$userId/$itemId")
+                },
+                userID = userId,
+                itemID = itemId,
                 context = context
             )
         }

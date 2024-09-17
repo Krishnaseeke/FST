@@ -81,7 +81,9 @@ fun DisplayList(
     userId: Long,
     selectedDate: String?,
     valueType: String,
+    toCreationLedger: (Any) -> Unit,
     toCreate: (userId: Long, itemId: Long) -> Unit
+
 ) {
 
     val preferencesManager = PreferencesManager(context)
@@ -147,6 +149,7 @@ fun DisplayList(
                         screenData = screenData,
                         userId = userId,
                         toCreate = toCreate,
+                        toCreationLedger = toCreationLedger,
                         preferencesManager = preferencesManager,
                         showAlert = showAlert,
                         setShowAlert = { newValue -> showAlert = newValue },
@@ -162,6 +165,7 @@ fun DisplayList(
                         screenData = screenData,
                         userId = userId,
                         toCreate = toCreate,
+                        toCreationLedger = toCreationLedger,
                         preferencesManager = preferencesManager,
                         showAlert = showAlert,
                         setShowAlert = { newValue -> showAlert = newValue },

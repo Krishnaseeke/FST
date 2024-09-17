@@ -399,6 +399,7 @@ fun SelectedDateItemRow(
     screenData: ScreenData,
     userId: Long,
     toCreate: (userId: Long, itemId: Long) -> Unit,
+    toCreationLedger:(userId:Long) -> Unit,
     preferencesManager: PreferencesManager,
     showAlert: Boolean,
     setShowAlert: (Boolean) -> Unit,
@@ -474,7 +475,8 @@ fun SelectedDateItemRow(
                                         showAlert = SHOW_ALERT_POP_UP
                                     } else {
                                         // Proceed with the action
-                                        toCreate.invoke(userId, screenData.id)
+                                        toCreationLedger(userId)
+//                                        toCreate.invoke(userId, screenData.id)
                                     }
                                 } else {
                                     // Handle the case where the location is null

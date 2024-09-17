@@ -32,6 +32,7 @@ fun LeadScreen(
     toHome: (Any?) -> Unit,
     toFollowupCalls: (Any?) -> Unit,
     toScheduledVisits: (Any?) -> Unit,
+    toCreationLedger: (Any) -> Unit,
     userID: Long,
     context: Context,
     toCreate: (Long?,Long?) -> Unit,
@@ -79,7 +80,8 @@ fun LeadScreen(
                     context = context,
                     userId = userID,
                     dateSelected,
-                    valueType = LEADS_LIST_TYPE
+                    valueType = LEADS_LIST_TYPE,
+                    toCreationLedger
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId
                     // For example, you can navigate to another screen or perform some action

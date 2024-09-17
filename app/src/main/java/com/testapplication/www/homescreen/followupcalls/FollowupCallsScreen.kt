@@ -32,6 +32,7 @@ fun FollowupCallsScreen(
     toHome: (Any?) -> Unit,
     toLeadsScreen: (Any?) -> Unit,
     toScheduledVisits: (Any?) -> Unit,
+    toCreationLedger: (Any) -> Unit,
     context: Context,
     userID:Long,
     toCreate: (Long?,Long?) -> Unit,
@@ -79,6 +80,7 @@ fun FollowupCallsScreen(
                     userId = userID,
                     dateSelected,
                     valueType = FOLLOW_UP_CALL_LIST_TYPE,
+                    toCreationLedger
                 ) { userId, itemId ->
                     // Here you can define what you want to do with userId and itemId
                     // For example, you can navigate to another screen or perform some action

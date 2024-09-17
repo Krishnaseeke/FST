@@ -101,6 +101,7 @@ fun HomeScreen(
     context: Context,
     toCreate: (Long?, Long?) -> Unit,
     toCheckIn: (Any?) -> Unit,
+    toCreationLedger:(Any?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -374,7 +375,8 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         "",
-                        valueType = SCHEDULED_VISIT_LIST_TYPE
+                        valueType = SCHEDULED_VISIT_LIST_TYPE,
+                        toCreationLedger,
                     ) { userId, itemId ->
                         toCreate.invoke(userId, itemId)
                     }
@@ -414,7 +416,8 @@ fun HomeScreen(
                         context = context,
                         userId = userID,
                         "",
-                        valueType = FOLLOW_UP_CALL_LIST_TYPE
+                        valueType = FOLLOW_UP_CALL_LIST_TYPE,
+                        toCreationLedger ,
                     ) { userId, itemId ->
                         toCreate.invoke(userId, itemId)
                     }

@@ -138,4 +138,8 @@ object Constants {
     //Image Descriptions
     const val NO_DATA_FOUND_IMAGE_DESCRIPTION = "No Data Found"
 
+
+    //CreationLedgerConstants
+    const val CREATION_LEDGER_SCREEN_TITLE = "Creation Ledger"
+
 }
