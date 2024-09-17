@@ -101,7 +101,7 @@ fun HomeScreen(
     context: Context,
     toCreate: (Long?, Long?) -> Unit,
     toCheckIn: (Any?) -> Unit,
-    toCreationLedger:(Any?) -> Unit,
+    toCreationLedger: (Long, Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -232,7 +232,10 @@ fun HomeScreen(
                             if (isInternetAvailable(context)) { // Check for internet connection
                                 preferencesManager.saveCheckInStatus(it)
                                 val dateTime =
-                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                                    SimpleDateFormat(
+                                        "yyyy-MM-dd HH:mm:ss",
+                                        Locale.getDefault()
+                                    ).format(Date())
                                 if (it) {
                                     toCheckIn(userID)
                                     checked = it
@@ -249,7 +252,11 @@ fun HomeScreen(
                                     )
                                 }
                             } else {
-                                Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "No internet connection. Please check your network.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             showLocationDialog = SHOW_ALERT_POP_UP
@@ -261,7 +268,8 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .padding(start = 5.dp, end = 5.dp)
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
@@ -374,12 +382,16 @@ fun HomeScreen(
                     com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
+                        itemId = 0L,
                         "",
                         valueType = SCHEDULED_VISIT_LIST_TYPE,
-                        toCreationLedger,
-                    ) { userId, itemId ->
-                        toCreate.invoke(userId, itemId)
-                    }
+                        toCreationLedger = { userId, itemId ->
+                            toCreationLedger(userId, itemId)
+                        },
+                        toCreate = { userId, itemId ->
+                            toCreate(userId, itemId)
+                        }
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(5.dp))
@@ -415,12 +427,16 @@ fun HomeScreen(
                     com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
+                        itemId = 0L,
                         "",
                         valueType = FOLLOW_UP_CALL_LIST_TYPE,
-                        toCreationLedger ,
-                    ) { userId, itemId ->
-                        toCreate.invoke(userId, itemId)
-                    }
+                        toCreationLedger = { userId, itemId ->
+                            toCreationLedger(userId, itemId)
+                        },
+                        toCreate = { userId, itemId ->
+                            toCreate(userId, itemId)
+                        }
+                    )
                 }
             }
         }
@@ -465,11 +481,15 @@ fun HomeScreen(
                         getLastLocation(ctx)
                         toCreate(userID, 0)
                     } else {
-                        if(isInternetAvailable(context)){
+                        if (isInternetAvailable(context)) {
                             showAlert = SHOW_ALERT_POP_UP
-                        }else {
+                        } else {
 
-                            Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "No internet connection. Please check your network.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                     }

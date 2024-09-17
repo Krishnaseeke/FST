@@ -32,7 +32,7 @@ fun ScheduledVisitsScreen(
     toHome: (Any?) -> Unit,
     toFollowupCalls: (Any?) -> Unit,
     toLeadsScreen: (Any?) -> Unit,
-    toCreationLedger: (Any) -> Unit,
+    toCreationLedger: (Long, Long) -> Unit,
     context: Context,
     userID:Long,
     toCreate: (Long?,Long?) -> Unit,
@@ -80,14 +80,17 @@ fun ScheduledVisitsScreen(
                 com.testapplication.www.homescreen.home.DisplayList(
                     context = context,
                     userId = userID,
-                    dateSelected,
+                    itemId = 0L,
+                    selectedDate = dateSelected,
                     valueType = SCHEDULED_VISIT_LIST_TYPE,
-                    toCreationLedger
-                ) { userId, itemId ->
-                    // Here you can define what you want to do with userId and itemId
-                    // For example, you can navigate to another screen or perform some action
-                    toCreate.invoke(userId,itemId)
-                }
+                    toCreationLedger = { userId, itemId ->
+                        toCreationLedger(userId, itemId)
+                    },
+                    toCreate = { userId, itemId ->
+                        toCreate(userId, itemId)
+                    }
+                )
+
             }
         }
         Column(modifier = Modifier, Arrangement.Bottom) {

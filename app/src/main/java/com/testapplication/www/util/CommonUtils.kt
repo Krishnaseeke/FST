@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,7 +29,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -68,8 +65,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -83,7 +78,6 @@ import com.testapplication.www.homescreen.create.DropdownLists
 import com.testapplication.www.homescreen.home.ScreenData
 import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.ERROR_INFO_ICON
-import getLastLocation
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -93,6 +87,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.google.android.gms.maps.model.LatLng
 import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
+import com.testapplication.www.util.constants.Constants.SPECIFIC_ITEM_LIST
 import getAddress
 
 @Composable
@@ -399,7 +394,7 @@ fun SelectedDateItemRow(
     screenData: ScreenData,
     userId: Long,
     toCreate: (userId: Long, itemId: Long) -> Unit,
-    toCreationLedger:(userId:Long) -> Unit,
+    toCreationLedger: (userId: Long, itemId: Long) -> Unit,
     preferencesManager: PreferencesManager,
     showAlert: Boolean,
     setShowAlert: (Boolean) -> Unit,
@@ -408,7 +403,8 @@ fun SelectedDateItemRow(
     currentLatitude: Double,
     currentLongitude: Double,
     setCurrentLatitude: (Double) -> Unit,
-    setCurrentLongitude: (Double) -> Unit
+    setCurrentLongitude: (Double) -> Unit,
+    valueType:String
 ) {
     var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
     var currentAddress by remember { mutableStateOf("") }
@@ -475,8 +471,11 @@ fun SelectedDateItemRow(
                                         showAlert = SHOW_ALERT_POP_UP
                                     } else {
                                         // Proceed with the action
-                                        toCreationLedger(userId)
-//                                        toCreate.invoke(userId, screenData.id)
+                                        if (valueType.equals(SPECIFIC_ITEM_LIST)) {
+                                            toCreate(userId, screenData.id)
+                                        } else {
+                                            toCreationLedger(userId, screenData.id)
+                                        }
                                     }
                                 } else {
                                     // Handle the case where the location is null

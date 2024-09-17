@@ -42,6 +42,7 @@ import com.testapplication.www.util.constants.Constants.LEADS_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
 import com.testapplication.www.util.constants.Constants.NO_DATA_FOUND_IMAGE_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.SPECIFIC_ITEM_LIST
 import com.testapplication.www.util.constants.Constants.USER_ID_COL
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -79,11 +80,11 @@ data class ScreenData(
 fun DisplayList(
     context: Context,
     userId: Long,
+    itemId: Long?, // Make itemId nullable
     selectedDate: String?,
     valueType: String,
-    toCreationLedger: (Any) -> Unit,
+    toCreationLedger: (userId: Long, itemId: Long) -> Unit,
     toCreate: (userId: Long, itemId: Long) -> Unit
-
 ) {
 
     val preferencesManager = PreferencesManager(context)
@@ -93,8 +94,7 @@ fun DisplayList(
     var currentLongitude by remember { mutableStateOf(0.0) }
     val dist = FloatArray(1)
 
-
-    val itemData = fetchDataFromDB(context, userId, valueType)
+    val itemData = fetchDataFromDB(context, userId, valueType, itemId) // Pass itemId here
 
     var dataListDisplay: ArrayList<ScreenData> = ArrayList()
     if (valueType == SCHEDULED_VISIT_LIST_TYPE) {
@@ -103,7 +103,10 @@ fun DisplayList(
         dataListDisplay.addAll(itemData)
     } else if (valueType == LEADS_LIST_TYPE) {
         dataListDisplay.addAll(itemData)
+    } else if (valueType == SPECIFIC_ITEM_LIST && itemId != null) {
+        dataListDisplay.addAll(itemData)
     }
+
     val sortedDataListDisplay = dataListDisplay.sortedWith(
         compareBy({ it.date }, { LocalTime.parse(it.time, DateTimeFormatter.ofPattern("h:mm a")) })
     )
@@ -142,7 +145,6 @@ fun DisplayList(
             contentPadding = PaddingValues(1.dp)
         ) {
 
-
             items(sortedDataListDisplay) { screenData ->
                 if (selectedDate == null || selectedDate == "") {
                     SelectedDateItemRow(
@@ -158,7 +160,8 @@ fun DisplayList(
                         currentLatitude = currentLatitude,
                         currentLongitude = currentLongitude,
                         setCurrentLatitude = { newLat -> currentLatitude = newLat },
-                        setCurrentLongitude = { newLong -> currentLongitude = newLong }
+                        setCurrentLongitude = { newLong -> currentLongitude = newLong },
+                        valueType = valueType
                     )
                 } else if (screenData.date == selectedDate) {
                     SelectedDateItemRow(
@@ -174,7 +177,8 @@ fun DisplayList(
                         currentLatitude = currentLatitude,
                         currentLongitude = currentLongitude,
                         setCurrentLatitude = { newLat -> currentLatitude = newLat },
-                        setCurrentLongitude = { newLong -> currentLongitude = newLong }
+                        setCurrentLongitude = { newLong -> currentLongitude = newLong },
+                        valueType = valueType
                     )
                 }
             }
@@ -184,8 +188,9 @@ fun DisplayList(
 }
 
 
+
 @SuppressLint("Range")
-private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): List<ScreenData> {
+private fun fetchDataFromDB(context: Context, userId: Long, valueType: String, itemId: Long?): List<ScreenData> {
     val db = CreateScreenDB(context).readableDatabase
     val query: String
     val selectionArgs: Array<String>
@@ -215,19 +220,25 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String): 
             )
         }
 
+        SPECIFIC_ITEM_LIST -> {
+            if (itemId == null) throw IllegalArgumentException("Item ID must be provided for ITEM type")
+            query =
+                "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $ID_COL = ?"
+            selectionArgs = arrayOf(userId.toString(), itemId.toString())
+        }
+
         else -> throw IllegalArgumentException(INVALID_LIST_TYPE)
     }
-
 
     val cursor = db.rawQuery(query, selectionArgs)
     val data = mutableListOf<ScreenData>()
     with(cursor) {
         while (moveToNext()) {
-            val id = getLong(getColumnIndex(ID_COL)) // Fetch ID_COL
+            val id = getLong(getColumnIndex(ID_COL))
             val date = getString(getColumnIndex(FOLLOW_UP_DATE_COL))
             val time = getString(getColumnIndex(FOLLOW_UP_TIME_COL))
             val stringValue = getString(getColumnIndex(CUSTOMER_NAME_COL))
-            val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL)) // Fetch leadStatus
+            val leadStatus = getString(getColumnIndex(LEAD_STATUS_COL))
             val longitudeValue = getString(getColumnIndex(CHECKIN_LONGITUDE_COL))
             val latitudeValue = getString(getColumnIndex(CHECKIN_LATITUDE_COL))
             data.add(
