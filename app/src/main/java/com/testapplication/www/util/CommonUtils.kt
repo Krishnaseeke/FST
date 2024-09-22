@@ -404,7 +404,7 @@ fun SelectedDateItemRow(
     currentLongitude: Double,
     setCurrentLatitude: (Double) -> Unit,
     setCurrentLongitude: (Double) -> Unit,
-    valueType:String
+    valueType: String
 ) {
     var showAlert by remember { mutableStateOf(Constants.DEFAULT_ALERT_POP_UP) }
     var currentAddress by remember { mutableStateOf("") }
@@ -539,7 +539,9 @@ fun SelectedDateItemRow(
                         text = if (screenData.leadStatus.isNotEmpty()) " | " + screenData.leadStatus else "",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(start = 5.dp).weight(1f),
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -732,4 +734,6 @@ fun isInternetAvailable(context: Context): Boolean {
     val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
     return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
+
+
 

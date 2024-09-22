@@ -2,6 +2,7 @@ package com.testapplication.www.common
 
 import CheckInScreen
 import CreateScreen
+import CreationLedgerScreen
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
-import com.testapplication.www.homescreen.creationledger.CreationLedgerScreen
 import com.testapplication.www.homescreen.followupcalls.FollowupCallsScreen
 import com.testapplication.www.homescreen.home.HomeScreen
 import com.testapplication.www.homescreen.home.DisplayList
@@ -82,7 +82,7 @@ fun Root(context: Context) {
                 userID = userId,
                 context,
                 toCreate = { userId, itemId ->
-                    navController.navigate("${Screens.Create.name}?userId=$userId,itemId=$itemId")
+                    navController.navigate("${Screens.Create.name}?userId=$userId&itemId=$itemId")
                 },
                 toCheckIn = { userId -> navController.navigate("${Screens.CheckIn.name}/$userId") },
                 toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")

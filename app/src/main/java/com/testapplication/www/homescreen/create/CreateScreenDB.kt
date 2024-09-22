@@ -3,6 +3,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.testapplication.www.util.constants.Constants.ACTION_TYPE
 import com.testapplication.www.util.constants.Constants.ADDRESS_COL
 import com.testapplication.www.util.constants.Constants.ALTERNATE_PHONE_COL
 import com.testapplication.www.util.constants.Constants.BUSINESS_CATEGORY_COL
@@ -17,7 +18,9 @@ import com.testapplication.www.util.constants.Constants.CHECKIN_TIME_COL
 import com.testapplication.www.util.constants.Constants.CHECKIN_USER_ID_COL
 import com.testapplication.www.util.constants.Constants.COMMENTS_COL
 import com.testapplication.www.util.constants.Constants.CREATE_DB_NAME
+import com.testapplication.www.util.constants.Constants.CREATE_LEDGER_TABLE_NAME
 import com.testapplication.www.util.constants.Constants.CREATE_TABLE_NAME
+import com.testapplication.www.util.constants.Constants.CREATION_ITEM_ID
 import com.testapplication.www.util.constants.Constants.CUSTOMER_NAME_COL
 import com.testapplication.www.util.constants.Constants.DB_VERSION
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_ACTION_CALL_COL
@@ -27,6 +30,8 @@ import com.testapplication.www.util.constants.Constants.FOLLOW_UP_TIME_COL
 import com.testapplication.www.util.constants.Constants.ID_COL
 import com.testapplication.www.util.constants.Constants.LATITUDE_LOCATION_COL
 import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
+import com.testapplication.www.util.constants.Constants.LEDGER_STATUS
+import com.testapplication.www.util.constants.Constants.LEDGER_TIME_STAMP
 import com.testapplication.www.util.constants.Constants.LONGITUDE_LOCATION_COL
 import com.testapplication.www.util.constants.Constants.PHONE_NUMBER_COL
 import com.testapplication.www.util.constants.Constants.PROOF_IMAGE_COL
@@ -55,6 +60,29 @@ class CreateScreenDB(context: Context?) :
                 + LONGITUDE_LOCATION_COL + " TEXT, " // New Column
                 + LATITUDE_LOCATION_COL + " TEXT)") // New Column
 
+        val createLedgerTableQuery =  ("CREATE TABLE " + CREATE_LEDGER_TABLE_NAME + " ("
+                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + CREATION_ITEM_ID + " INTEGER, "
+                + ACTION_TYPE + " INTEGER, "
+                + LEDGER_STATUS + " TEXT, "
+                + LEDGER_TIME_STAMP + " TEXT, "
+                + USER_ID_COL + " INTEGER, "
+                + CUSTOMER_NAME_COL + " TEXT, "
+                + PHONE_NUMBER_COL + " TEXT, "
+                + ALTERNATE_PHONE_COL + " TEXT, "
+                + ADDRESS_COL + " TEXT, "
+                + BUSINESS_CATEGORY_COL + " TEXT, "
+                + CALL_STATUS_COL + " TEXT, "
+                + LEAD_STATUS_COL + " TEXT, "
+                + FOLLOW_UP_DATE_COL + " TEXT, "
+                + FOLLOW_UP_TIME_COL + " TEXT, "
+                + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "
+                + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "
+                + COMMENTS_COL + " TEXT, "
+                + PROOF_IMAGE_COL + " TEXT, "
+                + LONGITUDE_LOCATION_COL + " TEXT, "
+                + LATITUDE_LOCATION_COL + " TEXT)")
+
         val createCheckInTableQuery = ("CREATE TABLE " + CHECKIN_TABLE_NAME + " ("
                 + CHECKIN_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + CHECKIN_USER_ID_COL + " INTEGER, "
@@ -66,6 +94,7 @@ class CreateScreenDB(context: Context?) :
 
         db.execSQL(createTableQuery)
         db.execSQL(createCheckInTableQuery)
+        db.execSQL(createLedgerTableQuery)
     }
 
     fun createFST(
@@ -101,8 +130,8 @@ class CreateScreenDB(context: Context?) :
             put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
             put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
             put(COMMENTS_COL, comments)
-            put(PROOF_IMAGE_COL, proofImage) // New Column
-            put(LONGITUDE_LOCATION_COL, longitudeLocation) // New Column
+            put(PROOF_IMAGE_COL, proofImage)
+            put(LONGITUDE_LOCATION_COL, longitudeLocation)
             put(LATITUDE_LOCATION_COL, latitudeLocation) // New Column
         }
         db.insert(CREATE_TABLE_NAME, null, values)
@@ -112,6 +141,7 @@ class CreateScreenDB(context: Context?) :
 
     fun updateFST(
         itemId: Long?,
+        userId: Long,
         customerName: String?,
         phoneNumber: String?,
         alternatePhoneNumber: String?,
@@ -148,6 +178,34 @@ class CreateScreenDB(context: Context?) :
         }
 
         val rowsUpdated = db.update(CREATE_TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
+
+        if (rowsUpdated > 0) {
+            // Insert into the ledger table
+            val ledgerValues = ContentValues().apply {
+                put(CREATION_ITEM_ID, itemId) // Foreign key to the updated row in create_table
+                put(ACTION_TYPE, 2) // Assuming '2' represents an 'Update' action
+                put(LEDGER_STATUS, "Updated")
+                put(LEDGER_TIME_STAMP, System.currentTimeMillis().toString()) // Use the current time as the timestamp
+                put(USER_ID_COL, userId) // Update this with userId if required
+                put(CUSTOMER_NAME_COL, customerName)
+                put(PHONE_NUMBER_COL, phoneNumber)
+                put(ALTERNATE_PHONE_COL, alternatePhoneNumber)
+                put(ADDRESS_COL, address)
+                put(BUSINESS_CATEGORY_COL, businessCategory)
+                put(CALL_STATUS_COL, callStatus)
+                put(LEAD_STATUS_COL, leadStatus)
+                put(FOLLOW_UP_DATE_COL, followUpDate)
+                put(FOLLOW_UP_TIME_COL, followUpTime)
+                put(FOLLOW_UP_ACTION_CALL_COL, followUpActionCall)
+                put(FOLLOW_UP_ACTION_VISIT_COL, followUpActionVisit)
+                put(COMMENTS_COL, comments)
+                put(PROOF_IMAGE_COL, proofImage)
+                put(LONGITUDE_LOCATION_COL, longitudeLocation)
+                put(LATITUDE_LOCATION_COL, latitudeLocation)
+            }
+
+            db.insert(CREATE_LEDGER_TABLE_NAME, null, ledgerValues)
+        }
         db.close()
         return rowsUpdated > 0
     }
@@ -173,6 +231,42 @@ class CreateScreenDB(context: Context?) :
         db.close()
         return result != -1L
     }
+    fun creationLedgers(userId: Long, itemId: Long): List<List<String>> {
+        val db = this.readableDatabase
+        val ledgerList = mutableListOf<List<String>>()
+
+        // Query to retrieve all records from the ledger table that match the provided userId and itemId
+        val cursor: Cursor = db.query(
+            CREATE_LEDGER_TABLE_NAME,
+            null, // Passing 'null' selects all columns
+            "$USER_ID_COL = ? AND $CREATION_ITEM_ID = ?",
+            arrayOf(userId.toString(), itemId.toString()),
+            null,
+            null,
+            null
+        )
+
+        // Iterating over the result set
+        if (cursor.moveToFirst()) {
+            do {
+                val rowList = mutableListOf<String>()
+
+                // Loop through each column and add the value to the list
+                for (i in 0 until cursor.columnCount) {
+                    val columnValue = cursor.getString(i) ?: "" // Avoid null values
+                    rowList.add(columnValue)
+                }
+
+                ledgerList.add(rowList) // Add the row list to the ledger list
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+
+        return ledgerList
+    }
+
 
     fun getCheckInStatus(userId: Long?): Pair<Int, Pair<Float?, Float?>> {
         val db = this.readableDatabase
@@ -199,12 +293,29 @@ class CreateScreenDB(context: Context?) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion < 5) { // Add these columns if upgrading from version 4 to 5
-            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $PROOF_IMAGE_COL TEXT")
-            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $LONGITUDE_LOCATION_COL DOUBLE")
-            db.execSQL("ALTER TABLE $CREATE_TABLE_NAME ADD COLUMN $LATITUDE_LOCATION_COL DOUBLE")
-            db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LONGITUDE_COL FLOAT")
-            db.execSQL("ALTER TABLE $CHECKIN_TABLE_NAME ADD COLUMN $CHECKIN_LATITUDE_COL FLOAT")
+        if (oldVersion < 7) { // Add these columns if upgrading from version 4 to 5
+          db.execSQL("CREATE TABLE IF NOT EXISTS " + CREATE_LEDGER_TABLE_NAME + " ("
+                  + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                  + CREATION_ITEM_ID + "INTEGER,"
+                  + ACTION_TYPE + "INTEGER,"
+                  + LEDGER_STATUS + "TEXT,"
+                  + LEDGER_TIME_STAMP + "TEXT,"
+                  + USER_ID_COL + " INTEGER, "
+                  + CUSTOMER_NAME_COL + " TEXT, "
+                  + PHONE_NUMBER_COL + " TEXT, "
+                  + ALTERNATE_PHONE_COL + " TEXT, "
+                  + ADDRESS_COL + " TEXT, "
+                  + BUSINESS_CATEGORY_COL + " TEXT, "
+                  + CALL_STATUS_COL + " TEXT, "
+                  + LEAD_STATUS_COL + " TEXT, "
+                  + FOLLOW_UP_DATE_COL + " TEXT, "
+                  + FOLLOW_UP_TIME_COL + " TEXT, "
+                  + FOLLOW_UP_ACTION_CALL_COL + " INTEGER, "
+                  + FOLLOW_UP_ACTION_VISIT_COL + " INTEGER, "
+                  + COMMENTS_COL + " TEXT, "
+                  + PROOF_IMAGE_COL + " TEXT, "
+                  + LONGITUDE_LOCATION_COL + " TEXT, "
+                  + LATITUDE_LOCATION_COL + " TEXT)")
         }
     }
 

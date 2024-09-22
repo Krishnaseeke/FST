@@ -26,7 +26,7 @@ object Constants {
 
     //Signup DB Constants
     const val DB_NAME = "test_application_db"
-    const val DB_VERSION = 6
+    const val DB_VERSION = 7
     const val TABLE_NAME = "signup"
     const val ID_COL = "id"
     const val PHONE_COL = "phone"
@@ -127,6 +127,13 @@ object Constants {
     const val PROOF_IMAGE_COL = "proof_image" // New Column
     const val LONGITUDE_LOCATION_COL = "longitude_location" // New Column
     const val LATITUDE_LOCATION_COL = "latitude_location" // New Column
+
+    //CREATE LEDGER
+    const val CREATE_LEDGER_TABLE_NAME = "creation_ledger"
+    const val ACTION_TYPE = "action_type"
+    const val LEDGER_STATUS = "ledger_status"
+    const val LEDGER_TIME_STAMP = "ledger_time_stamp"
+    const val CREATION_ITEM_ID = "create_item_id"
 
     // CheckIn table constants
     const val CHECKIN_TABLE_NAME = "checkin_data"

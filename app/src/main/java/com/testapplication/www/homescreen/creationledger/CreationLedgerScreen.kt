@@ -1,15 +1,6 @@
-package com.testapplication.www.homescreen.creationledger
-
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +12,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.testapplication.www.homescreen.creationledger.CreationLedgerViewModel
+import com.testapplication.www.homescreen.creationledger.CreationLedgerViewModelFactory
+import com.testapplication.www.homescreen.creationledger.LedgerList
 import com.testapplication.www.util.constants.Constants
 
 @Composable
@@ -29,10 +24,15 @@ fun CreationLedgerScreen(
     toCreate: (Long?, Long?) -> Unit,
     toCreationLedger: (Long, Long) -> Unit,
     userID: Long?,
-    itemID:Long?,
+    itemID: Long?,
     context: Context,
     modifier: Modifier = Modifier
 ) {
+    // Retrieve the ViewModel with the custom factory
+    val viewModel: CreationLedgerViewModel = viewModel(
+        factory = CreationLedgerViewModelFactory(context)
+    )
+
     Column(modifier = Modifier.background(Color.LightGray)) {
         Column(
             modifier = Modifier
@@ -53,16 +53,32 @@ fun CreationLedgerScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.weight(1f))
-
             }
         }
+
         Spacer(modifier = Modifier.height(5.dp))
-        Column( modifier = Modifier.weight(1f)
-            .clip(shape = RoundedCornerShape(5.dp))
-            .background(Color.White)
-            .fillMaxWidth(1f)
-            .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+
+        // LedgerList is added here
+        if (userID != null && itemID != null) {
+            LedgerList(
+                context = context,
+                userId = userID,
+                itemId = itemID,
+                viewModel = viewModel // Pass ViewModel here
+            )
+        }
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(shape = RoundedCornerShape(5.dp))
+                .background(Color.White)
+                .fillMaxWidth(1f)
+                .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             if (userID != null) {
                 com.testapplication.www.homescreen.home.DisplayList(
                     context = context,
@@ -77,9 +93,7 @@ fun CreationLedgerScreen(
                         toCreate(userId, itemId)
                     }
                 )
-
             }
         }
     }
-
 }
