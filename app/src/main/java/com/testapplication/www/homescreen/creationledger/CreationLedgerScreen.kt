@@ -68,7 +68,7 @@ fun CreationLedgerScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(1.dp))
 
         Column(
             modifier = Modifier
