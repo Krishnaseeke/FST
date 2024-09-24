@@ -267,6 +267,38 @@ class CreateScreenDB(context: Context?) :
         return ledgerList
     }
 
+    fun getLedgerList(ledgerItemId: Long?): List<String> {
+        val db = this.readableDatabase
+        val ledgerList = mutableListOf<String>()
+
+        // Query the database with a selection based on ledgerItemId
+        val cursor: Cursor = db.query(
+            CREATE_LEDGER_TABLE_NAME,  // Table name
+            null,                      // All columns
+            "id = ?",                  // WHERE clause
+            arrayOf(ledgerItemId.toString()), // Selection arguments (replace '?' with the ledgerItemId)
+            null,                      // GroupBy
+            null,                      // Having
+            null                       // OrderBy
+        )
+
+        // Iterate through the cursor and extract data
+        if (cursor.moveToFirst()) {
+            do {
+                // Extract each column value based on column index or name
+                for (i in 0 until cursor.columnCount) {
+                    ledgerList.add(cursor.getString(i)) // Adds each column value to the list
+                }
+            } while (cursor.moveToNext())
+        }
+
+        // Close the cursor to prevent memory leaks
+        cursor.close()
+
+        return ledgerList
+    }
+
+
 
     fun getCheckInStatus(userId: Long?): Pair<Int, Pair<Float?, Float?>> {
         val db = this.readableDatabase
