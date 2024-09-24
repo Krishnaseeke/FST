@@ -23,6 +23,7 @@ fun CreationLedgerScreen(
     toHome: (Any?) -> Unit,
     toCreate: (Long?, Long?) -> Unit,
     toCreationLedger: (Long, Long) -> Unit,
+    toLedgerViewForm:(Any?) ->Unit,
     userID: Long?,
     itemID: Long?,
     context: Context,
@@ -64,6 +65,7 @@ fun CreationLedgerScreen(
                 context = context,
                 userId = userID,
                 itemId = itemID,
+                toLedgerViewForm,
                 viewModel = viewModel // Pass ViewModel here
             )
         }

@@ -51,6 +51,7 @@ fun LedgerList(
     context: Context,
     userId: Long,
     itemId: Long,
+    toLedgerViewForm: (Any?) -> Unit,  // Accept ledger as a parameter
     viewModel: CreationLedgerViewModel = viewModel(factory = CreationLedgerViewModelFactory(context))
 ) {
     // State to hold the ledger list
@@ -71,8 +72,6 @@ fun LedgerList(
             .background(color = Color.White)
             .fillMaxWidth()
     ) {
-
-
         for (ledger in ledgerList) {
             Card(
                 modifier = Modifier
@@ -101,11 +100,7 @@ fun LedgerList(
 
                     // Display Time and Date
                     Text(
-                        text = "Time and Date: ${ledger.getOrNull(13) ?: "N/A"} ${
-                            ledger.getOrNull(
-                                14
-                            ) ?: ""
-                        }",
+                        text = "Time and Date: ${ledger.getOrNull(13) ?: "N/A"} ${ledger.getOrNull(14) ?: ""}",
                         style = MaterialTheme.typography.body1
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -113,7 +108,7 @@ fun LedgerList(
                     // Add View Form button
                     Button(
                         onClick = {
-                            // Handle button click (you can add any navigation or action here)
+                            toLedgerViewForm(ledger.get(0))  // Pass the selected ledger
                         }
                     ) {
                         Text(text = "View Form")
@@ -121,9 +116,8 @@ fun LedgerList(
                 }
             }
         }
-
     }
-
 }
+
 
 

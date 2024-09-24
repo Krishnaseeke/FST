@@ -16,6 +16,7 @@ import com.testapplication.www.homescreen.followupcalls.FollowupCallsScreen
 import com.testapplication.www.homescreen.home.HomeScreen
 import com.testapplication.www.homescreen.home.DisplayList
 import com.testapplication.www.homescreen.leads.LeadScreen
+import com.testapplication.www.homescreen.ledgerviewform.LedgerViewForm
 import com.testapplication.www.homescreen.scheduledvisits.ScheduledVisitsScreen
 import com.testapplication.www.loginscreen.LoginScreen
 import com.testapplication.www.onboardingscreen.OnboardingScreen
@@ -33,7 +34,8 @@ enum class Screens {
     Create,
     DisplayList,
     CheckIn,
-    CreationLedger
+    CreationLedger,
+    LedgerViewForm
 
 }
 
@@ -85,7 +87,8 @@ fun Root(context: Context) {
                     navController.navigate("${Screens.Create.name}?userId=$userId&itemId=$itemId")
                 },
                 toCheckIn = { userId -> navController.navigate("${Screens.CheckIn.name}/$userId") },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
                 },
 
 
@@ -99,7 +102,8 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
                 },
                 context,
                 userID = userId,
@@ -115,7 +119,8 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toLeadsScreen = { userId -> navController.navigate("${Screens.Leads.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
                 },
                 context, userID = userId,
                 toCreate = { userId, itemId ->
@@ -131,7 +136,8 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 toFollowupCalls = { userId -> navController.navigate("${Screens.FollowupCalls.name}/$userId") },
                 toScheduledVisits = { userId -> navController.navigate("${Screens.Scheduledvisits.name}/$userId") },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
                 },
 
                 userID = userId,
@@ -183,7 +189,8 @@ fun Root(context: Context) {
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}/$userId/$itemId")
                 },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
 
                 },
             )
@@ -202,20 +209,29 @@ fun Root(context: Context) {
         composable("${Screens.CreationLedger.name}/{userId}/{itemId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toLongOrNull() ?: 0L
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: 0L
+            val ledgerItemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: 0L
             CreationLedgerScreen(
                 toHome = { navController.popBackStack() },
                 toCreate = { userId, itemId ->
                     navController.navigate("${Screens.Create.name}?userId=$userId&itemId=$itemId")
                 },
-                toCreationLedger = { userId, itemId -> navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
+                toCreationLedger = { userId, itemId ->
+                    navController.navigate("${Screens.CreationLedger.name}/$userId/$itemId")
 
                 },
-                userID = userId,
+                toLedgerViewForm = { ledgerItemId ->
+                    navController.navigate("${Screens.LedgerViewForm.name}/$ledgerItemId")
+                }, userID = userId,
                 itemID = itemId,
                 context = context
             )
         }
 
+        composable("${Screens.LedgerViewForm.name}/{ledgerItemId}") { backStackEntry ->
+            val ledgerItemId =
+                backStackEntry.arguments?.getString("ledgerItemId")?.toLongOrNull() ?: 0L
+            LedgerViewForm(ledgerItemId = ledgerItemId, context = context)
+        }
 
 
     }
