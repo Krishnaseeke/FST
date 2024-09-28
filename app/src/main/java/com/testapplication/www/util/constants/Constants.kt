@@ -150,4 +150,56 @@ object Constants {
     //CreationLedgerConstants
     const val CREATION_LEDGER_SCREEN_TITLE = "Creation Ledger"
 
+    //Ledger Details
+
+    const val LEDGER_DETAILS = "Ledger Details"
+
+    //Ledger Details - Index
+    const val LEDGER_ID = 0
+    const val LEDGER_CREATE_ITEM_ID = 1
+    const val LEDGER_ACTION_TYPE = 2
+    const val LEDGER_DETAILS_SCREEN_STATUS = 3
+    const val LEDGER_DETAILS_SCREEN_TIME_STAMP = 4
+    const val LEDGER_USER_ID = 5
+    const val LEDGER_CUSTOMER_NAME = 6
+    const val LEDGER_PHONE_NUMBER = 7
+    const val LEDGER_ALTERNATE_PHONE_NUMBER = 8
+    const val LEDGER_ADDRESS = 9
+    const val LEDGER_BUSSINESS_CATEGORY = 10
+    const val LEDGER_CALL_STATUS = 11
+    const val LEDGER_LEAD_STATUS = 12
+    const val LEDGER_FOLLOWUP_DATE = 13
+    const val LEDGER_FOLLOWUP_TIME = 14
+    const val LEDGER_FOLLOWUP_ACTION_CALL = 15
+    const val LEDGER_FOLLOWUP_ACTION_VISIT = 16
+    const val LEDGER_COMMENTS = 17
+    const val LEDGER_PROOF_IMAGE = 18
+    const val LEDGER_LONGITUDE = 19
+    const val LEDGER_LATITUDE = 20
+
+    //Ledger Screen Constants
+    const val  LEDGER_ACTION_TYPE_TEXT = "Action Type: "
+    const val LEDGER_ACTION_TYPE_TEXT1 = "Lead Validation"
+    const val LEDGER_ACTION_TYPE_TEXT2 = "Lead Information"
+    const val LEDGER_ACTION_TYPE_TEXT3 = "Customer Meet Form"
+    const val LEDGER_HEADER_CUSTOMER_NAME = "Customer Name: "
+    const val LEDGER_HEADER_PHONE_NUMBER = "Phone Number: "
+    const val LEDGER_HEADER_ALTERNATIVE_PHONE_NUMBER = "Alternate Phone Number: "
+    const val LEDGER_HEADER_BUSINESS_NAME = "Business Name: "
+    const val LEDGER_HEADER_BUSINESS_TYPE = "Business Type: "
+    const val LEDGER_HEADER_BUSINESS_CATEGORY = "Business Category: "
+    const val LEDGER_HEADER_CURRENT_SOFTWARE = "Current Software: "
+    const val LEDGER_HEADER_PREFERRED_LANGUAGE = "Preferred Language: "
+    const val LEDGER_HEADER_LOCATION_ADDRESS = "Address/Location:"
+    const val LEDGER_HEADER_LEAD_STATUS = "Lead Status: "
+    const val LEDGER_HEADER_CALL_STATUS = "Call Status: "
+    const val LEDGER_HEADER_FOLLOWUP_REQUIRED = "Follow Up Required? "
+    const val LEDGER_HEADER_FOLLOWUP_DATE_AND_TIME = "Follow Up Date & Time: "
+    const val LEDGER_HEADER_POS_SALE = "POS Sale: "
+    const val LEDGER_HEADER_SHOP_IMAGE = "Shop Image: "
+    const val LEDGER_HEADER_FOLLOWUP_NOTES = "Follow Up Notes: "
+
+
+
+
 }

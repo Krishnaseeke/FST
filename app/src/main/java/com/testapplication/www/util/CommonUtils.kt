@@ -86,6 +86,10 @@ import android.Manifest
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.google.android.gms.maps.model.LatLng
+import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT
+import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT1
+import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT2
+import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT3
 import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.SPECIFIC_ITEM_LIST
 import getAddress
@@ -734,6 +738,53 @@ fun isInternetAvailable(context: Context): Boolean {
     val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
     return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
+
+@Composable
+fun DisplayLeadText(leadType: Int) {
+    val text = when (leadType) {
+        1 -> LEDGER_ACTION_TYPE_TEXT1
+        2 -> LEDGER_ACTION_TYPE_TEXT2
+        3 -> LEDGER_ACTION_TYPE_TEXT3
+        else -> LEDGER_ACTION_TYPE_TEXT1
+    }
+    Row(modifier = Modifier.padding(end = 2.dp)) {
+        Text(
+            text = LEDGER_ACTION_TYPE_TEXT,
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = text,
+            color = Color.Magenta,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal
+        )
+    }
+}
+
+@Composable
+fun LedgerDisplayDetails(columnHeader:String,columnValue:String,){
+    Row(modifier = Modifier.padding(end = 2.dp, top = 10.dp)) {
+        Text(
+            text = columnHeader,
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = columnValue,
+            color = Color.Magenta,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal
+        )
+    }
+}
+
 
 
 
