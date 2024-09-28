@@ -745,7 +745,7 @@ fun DisplayLeadText(leadType: Int) {
         1 -> LEDGER_ACTION_TYPE_TEXT1
         2 -> LEDGER_ACTION_TYPE_TEXT2
         3 -> LEDGER_ACTION_TYPE_TEXT3
-        else -> LEDGER_ACTION_TYPE_TEXT1
+        else -> LEDGER_ACTION_TYPE_TEXT3
     }
     Row(modifier = Modifier.padding(end = 2.dp)) {
         Text(
@@ -753,7 +753,7 @@ fun DisplayLeadText(leadType: Int) {
             color = Color.Black,
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = text,
@@ -767,7 +767,7 @@ fun DisplayLeadText(leadType: Int) {
 
 @Composable
 fun LedgerDisplayDetails(columnHeader:String,columnValue:String,){
-    Row(modifier = Modifier.padding(end = 2.dp, top = 10.dp)) {
+    Row(modifier = Modifier.padding(end = 2.dp, top = 5.dp)) {
         Text(
             text = columnHeader,
             color = Color.Black,

@@ -1,7 +1,9 @@
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +25,7 @@ fun CreationLedgerScreen(
     toHome: (Any?) -> Unit,
     toCreate: (Long?, Long?) -> Unit,
     toCreationLedger: (Long, Long) -> Unit,
-    toLedgerViewForm:(Any?) ->Unit,
+    toLedgerViewForm: (Any?) -> Unit,
     userID: Long?,
     itemID: Long?,
     context: Context,
@@ -34,54 +36,42 @@ fun CreationLedgerScreen(
         factory = CreationLedgerViewModelFactory(context)
     )
 
-    Column(modifier = Modifier.background(Color.LightGray)) {
-        Column(
+    Column(
+        modifier = modifier
+            .background(Color.LightGray)
+            .fillMaxSize() // Fill the entire screen size
+    ) {
+        // Top Title Row
+        Row(
             modifier = Modifier
-                .wrapContentHeight()
                 .background(Color.White)
                 .padding(horizontal = 10.dp, vertical = 10.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = Constants.CREATION_LEDGER_SCREEN_TITLE,
-                    color = Color.Black,
-                    fontSize = 25.sp,
-                    fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // LedgerList is added here
-        if (userID != null && itemID != null) {
-            LedgerList(
-                context = context,
-                userId = userID,
-                itemId = itemID,
-                toLedgerViewForm,
-                viewModel = viewModel // Pass ViewModel here
+            Text(
+                text = Constants.CREATION_LEDGER_SCREEN_TITLE,
+                color = Color.Black,
+                fontSize = 25.sp,
+                fontStyle = FontStyle.Normal,
+                fontWeight = FontWeight.Bold
             )
         }
 
-        Spacer(modifier = Modifier.height(1.dp))
+        // Spacer between DisplayList and LedgerList
+        Spacer(modifier = Modifier.height(5.dp))
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(shape = RoundedCornerShape(5.dp))
-                .background(Color.White)
-                .fillMaxWidth(1f)
-                .padding(start = 1.dp, top = 0.dp, bottom = 15.dp, end = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            if (userID != null) {
+        // Box for DisplayList to occupy a portion of the screen height
+        if (userID != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp) // Specify a fixed height or try different values here
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color.White)
+                    .padding(10.dp)
+            ) {
                 com.testapplication.www.homescreen.home.DisplayList(
                     context = context,
                     userId = userID,
@@ -97,5 +87,36 @@ fun CreationLedgerScreen(
                 )
             }
         }
+
+        // Spacer between DisplayList and LedgerList
+        Spacer(modifier = Modifier.height(5.dp))
+
+        // Scrollable LedgerList Column
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .fillMaxWidth()
+                .weight(1f) // Assign weight to take remaining space
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Additional spacing
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // LedgerList is added here and only displayed when IDs are non-null
+            if (userID != null && itemID != null) {
+                LedgerList(
+                    context = context,
+                    userId = userID,
+                    itemId = itemID,
+                    toLedgerViewForm,
+                    viewModel = viewModel // Pass ViewModel here
+                )
+            }
+
+            // Extra spacing at the bottom for better visibility
+            Spacer(modifier = Modifier.height(10.dp))
+        }
     }
 }
+

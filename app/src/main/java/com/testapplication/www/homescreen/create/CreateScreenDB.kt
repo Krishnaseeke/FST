@@ -184,7 +184,7 @@ class CreateScreenDB(context: Context?) :
             val ledgerValues = ContentValues().apply {
                 put(CREATION_ITEM_ID, itemId) // Foreign key to the updated row in create_table
                 put(ACTION_TYPE, 2) // Assuming '2' represents an 'Update' action
-                put(LEDGER_STATUS, "Updated")
+                put(LEDGER_STATUS, "Completed")
                 put(LEDGER_TIME_STAMP, System.currentTimeMillis().toString()) // Use the current time as the timestamp
                 put(USER_ID_COL, userId) // Update this with userId if required
                 put(CUSTOMER_NAME_COL, customerName)

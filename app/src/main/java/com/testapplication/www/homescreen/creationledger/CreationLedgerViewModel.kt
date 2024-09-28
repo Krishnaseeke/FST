@@ -2,6 +2,8 @@ package com.testapplication.www.homescreen.creationledger
 
 import CreateScreenDB
 import android.content.Context
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,13 +14,26 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberImagePainter
+import com.testapplication.www.R
+import com.testapplication.www.ui.theme.AppleGreen
+import com.testapplication.www.util.DisplayLeadText
+import com.testapplication.www.util.LedgerDisplayDetails
+import com.testapplication.www.util.constants.Constants
+import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE
+import com.testapplication.www.util.constants.Constants.LEDGER_DETAILS_SCREEN_STATUS
+import com.testapplication.www.util.constants.Constants.LEDGER_FOLLOWUP_DATE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,6 +87,25 @@ fun LedgerList(
             .background(color = Color.White)
             .fillMaxWidth()
     ) {
+        if (ledgerList.isEmpty()) {
+
+
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .fillMaxWidth() // Ensures the box fills the width
+                    .aspectRatio(1f), // Keeps the box square or specify a ratio for different shapes
+                contentAlignment = Alignment.Center // Aligns content in the center
+            ) {
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    painter = painterResource(id = R.mipmap.nodatafound_foreground),
+                    contentDescription = Constants.NO_DATA_FOUND_IMAGE_DESCRIPTION,
+
+                    )
+            }
+        }
         for (ledger in ledgerList) {
             Card(
                 modifier = Modifier
@@ -79,45 +113,61 @@ fun LedgerList(
                     .padding(8.dp),
                 elevation = 4.dp
             ) {
+                // Tag at the top-right corner
+
                 Column(
                     modifier = Modifier
                         .background(color = Color.White)
                         .padding(10.dp)
                 ) {
-                    // Display Ledger Status
-                    Text(
-                        text = "Ledger Status: ${ledger.getOrNull(3) ?: "N/A"}",
-                        style = MaterialTheme.typography.body1
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
 
-                    // Display Action Type
-                    Text(
-                        text = "Action Type: ${ledger.getOrNull(2) ?: "N/A"}",
-                        style = MaterialTheme.typography.body1
-                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(), // Ensures the Row takes full width
+                        verticalAlignment = Alignment.CenterVertically // Optional: Aligns items vertically center
+                    ) {
+                        // Display Action Type
+                        DisplayLeadText(ledger.get(Constants.LEDGER_ID)?.toIntOrNull() ?: 0)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Box(
+                            modifier = Modifier
+                                .background(color = AppleGreen)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = ledger.getOrNull(LEDGER_DETAILS_SCREEN_STATUS) ?: "N/A",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.body2
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(4.dp))
 
                     // Display Time and Date
-                    Text(
-                        text = "Time and Date: ${ledger.getOrNull(13) ?: "N/A"} ${ledger.getOrNull(14) ?: ""}",
-                        style = MaterialTheme.typography.body1
+                    LedgerDisplayDetails(
+                        columnHeader = Constants.LEDGER_HEADER_FOLLOWUP_DATE_AND_TIME,
+                        columnValue = ledger.get(LEDGER_FOLLOWUP_DATE) + " | " + ledger.get(
+                            Constants.LEDGER_FOLLOWUP_TIME
+                        )
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Add View Form button
-                    Button(
+                    Button(modifier = Modifier,
                         onClick = {
                             toLedgerViewForm(ledger.get(0))  // Pass the selected ledger
                         }
                     ) {
                         Text(text = "View Form")
                     }
+
+
                 }
             }
         }
     }
 }
-
 
 

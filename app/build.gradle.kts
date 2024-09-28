@@ -119,7 +119,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation-android:1.6.8") {
         exclude(group = "androidx.compose.foundation", module = "foundation-desktop")
     }
-
+    implementation ("com.airbnb.android:lottie-compose:6.0.0")
 
 
 
