@@ -15,10 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.creationledger.CreationLedgerViewModel
 import com.testapplication.www.homescreen.creationledger.CreationLedgerViewModelFactory
 import com.testapplication.www.homescreen.creationledger.LedgerList
+import com.testapplication.www.ui.theme.SkyBlue
+import com.testapplication.www.util.DisplayNextLedgerAction
 import com.testapplication.www.util.constants.Constants
+import com.testapplication.www.util.constants.Constants.DEFAULT_LEDGER_COUNT_ID
 
 @Composable
 fun CreationLedgerScreen(
@@ -35,6 +39,8 @@ fun CreationLedgerScreen(
     val viewModel: CreationLedgerViewModel = viewModel(
         factory = CreationLedgerViewModelFactory(context)
     )
+
+    val preferencesManager = PreferencesManager(context)
 
     Column(
         modifier = modifier
@@ -59,37 +65,53 @@ fun CreationLedgerScreen(
             )
         }
 
-        // Spacer between DisplayList and LedgerList
-        Spacer(modifier = Modifier.height(5.dp))
 
-        // Box for DisplayList to occupy a portion of the screen height
-        if (userID != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp) // Specify a fixed height or try different values here
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(Color.White)
-                    .padding(10.dp)
-            ) {
-                com.testapplication.www.homescreen.home.DisplayList(
-                    context = context,
-                    userId = userID,
-                    itemId = itemID,
-                    selectedDate = "",
-                    valueType = Constants.SPECIFIC_ITEM_LIST,
-                    toCreationLedger = { userId, itemId ->
-                        toCreationLedger(userId, itemId)
-                    },
-                    toCreate = { userId, itemId ->
-                        toCreate(userId, itemId)
-                    }
-                )
-            }
+Column(modifier = Modifier.fillMaxWidth().background(SkyBlue).padding(5.dp).wrapContentHeight()) {
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Next Action:",
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(5.dp) // Use padding to keep spacing even
+        )
+        DisplayNextLedgerAction(leadType = preferencesManager.getLedgerCount(DEFAULT_LEDGER_COUNT_ID))
+    }
+
+    // Displaying the action based on the ledger count
+
+
+
+    // Box for DisplayList to occupy a portion of the screen height
+    if (userID != null) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp) // Specify a fixed height or try different values here
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+                .padding(10.dp)
+        ) {
+            com.testapplication.www.homescreen.home.DisplayList(
+                context = context,
+                userId = userID,
+                itemId = itemID,
+                selectedDate = "",
+                valueType = Constants.SPECIFIC_ITEM_LIST,
+                toCreationLedger = { userId, itemId ->
+                    toCreationLedger(userId, itemId)
+                },
+                toCreate = { userId, itemId ->
+                    toCreate(userId, itemId)
+                }
+            )
         }
+    }
+}
 
-        // Spacer between DisplayList and LedgerList
-        Spacer(modifier = Modifier.height(5.dp))
 
         // Scrollable LedgerList Column
         Column(

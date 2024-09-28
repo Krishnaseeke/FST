@@ -86,6 +86,7 @@ import android.Manifest
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.google.android.gms.maps.model.LatLng
+import com.testapplication.www.ui.theme.AppleGreen
 import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT
 import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT1
 import com.testapplication.www.util.constants.Constants.LEDGER_ACTION_TYPE_TEXT2
@@ -536,7 +537,7 @@ fun SelectedDateItemRow(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        modifier = Modifier.weight(1f),
+                        modifier = if (screenData.stringValue.length > 20) Modifier.weight(1f) else Modifier,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
@@ -550,6 +551,7 @@ fun SelectedDateItemRow(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+
 
                 Spacer(modifier = Modifier.height(5.dp))
                 Row(
@@ -577,11 +579,18 @@ fun SelectedDateItemRow(
                 }
             }
 
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = "Navigate",
+            Box(
                 modifier = Modifier
-            )
+                    .background(color = Color.Black)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                androidx.compose.material.Text(
+                    text = "View",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.body2
+                )
+            }
         }
 
         Divider(modifier = Modifier.padding(top = 2.dp))
@@ -763,6 +772,23 @@ fun DisplayLeadText(leadType: Int) {
             fontWeight = FontWeight.Normal
         )
     }
+}
+
+@Composable
+fun DisplayNextLedgerAction(leadType: Int){
+    val text = when (leadType) {
+        0 -> LEDGER_ACTION_TYPE_TEXT1
+        1 -> LEDGER_ACTION_TYPE_TEXT2
+        2 -> LEDGER_ACTION_TYPE_TEXT3
+        else -> LEDGER_ACTION_TYPE_TEXT3
+    }
+    Text(
+        text = text, color = Color.Black,
+        fontSize = 16.sp,
+        fontStyle = FontStyle.Normal,
+        fontWeight = FontWeight.Normal,
+        modifier = Modifier.fillMaxWidth().padding(5.dp)
+    )
 }
 
 @Composable

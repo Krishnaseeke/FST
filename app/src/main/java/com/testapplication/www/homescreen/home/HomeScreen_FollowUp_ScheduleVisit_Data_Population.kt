@@ -38,6 +38,7 @@ import com.testapplication.www.util.constants.Constants.FOLLOW_UP_DATE_COL
 import com.testapplication.www.util.constants.Constants.FOLLOW_UP_TIME_COL
 import com.testapplication.www.util.constants.Constants.ID_COL
 import com.testapplication.www.util.constants.Constants.INVALID_LIST_TYPE
+import com.testapplication.www.util.constants.Constants.LEADS_AND_VISIT_LIST
 import com.testapplication.www.util.constants.Constants.LEADS_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.LEAD_STATUS_COL
 import com.testapplication.www.util.constants.Constants.NO_DATA_FOUND_IMAGE_DESCRIPTION
@@ -104,6 +105,8 @@ fun DisplayList(
     } else if (valueType == LEADS_LIST_TYPE) {
         dataListDisplay.addAll(itemData)
     } else if (valueType == SPECIFIC_ITEM_LIST && itemId != null) {
+        dataListDisplay.addAll(itemData)
+    }else if(valueType == LEADS_AND_VISIT_LIST){
         dataListDisplay.addAll(itemData)
     }
 
@@ -207,6 +210,13 @@ private fun fetchDataFromDB(context: Context, userId: Long, valueType: String, i
                 "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND $FOLLOW_UP_ACTION_CALL_COL = 1"
             selectionArgs = arrayOf(userId.toString())
         }
+
+        LEADS_AND_VISIT_LIST ->{
+            query = "SELECT * FROM $CREATE_TABLE_NAME WHERE $USER_ID_COL = ? AND ($FOLLOW_UP_ACTION_VISIT_COL = 1 OR $FOLLOW_UP_ACTION_CALL_COL = 1)"
+            selectionArgs = arrayOf(userId.toString())
+
+        }
+
 
         LEADS_LIST_TYPE -> {
             query =

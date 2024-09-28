@@ -62,6 +62,7 @@ import com.testapplication.www.onboardingscreen.pressClickEffect
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.LogoutOrExitScreen
+import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.ALERT_ALLOW_CTA
 import com.testapplication.www.util.constants.Constants.ALERT_DESCRIPTION
@@ -79,6 +80,7 @@ import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
 import com.testapplication.www.util.constants.Constants.SCREEN_FOLLOW_UP_CALLS
 import com.testapplication.www.util.constants.Constants.SCREEN_HOME
 import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT
+import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT_AND_FOLLOWUP_CALLS
 import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.SHOW_ALL_CTA
 import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_COMPLETED
@@ -352,7 +354,7 @@ fun HomeScreen(
 
             Column(
                 modifier = Modifier
-                    .height(350.dp)
+                    .weight(1f)
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(Color.White)
                     .fillMaxWidth(1f)
@@ -364,18 +366,18 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomTextHome(
-                        text = SCREEN_SCHEDULED_VISIT,
+                        text = SCREEN_SCHEDULED_VISIT_AND_FOLLOWUP_CALLS,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    ClickableText(text = buildAnnotatedString {
-                        append(SHOW_ALL_CTA)
-                        withStyle(style = SpanStyle(color = Color.Black)) {
-                        }
-                    }, onClick = {
-                        toScheduledVisits(userID)
-                    }, modifier = Modifier.padding(top = 10.dp))
+//                    ClickableText(text = buildAnnotatedString {
+//                        append(SHOW_ALL_CTA)
+//                        withStyle(style = SpanStyle(color = Color.Black)) {
+//                        }
+//                    }, onClick = {
+//                        toScheduledVisits(userID)
+//                    }, modifier = Modifier.padding(top = 10.dp))
                 }
 
                 if (userID != null) {
@@ -384,7 +386,7 @@ fun HomeScreen(
                         userId = userID,
                         itemId = 0L,
                         "",
-                        valueType = SCHEDULED_VISIT_LIST_TYPE,
+                        valueType = Constants.LEADS_AND_VISIT_LIST,
                         toCreationLedger = { userId, itemId ->
                             toCreationLedger(userId, itemId)
                         },
@@ -394,51 +396,7 @@ fun HomeScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(5.dp))
-            Column(
-                modifier = Modifier
-                    .height(350.dp)
-                    .clip(shape = RoundedCornerShape(5.dp))
-                    .background(Color.White)
-                    .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp)
-                    .fillMaxWidth(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    CustomTextHome(
-                        text = SCREEN_FOLLOW_UP_CALLS,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    ClickableText(text = buildAnnotatedString {
-                        append(SHOW_ALL_CTA)
-                        withStyle(style = SpanStyle(color = Color.Black)) {
-                        }
-                    }, onClick = {
-                        toFollowupCalls(userID)
-                    }, modifier = Modifier.padding(top = 10.dp))
-                }
 
-                if (userID != null) {
-                    com.testapplication.www.homescreen.home.DisplayList(
-                        context = context,
-                        userId = userID,
-                        itemId = 0L,
-                        "",
-                        valueType = FOLLOW_UP_CALL_LIST_TYPE,
-                        toCreationLedger = { userId, itemId ->
-                            toCreationLedger(userId, itemId)
-                        },
-                        toCreate = { userId, itemId ->
-                            toCreate(userId, itemId)
-                        }
-                    )
-                }
-            }
         }
         Column(
             modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally,

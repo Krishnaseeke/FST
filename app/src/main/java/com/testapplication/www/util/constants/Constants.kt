@@ -35,6 +35,7 @@ object Constants {
     //ScreenHeaders
     const val SCREEN_SCHEDULED_VISIT = "Scheduled Visits"
     const val SCREEN_FOLLOW_UP_CALLS = "Follow Up Calls"
+    const val SCREEN_SCHEDULED_VISIT_AND_FOLLOWUP_CALLS = "Visits & Calls"
     const val SCREEN_LEADS = "Leads"
     const val SCREEN_HOME = "Home"
     const val SCREEN_CREATE = "Create"
@@ -100,6 +101,7 @@ object Constants {
     //Item Display List Value Type
     const val FOLLOW_UP_CALL_LIST_TYPE = "call"
     const val LEADS_LIST_TYPE = "leads"
+    const val LEADS_AND_VISIT_LIST = "leadsandvisit"
     const val SPECIFIC_ITEM_LIST = "item"
     const val SCHEDULED_VISIT_LIST_TYPE = "visit"
     const val INVALID_LIST_TYPE = "Invalid valueType"
@@ -149,6 +151,9 @@ object Constants {
 
     //CreationLedgerConstants
     const val CREATION_LEDGER_SCREEN_TITLE = "Creation Ledger"
+    const val LEDGER_FOLLOWING_ACTION1 = "Lead Validation"
+    const val LEDGER_FOLLOWING_ACTION2 = "Lead Information"
+    const val LEDGER_FOLLOWING_ACTION3 = "Customer Meeting"
 
     //Ledger Details
 
@@ -176,6 +181,7 @@ object Constants {
     const val LEDGER_PROOF_IMAGE = 18
     const val LEDGER_LONGITUDE = 19
     const val LEDGER_LATITUDE = 20
+    const val DEFAULT_LEDGER_COUNT_ID = -1
 
     //Ledger Screen Constants
     const val  LEDGER_ACTION_TYPE_TEXT = "Action Type: "

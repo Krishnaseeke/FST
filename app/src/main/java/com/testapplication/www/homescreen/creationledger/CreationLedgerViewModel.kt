@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.testapplication.www.R
+import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.ui.theme.AppleGreen
 import com.testapplication.www.util.DisplayLeadText
 import com.testapplication.www.util.LedgerDisplayDetails
@@ -69,6 +70,7 @@ fun LedgerList(
     toLedgerViewForm: (Any?) -> Unit,  // Accept ledger as a parameter
     viewModel: CreationLedgerViewModel = viewModel(factory = CreationLedgerViewModelFactory(context))
 ) {
+   val preferencesManager = PreferencesManager(context)
     // State to hold the ledger list
     var ledgerList by remember { mutableStateOf<List<List<String>>>(emptyList()) }
 
@@ -78,6 +80,7 @@ fun LedgerList(
     LaunchedEffect(Unit) {
         scope.launch {
             ledgerList = viewModel.getCreationLedgerList(userId, itemId)
+            preferencesManager.saveLedgerCount(ledgerList.size)
         }
     }
 
