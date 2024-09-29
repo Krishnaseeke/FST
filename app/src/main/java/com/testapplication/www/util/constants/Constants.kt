@@ -40,6 +40,7 @@ object Constants {
     const val SCREEN_HOME = "Home"
     const val SCREEN_CREATE = "Create"
     const val SCREEN_CHECK_IN = "Check-In"
+    const val SCREEN_CHECK_IN_TEXT = "Please Check-In to Start Your Work."
 
 
     //Create Screen
@@ -160,7 +161,7 @@ object Constants {
     const val LEDGER_DETAILS = "Ledger Details"
 
     //Ledger Details - Index
-    const val LEDGER_ID = 0
+    const val LEDGER_ID = 1
     const val LEDGER_CREATE_ITEM_ID = 1
     const val LEDGER_ACTION_TYPE = 2
     const val LEDGER_DETAILS_SCREEN_STATUS = 3

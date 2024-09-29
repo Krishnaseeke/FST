@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +30,7 @@ import coil.compose.rememberImagePainter
 import com.testapplication.www.R
 import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.ui.theme.AppleGreen
+import com.testapplication.www.ui.theme.DarkGreen
 import com.testapplication.www.util.DisplayLeadText
 import com.testapplication.www.util.LedgerDisplayDetails
 import com.testapplication.www.util.constants.Constants
@@ -130,17 +132,18 @@ fun LedgerList(
                         verticalAlignment = Alignment.CenterVertically // Optional: Aligns items vertically center
                     ) {
                         // Display Action Type
-                        DisplayLeadText(ledger.get(Constants.LEDGER_ID)?.toIntOrNull() ?: 0)
+                        DisplayLeadText(ledger.get(Constants.LEDGER_ACTION_TYPE)?.toIntOrNull() ?: 0)
                         Spacer(modifier = Modifier.weight(1f))
                         Box(
                             modifier = Modifier
-                                .background(color = AppleGreen)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(color = AppleGreen).height(20.dp)
+                                .padding(2.dp)
                         ) {
                             Text(
                                 text = ledger.getOrNull(LEDGER_DETAILS_SCREEN_STATUS) ?: "N/A",
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = DarkGreen,
+                                fontWeight = FontWeight.Normal,
                                 style = MaterialTheme.typography.body2
                             )
                         }

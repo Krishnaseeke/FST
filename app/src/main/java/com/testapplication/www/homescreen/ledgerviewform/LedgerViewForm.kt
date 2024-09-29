@@ -109,7 +109,7 @@ fun LedgerViewForm(ledgerItemId: Long?, context: Context) {
         ) {
 
             // Make sure that DisplayLeadText is a composable function and you call it within a composable context
-            DisplayLeadText(ledgerList.get(LEDGER_ID)?.toIntOrNull() ?: 0)
+            DisplayLeadText(ledgerList.get(LEDGER_ACTION_TYPE)?.toIntOrNull() ?: 0)
             LedgerDisplayDetails(
                 columnHeader = LEDGER_HEADER_CUSTOMER_NAME,
                 columnValue = ledgerList.get(LEDGER_CUSTOMER_NAME)

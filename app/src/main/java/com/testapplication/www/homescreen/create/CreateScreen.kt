@@ -90,6 +90,7 @@ fun CreateScreen(
     context: Context,
     userID: Long,
     itemId: Long?,
+    toCreationLedger: () -> Unit,
     modifier: Modifier = Modifier,
 
     ) {
@@ -104,7 +105,7 @@ fun CreateScreen(
             onDismiss = { showDialog = DEFAULT_ALERT_POP_UP })
         LaunchedEffect(Unit) {
             delay(ON_SAVE_DIALOG_DELAY)
-            toHome(userID)
+            toCreationLedger()
         }
     }
 
@@ -239,7 +240,7 @@ fun CreateScreen(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = CREATE_SCREEN_BACK_CTA_DESCRIPTION,
                 modifier = Modifier
-                    .clickable { toHome(userID) }
+                    .clickable { toCreationLedger() }
                     .padding(10.dp) //Need
             )
             Text(

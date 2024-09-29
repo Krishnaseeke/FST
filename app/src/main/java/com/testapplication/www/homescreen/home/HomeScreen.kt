@@ -59,6 +59,8 @@ import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
 import com.testapplication.www.onboardingscreen.pressClickEffect
+import com.testapplication.www.ui.theme.AppleGreen
+import com.testapplication.www.ui.theme.CheckInGreen
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.LogoutOrExitScreen
@@ -76,6 +78,7 @@ import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_ALLOW_CTA
 import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_TITLE
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCREEN_CHECK_IN
+import com.testapplication.www.util.constants.Constants.SCREEN_CHECK_IN_TEXT
 import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
 import com.testapplication.www.util.constants.Constants.SCREEN_FOLLOW_UP_CALLS
 import com.testapplication.www.util.constants.Constants.SCREEN_HOME
@@ -142,7 +145,7 @@ fun HomeScreen(
         checkedIconColor = Color.White,
         uncheckedBorderColor = Color.Transparent,
         disabledCheckedTrackColor = Color.White,
-        checkedTrackColor = Color.Black
+        checkedTrackColor = CheckInGreen
     )
 
 
@@ -214,6 +217,11 @@ fun HomeScreen(
             Arrangement.Top,
             Alignment.Start
         ) {
+            Text(text = SCREEN_CHECK_IN_TEXT,color = Color.Black,
+                fontSize = 16.sp,
+                fontStyle = FontStyle.Normal,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(1.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(1f)
@@ -228,7 +236,7 @@ fun HomeScreen(
                 )
 
                 Switch(
-                    checked = checked,
+                    checked = checked, modifier = Modifier.height(5.dp),
                     onCheckedChange = {
                         if (locationPermissionState.allPermissionsGranted) {
                             if (isInternetAvailable(context)) { // Check for internet connection

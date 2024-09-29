@@ -179,11 +179,29 @@ class CreateScreenDB(context: Context?) :
 
         val rowsUpdated = db.update(CREATE_TABLE_NAME, values, "$ID_COL = ?", arrayOf(itemId.toString()))
 
+// First, get the current count of rows with the same itemId in the CREATE_LEDGER_TABLE_NAME
+        val itemCountQuery = "SELECT COUNT(*) FROM $CREATE_LEDGER_TABLE_NAME WHERE $CREATION_ITEM_ID = ?"
+        val cursor = db.rawQuery(itemCountQuery, arrayOf(itemId.toString()))
+        var itemCount = 0
+
+        if (cursor.moveToFirst()) {
+            itemCount = cursor.getInt(0)
+        }
+        cursor.close()
+
+// Determine the action type based on item count
+        val actionType = when {
+            itemCount == 0 -> 1 // First entry, set to LEDGER_ACTION_TYPE_TEXT1
+            itemCount == 1 -> 2 // Second entry, set to LEDGER_ACTION_TYPE_TEXT2
+            itemCount == 2 -> 3 // Third entry, set to LEDGER_ACTION_TYPE_TEXT3
+            else -> 3 // For itemCount > 2, keep it as LEDGER_ACTION_TYPE_TEXT3
+        }
+
+// After updating the rows, insert a new entry into the ledger table
         if (rowsUpdated > 0) {
-            // Insert into the ledger table
             val ledgerValues = ContentValues().apply {
                 put(CREATION_ITEM_ID, itemId) // Foreign key to the updated row in create_table
-                put(ACTION_TYPE, 2) // Assuming '2' represents an 'Update' action
+                put(ACTION_TYPE, actionType) // Set the calculated action type
                 put(LEDGER_STATUS, "Completed")
                 put(LEDGER_TIME_STAMP, System.currentTimeMillis().toString()) // Use the current time as the timestamp
                 put(USER_ID_COL, userId) // Update this with userId if required
@@ -204,8 +222,10 @@ class CreateScreenDB(context: Context?) :
                 put(LATITUDE_LOCATION_COL, latitudeLocation)
             }
 
+            // Insert the new row into the ledger table
             db.insert(CREATE_LEDGER_TABLE_NAME, null, ledgerValues)
         }
+
         db.close()
         return rowsUpdated > 0
     }

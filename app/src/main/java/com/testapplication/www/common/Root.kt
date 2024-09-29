@@ -172,7 +172,9 @@ fun Root(context: Context) {
                 toHome = { userId -> navController.navigate("${Screens.Home.name}/$userId") },
                 context,
                 userID = userId,
-                itemId
+                itemId,
+                toCreationLedger = { navController.popBackStack()
+                }
             )
         }
 
