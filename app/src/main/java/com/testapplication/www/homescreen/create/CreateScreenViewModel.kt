@@ -298,6 +298,7 @@ class CreateScreenViewModel(context: Context, private val userID: Long, private 
                         // Update the existing record
                         isSuccess = createScreendb.updateFST(
                             itemId = itemId,
+                            userId =userId,
                             customerName = customerName,
                             phoneNumber = phoneNumber,
                             alternatePhoneNumber = alternatePhoneNumber,

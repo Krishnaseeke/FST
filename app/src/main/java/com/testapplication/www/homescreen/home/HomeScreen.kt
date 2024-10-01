@@ -59,9 +59,12 @@ import com.testapplication.www.common.PreferencesManager
 import com.testapplication.www.homescreen.bottomnavigation.BottomBar
 import com.testapplication.www.homescreen.checkin.CheckInViewModel
 import com.testapplication.www.onboardingscreen.pressClickEffect
+import com.testapplication.www.ui.theme.AppleGreen
+import com.testapplication.www.ui.theme.CheckInGreen
 import com.testapplication.www.util.ActionType
 import com.testapplication.www.util.AllowSettingPopup
 import com.testapplication.www.util.LogoutOrExitScreen
+import com.testapplication.www.util.constants.Constants
 import com.testapplication.www.util.constants.Constants.ADD_ICON_DESCRIPTION
 import com.testapplication.www.util.constants.Constants.ALERT_ALLOW_CTA
 import com.testapplication.www.util.constants.Constants.ALERT_DESCRIPTION
@@ -75,10 +78,12 @@ import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_ALLOW_CTA
 import com.testapplication.www.util.constants.Constants.GENERAL_ALERT_TITLE
 import com.testapplication.www.util.constants.Constants.SCHEDULED_VISIT_LIST_TYPE
 import com.testapplication.www.util.constants.Constants.SCREEN_CHECK_IN
+import com.testapplication.www.util.constants.Constants.SCREEN_CHECK_IN_TEXT
 import com.testapplication.www.util.constants.Constants.SCREEN_CREATE
 import com.testapplication.www.util.constants.Constants.SCREEN_FOLLOW_UP_CALLS
 import com.testapplication.www.util.constants.Constants.SCREEN_HOME
 import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT
+import com.testapplication.www.util.constants.Constants.SCREEN_SCHEDULED_VISIT_AND_FOLLOWUP_CALLS
 import com.testapplication.www.util.constants.Constants.SHOW_ALERT_POP_UP
 import com.testapplication.www.util.constants.Constants.SHOW_ALL_CTA
 import com.testapplication.www.util.constants.Constants.TABLE_DEMOS_COMPLETED
@@ -101,6 +106,7 @@ fun HomeScreen(
     context: Context,
     toCreate: (Long?, Long?) -> Unit,
     toCheckIn: (Any?) -> Unit,
+    toCreationLedger: (Long, Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -139,7 +145,7 @@ fun HomeScreen(
         checkedIconColor = Color.White,
         uncheckedBorderColor = Color.Transparent,
         disabledCheckedTrackColor = Color.White,
-        checkedTrackColor = Color.Black
+        checkedTrackColor = CheckInGreen
     )
 
 
@@ -211,6 +217,11 @@ fun HomeScreen(
             Arrangement.Top,
             Alignment.Start
         ) {
+            Text(text = SCREEN_CHECK_IN_TEXT,color = Color.Black,
+                fontSize = 16.sp,
+                fontStyle = FontStyle.Normal,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(1.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(1f)
@@ -225,13 +236,16 @@ fun HomeScreen(
                 )
 
                 Switch(
-                    checked = checked,
+                    checked = checked, modifier = Modifier.height(5.dp),
                     onCheckedChange = {
                         if (locationPermissionState.allPermissionsGranted) {
                             if (isInternetAvailable(context)) { // Check for internet connection
                                 preferencesManager.saveCheckInStatus(it)
                                 val dateTime =
-                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                                    SimpleDateFormat(
+                                        "yyyy-MM-dd HH:mm:ss",
+                                        Locale.getDefault()
+                                    ).format(Date())
                                 if (it) {
                                     toCheckIn(userID)
                                     checked = it
@@ -248,7 +262,11 @@ fun HomeScreen(
                                     )
                                 }
                             } else {
-                                Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "No internet connection. Please check your network.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             showLocationDialog = SHOW_ALERT_POP_UP
@@ -260,7 +278,8 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .padding(start = 5.dp, end = 5.dp)
                 .clip(shape = RoundedCornerShape(5.dp))
                 .verticalScroll(rememberScrollState())
@@ -343,7 +362,7 @@ fun HomeScreen(
 
             Column(
                 modifier = Modifier
-                    .height(350.dp)
+                    .weight(1f)
                     .clip(shape = RoundedCornerShape(5.dp))
                     .background(Color.White)
                     .fillMaxWidth(1f)
@@ -355,71 +374,37 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomTextHome(
-                        text = SCREEN_SCHEDULED_VISIT,
+                        text = SCREEN_SCHEDULED_VISIT_AND_FOLLOWUP_CALLS,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    ClickableText(text = buildAnnotatedString {
-                        append(SHOW_ALL_CTA)
-                        withStyle(style = SpanStyle(color = Color.Black)) {
-                        }
-                    }, onClick = {
-                        toScheduledVisits(userID)
-                    }, modifier = Modifier.padding(top = 10.dp))
+//                    ClickableText(text = buildAnnotatedString {
+//                        append(SHOW_ALL_CTA)
+//                        withStyle(style = SpanStyle(color = Color.Black)) {
+//                        }
+//                    }, onClick = {
+//                        toScheduledVisits(userID)
+//                    }, modifier = Modifier.padding(top = 10.dp))
                 }
 
                 if (userID != null) {
                     com.testapplication.www.homescreen.home.DisplayList(
                         context = context,
                         userId = userID,
+                        itemId = 0L,
                         "",
-                        valueType = SCHEDULED_VISIT_LIST_TYPE
-                    ) { userId, itemId ->
-                        toCreate.invoke(userId, itemId)
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(5.dp))
-            Column(
-                modifier = Modifier
-                    .height(350.dp)
-                    .clip(shape = RoundedCornerShape(5.dp))
-                    .background(Color.White)
-                    .padding(start = 1.dp, top = 10.dp, bottom = 15.dp, end = 1.dp)
-                    .fillMaxWidth(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    CustomTextHome(
-                        text = SCREEN_FOLLOW_UP_CALLS,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    ClickableText(text = buildAnnotatedString {
-                        append(SHOW_ALL_CTA)
-                        withStyle(style = SpanStyle(color = Color.Black)) {
+                        valueType = Constants.LEADS_AND_VISIT_LIST,
+                        toCreationLedger = { userId, itemId ->
+                            toCreationLedger(userId, itemId)
+                        },
+                        toCreate = { userId, itemId ->
+                            toCreate(userId, itemId)
                         }
-                    }, onClick = {
-                        toFollowupCalls(userID)
-                    }, modifier = Modifier.padding(top = 10.dp))
-                }
-
-                if (userID != null) {
-                    com.testapplication.www.homescreen.home.DisplayList(
-                        context = context,
-                        userId = userID,
-                        "",
-                        valueType = FOLLOW_UP_CALL_LIST_TYPE
-                    ) { userId, itemId ->
-                        toCreate.invoke(userId, itemId)
-                    }
+                    )
                 }
             }
+
         }
         Column(
             modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally,
@@ -462,11 +447,15 @@ fun HomeScreen(
                         getLastLocation(ctx)
                         toCreate(userID, 0)
                     } else {
-                        if(isInternetAvailable(context)){
+                        if (isInternetAvailable(context)) {
                             showAlert = SHOW_ALERT_POP_UP
-                        }else {
+                        } else {
 
-                            Toast.makeText(context, "No internet connection. Please check your network.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "No internet connection. Please check your network.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                     }

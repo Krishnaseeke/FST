@@ -32,6 +32,7 @@ fun LeadScreen(
     toHome: (Any?) -> Unit,
     toFollowupCalls: (Any?) -> Unit,
     toScheduledVisits: (Any?) -> Unit,
+    toCreationLedger: (Long, Long) -> Unit,
     userID: Long,
     context: Context,
     toCreate: (Long?,Long?) -> Unit,
@@ -78,13 +79,16 @@ fun LeadScreen(
                 com.testapplication.www.homescreen.home.DisplayList(
                     context = context,
                     userId = userID,
+                    itemId = 0L,
                     dateSelected,
-                    valueType = LEADS_LIST_TYPE
-                ) { userId, itemId ->
-                    // Here you can define what you want to do with userId and itemId
-                    // For example, you can navigate to another screen or perform some action
-                    toCreate.invoke(userId,itemId)
-                }
+                    valueType = LEADS_LIST_TYPE,
+                    toCreationLedger = { userId, itemId ->
+                        toCreationLedger(userId, itemId)
+                    },
+                    toCreate = { userId, itemId ->
+                        toCreate(userId, itemId)
+                    }
+                )
             }
         }
         Column(modifier = Modifier, Arrangement.Bottom) {

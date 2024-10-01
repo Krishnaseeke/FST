@@ -33,7 +33,14 @@ class PreferencesManager(context: Context) {
         editor.apply()
     }
 
-
+fun saveLedgerCount(ledgerCount:Int){
+    val editor = sharedPreferences.edit()
+    editor.putInt("ledgerCount",ledgerCount)
+    editor.apply()
+}
+    fun getLedgerCount(defaultValue: Int):Int{
+        return sharedPreferences.getInt("ledgerCount",defaultValue)
+    }
 
     // Get CheckIn status
     fun getCheckInStatus(defaultValue: Boolean): Boolean {
